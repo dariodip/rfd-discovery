@@ -5,6 +5,6 @@ with open("requirements.txt", "r") as req:
 
 setup(
     name = "rfd-discovery",
-    version = "0.0.1-snapshot",
+    version = "0.0.1",
     install_requires = requires
 )
