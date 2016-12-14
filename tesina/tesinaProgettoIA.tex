@@ -1,46 +1,20 @@
-%\newcommand{\CLASSINPUTbaselinestretch}{1.0} % baselinestretch
-%\newcommand{\CLASSINPUTinnersidemargin}{1in} % inner side margin
-%\newcommand{\CLASSINPUToutersidemargin}{1in} % outer side margin
-%\newcommand{\CLASSINPUTtoptextmargin}{1in}   % top text margin
-%\newcommand{\CLASSINPUTbottomtextmargin}{1in}% bottom text margin
-\documentclass[10pt,journal,compsoc]{IEEEtran}
+\documentclass[11pt]{article}
 
-\newcommand\MYhyperrefoptions{bookmarks=true,bookmarksnumbered=true,
-pdfpagemode={UseOutlines},plainpages=false,pdfpagelabels=true,
-colorlinks=true,linkcolor={black},citecolor={black},urlcolor={black},
-pdftitle={Bare Demo of IEEEtran.cls for Computer Society Journals},%<!CHANGE!
-pdfsubject={Typesetting},%<!CHANGE!
-pdfauthor={Michael D. Shell},%<!CHANGE!
-pdfkeywords={Computer Society, IEEEtran, journal, LaTeX, paper,
-             template}}%<^!CHANGE!
-
-% correct bad hyphenation here
-\hyphenation{op-tical net-works semi-conduc-tor}
-
+\usepackage[italian,english]{babel}
+\usepackage{cite}
 
 \begin{document}
-\title{Bare Advanced Demo of IEEEtran.cls for\\ IEEE Computer Society Journals}
+\title{Discovery RFDs}
 
-\author{Michael~Shell,~\IEEEmembership{Member,~IEEE,}
-        John~Doe,~\IEEEmembership{Fellow,~OSA,}
-        and~Jane~Doe,~\IEEEmembership{Life~Fellow,~IEEE}% <-this % stops a space
-\IEEEcompsocitemizethanks{\IEEEcompsocthanksitem M. Shell was with the Department
-of Electrical and Computer Engineering, Georgia Institute of Technology, Atlanta,
-GA, 30332.\protect\\
-% note need leading \protect in front of \\ to get a newline within \thanks as
-% \\ is fragile and will error, could use \hfil\break instead.
-E-mail: see http://www.michaelshell.org/contact.html
-\IEEEcompsocthanksitem J. Doe and J. Doe are with Anonymous University.}% <-this % stops a space
-\thanks{Manuscript received April 19, 2005; revised August 26, 2015.}}
-
+\author{Antonio~Altamura,
+		Dario~Di Pasquale,
+   	Mattia~Tomeo}% 
+   	
+ 
 \maketitle
-% The paper headers
-\markboth{Journal of \LaTeX\ Class Files,~Vol.~14, No.~8, August~2015}%
-{Shell \MakeLowercase{\textit{et al.}}: Bare Advanced Demo of IEEEtran.cls for IEEE Computer Society Journals}
-
 \section{Relaxed Functional Dependencies}
-Una RFD $X \rightarrow Y$ si verifica su una relazione $r$ sse la distanza tra due tuple $t_1$ e $t_2$ in $r$ è inferiore di una certa soglia $\alpha_A$ su ogni attributo $A \in X$, allora la loro distanza è inferiore ad una soglia $\alpha_B$ su ogni attributo $I \in Y$. 
-Data una relazione $r$, la scoperta di una RFD è il problema di trovare un minimal cover set di RFD che si verificano per $r$. Questo problema aggiunge ulteriore complessità al problema già complesso della scoperta delle dipendenze dei dati visto l'estremamente ampio spazio di ricerca dei possibili vincoli di similarità. Dunque è necessario trovare algoritmi efficienti in grado di estrarre RFD con vincoli di similarità significativi.
+Una RFD $X \rightarrow Y$ si verifica su una relazione $r$ se e solo se la distanza tra due tuple $t_1$ e $t_2$ in $r$ è inferiore di una certa soglia $\alpha_A$ su ogni attributo $A \in X$, allora la loro distanza è inferiore ad una soglia $\alpha_B$ su ogni attributo $I \in Y$. 
+Data una relazione $r$, la scoperta di una RFD è il problema di trovare un \textit{minimal cover set} di RFD che si verificano per $r$. Questo problema aggiunge ulteriore complessità al problema già complesso della scoperta delle dipendenze dei dati visto l'estremamente ampio spazio di ricerca dei possibili vincoli di similarità. Dunque è necessario trovare algoritmi efficienti in grado di estrarre RFD con vincoli di similarità significativi
 
 Se i vincoli di similarità delle soglie sono conosciuti per ogni attributo del dataset, scoprire gli RFD si riduce a trovare tutte le possibili dipendenze che soddisfano la seguente regola:
 \begin{center}
@@ -53,6 +27,7 @@ Esistono svariati metodi per scoprire le RFD data una determinata soglia $\epsil
 
 I metodi di discovery top-down effettuano una generazione di possibili FD livello per livello e controllano se questi si verificano.
 
+
+\bibliographystyle{IEEEtran}
+\bibliography{rdfsbib}
 \end{document}
-
-
