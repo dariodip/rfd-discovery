@@ -1,20 +1,15 @@
-import numpy as np
-import csv
-import os
+import pandas as pnd
 
 
 class DiffMatrix:
 
     def __init__(self, path):
         self.path = path
+        self.df = None
 
     def load(self):
-        matrix = np.matrix([])
-        with open(self.path, newline='\n') as csvfile:
-            mycsv = csv.reader(csvfile, delimiter=';', quotechar='"')
-            for row in mycsv:
-                #print(row)
+        self.df = pnd.read_csv(self.path, sep=';',header=0, index_col=0)
 
-
-    def diffmatrix(self):
-        pass
+    def diffmatrix(self, lhs: list, rhs: int):
+        lhskeys = [key for key in self.df.keys() if key in lhs]
+        rhskeys = [key for key in self.df.keys() if key in rhs]

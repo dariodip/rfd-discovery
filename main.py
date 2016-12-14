@@ -1,4 +1,4 @@
 from loader import distanceMtr
 
-
-distanceMtr.load("resources/dataset.csv");
+dm = distanceMtr.DiffMatrix("resources/dataset.csv")
+dm.load()
