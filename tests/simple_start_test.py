@@ -1,12 +1,16 @@
 import unittest
+import os.path as op
 from random import randint
 from loader import distance_mtr
+
+DATASET_CSV = "../resources/dataset.csv"
+DS_CSV = "../resources/distance-ds_test.csv"
 
 
 class MyTestCase(unittest.TestCase):
 
     def test_distance_mtr_control_example(self):
-        dm = distance_mtr.DiffMatrix("../resources/dataset.csv")  # create class
+        dm = distance_mtr.DiffMatrix(DATASET_CSV)  # create class
         dm.load()  # load data set from csv
         self.assertIsNotNone(dm.df, "check that dm is not null (none in python)")
         split = dm.split_sides([1, 2, 3], [0])  # split dm according to control RHS and LHS
@@ -34,6 +38,9 @@ class MyTestCase(unittest.TestCase):
         h_distance_row = dist_m.loc['r_height']
         lhdr = h_distance_row.tolist()
         self.assertTrue(all(lhdr[i] <= lhdr[i+1] for i in range(len(lhdr)-1)), "check if distance on RHS is sorted")
+        dist_m.to_csv(DS_CSV, sep=";")  # save distance csv in resources
+        self.assertTrue(op.isfile(DS_CSV), "check if distance matrix is saved")
+        self.assertTrue(op.exists(DS_CSV), "check if distance matrix is saved")
 
 if __name__ == '__main__':
     unittest.main()

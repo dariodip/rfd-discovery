@@ -84,9 +84,9 @@ class DiffMatrix:
         Place 'r' or 'l' before name data frame's keys, in order to discriminate RHS attributes and LHS attributes
         :param rhs: a pandas' DataFrame containing RHS attributes
         :param lhs: a pandas' DataFrame containing LHS attributes
-        :return: a list containing RHS and LHS attributes preceded respectively by 'r_' and 'l_'.
+        :return: a dict having 'r_keys' and 'l_keys' as keys, respectively for RHS' keys and LHS' keys, preceding by
+        'r_' and 'l_' string
         """
-        ## TODO
         r_keys = ["r_" + str(rk) for rk in rhs.keys()]
         l_keys = ["l_" + str(lk) for lk in lhs.keys()]
         return {"r_keys" : r_keys, "l_keys":  l_keys}
