@@ -27,7 +27,7 @@ class DiffMatrix:
         """
         self.df = pnd.read_csv(self.path, sep=';', header=0, index_col=0)
 
-    def split_sides(self, lhs: list, rhs: int) -> dict:
+    def split_sides(self, lhs: list, rhs: list) -> dict:
         """Split the data frame according to the given RHS and LHS division.
 
             The Relaxed Functional Dependencies is in the form: lhs -> rhs
