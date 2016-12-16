@@ -76,7 +76,7 @@ class DiffMatrix:
                 self.distance_df[index_t] = pnd.Series(np.append(rhs_dist, lhs_dist))
         # assign row names for the data frame
         self.distance_df.index = row_names
-        self.distance_df.sort_values(by=r_keys, axis=1, inplace=True)  # sort data frame by r_keys
+        self.distance_df.sort_values(by=r_keys, axis=1, inplace=True, ascending=False)  # sort data frame by r_keys
         return self.distance_df
 
     def __row_names__(self, rhs: pnd.DataFrame, lhs : pnd.DataFrame) -> list:
