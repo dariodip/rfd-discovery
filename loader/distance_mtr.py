@@ -62,21 +62,22 @@ class DiffMatrix:
             n_row = lhs.shape[0]
         else:
             raise Exception("Different number of rows in LHS and RHS")
-
-        row_names = self.__row_names__(rhs, lhs)
-        r_keys = row_names['r_keys']
-        row_names = r_keys + row_names['l_keys']  # retrieve row names (RHS and LHS)
+        col_names = self.__row_names__(rhs, lhs)
+        r_keys = col_names['r_keys']
+        col_names = r_keys + col_names['l_keys']  # retrieve row names (RHS and LHS)
+        self.distance_df = pnd.DataFrame(columns= col_names)
         for i in range(1, n_row):
             for j in range(i+1, n_row+1):  # iterate on each pair of rows
                 index_t = (i, j)
                 # absolute difference between rows i and j (both for rhs and lhs) in order to get distance between them
                 rhs_dist = np.absolute(np.array(rhs.loc[[i]]) - np.array(rhs.loc[[j]]))
                 lhs_dist = np.absolute(np.array(lhs.loc[[i]]) - np.array(lhs.loc[[j]]))
-                # insert a column containing distances into the distance data frame
-                self.distance_df[index_t] = pnd.Series(np.append(rhs_dist, lhs_dist))
+                row = np.concatenate([rhs_dist, lhs_dist], axis=1)
+                self.distance_df.loc[str(index_t)] = row.tolist()[0]
+
+                # insert a row containing distances into the distance data frame
         # assign row names for the data frame
-        self.distance_df.index = row_names
-        self.distance_df.sort_values(by=r_keys, axis=1, inplace=True, ascending=False)  # sort data frame by r_keys
+        self.distance_df.sort_values(by=r_keys, axis=0, inplace=True, ascending=False)  # sort data frame by r_keys
         return self.distance_df
 
     def __row_names__(self, rhs: pnd.DataFrame, lhs : pnd.DataFrame) -> list:
