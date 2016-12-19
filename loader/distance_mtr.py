@@ -64,7 +64,7 @@ class DiffMatrix:
             raise Exception("Different number of rows in LHS and RHS")
         col_names = self.__row_names__(rhs, lhs)
         r_keys = col_names['r_keys']
-        col_names = r_keys + col_names['l_keys']  # retrieve row names (RHS and LHS)
+        col_names = ['RHS'] + col_names['l_keys']  # retrieve row names (RHS and LHS)
         self.distance_df = pnd.DataFrame(columns= col_names)
         for i in range(1, n_row):
             for j in range(i+1, n_row+1):  # iterate on each pair of rows
@@ -77,7 +77,7 @@ class DiffMatrix:
 
                 # insert a row containing distances into the distance data frame
         # assign row names for the data frame
-        self.distance_df.sort_values(by=r_keys, axis=0, inplace=True, ascending=False)  # sort data frame by r_keys
+        self.distance_df.sort_values(by=['RHS'], axis=0, inplace=True, ascending=False)  # sort data frame by r_keys
         return self.distance_df
 
     def __row_names__(self, rhs: pnd.DataFrame, lhs : pnd.DataFrame) -> list:
