@@ -37,7 +37,7 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(all(isinstance(item, int) for item in rand_col.tolist()), "check if each element is an int")
         h_distance_row = dist_m.loc['r_height']
         lhdr = h_distance_row.tolist()
-        self.assertTrue(all(lhdr[i] <= lhdr[i+1] for i in range(len(lhdr)-1)), "check if distance on RHS is sorted")
+        self.assertTrue(all(lhdr[i] >= lhdr[i+1] for i in range(len(lhdr)-1)), "check if distance on RHS is sorted")
         dist_m.to_csv(DS_CSV, sep=";")  # save distance csv in resources
         self.assertTrue(op.isfile(DS_CSV), "check if distance matrix is saved")
         self.assertTrue(op.exists(DS_CSV), "check if distance matrix is saved")
