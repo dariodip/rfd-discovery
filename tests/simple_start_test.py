@@ -24,7 +24,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(len(split_rhs), len(split_lhs), "check if rhs and lhs length is the same")
         self.assertEqual((split_rhs.shape[1] + split_lhs.shape[1]), 4, "check if the sum of RHSs and LHSs is 4")
         dist_m = dm.distance_matrix(split)  # create distance matrix according to split on RHS and LHS
-        keys = dist_m.keys()
+        keys = dist_m.index
         expected_pairs = int(len(split_rhs) * (len(split_rhs) - 1) / 2)  # (n*n-1)/2 pairs on n els
         self.assertEqual(len(keys), expected_pairs, "check if number of pairs is n*(n-1)/2")
         # generate a random pair of indexes
@@ -33,9 +33,9 @@ class MyTestCase(unittest.TestCase):
         while rnd2 <= rnd1:
             rnd2 = randint(1, len(split_rhs))
         rand_index = (rnd1, rnd2)
-        rand_col = dist_m[rand_index]
-        self.assertTrue(all(isinstance(item, int) for item in rand_col.tolist()), "check if each element is an int")
-        h_distance_row = dist_m.loc['r_height']
+        rand_row = dist_m.loc[str(rand_index)]
+        self.assertTrue(all(isinstance(item, float) for item in rand_row.tolist()), "check if each element is an int")
+        h_distance_row = dist_m['RHS']
         lhdr = h_distance_row.tolist()
         self.assertTrue(all(lhdr[i] >= lhdr[i+1] for i in range(len(lhdr)-1)), "check if distance on RHS is sorted")
         dist_m.to_csv(DS_CSV, sep=";")  # save distance csv in resources
