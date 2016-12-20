@@ -6,7 +6,8 @@ import numpy as np
 def get_dominance(path: str, dominance_funct):
     diff_mtx = DiffMatrix(path)
     diff_mtx.load()
-    distance_matrix = diff_mtx.distance_matrix(diff_mtx.split_sides([1, 2, 3], [0]))
+    distance_matrix = diff_mtx.distance_matrix(diff_mtx.split_sides([1,2,3], [0]))
+    print(distance_matrix)
     dominance_funct(distance_matrix, [1, 2, 3], [0])
 
 
@@ -25,8 +26,8 @@ def naive_dominance(d_mtx: pnd.DataFrame, lhs: list, rhs: list):
                 previous.add(last_row)
                 add_to_dict_set(on_distance_dom, last_row, dist)
     print(previous)
-    print(on_distance_dom)
-    print(len(previous))
+    #print(on_distance_dom)
+    #print(len(previous))
 
 
 def check_dominance(y: tuple, tuples_set: set) -> bool:
@@ -41,14 +42,16 @@ def check_dominance(y: tuple, tuples_set: set) -> bool:
                 return False
             else:
                 break
-        elif all(diff > 0):  # Y dominates X
+        elif all(diff >= 0):  # Y dominates X
             to_remove.add(x)
-
     if len(to_remove) == 0:
         return True
     else:
-        tuples_set = tuples_set - to_remove
+        #tuples_set = tuples_set - to_remove
+        for el in to_remove:
+            tuples_set.remove(el)
         return True
+
 
 def add_to_dict_set(d: dict, to_add: tuple, i: int):
     if i not in d:
