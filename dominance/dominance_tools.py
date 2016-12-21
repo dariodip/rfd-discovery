@@ -25,15 +25,15 @@ class NaiveDominance:
             rows_to_add = set()
             for index, row in df_act_dist[lhs].iterrows():
                 last_row = tuple(row.values.tolist())
-                if len(self.tuples_set) == 0 or self.check_dominance(last_row):
+                if len(self.tuples_set) == 0 or self.check_dominance(last_row, dist):
                     rows_to_add.add(last_row)
-                self.__add_to_dict_set(rows_to_add, dist)
+            rows_to_add = self.clean_tuple_set(rows_to_add)
             self.tuples_set = self.tuples_set.union(rows_to_add)
-            print(self.tuples_set)
+            self.__add_to_dict_set(rows_to_add, dist)
         print(self.on_distance_dom)
         # print(len(previous))
 
-    def check_dominance(self, y: tuple) -> bool:
+    def check_dominance(self, y: tuple, dist) -> bool:
         # X dominates X iff foreach x in X, foreach y in Y, x <= y <=> x - y <= 0
         to_remove = set()
         if len(self.tuples_set) == 0:
@@ -52,6 +52,19 @@ class NaiveDominance:
         else:
             self.tuples_set = self.tuples_set - to_remove
             return True
+
+    def clean_tuple_set(self, rows_to_add: set) -> set:
+        if len(rows_to_add) == 1:
+            return rows_to_add
+        l_rows = list(rows_to_add)
+        for i in range(0, len(l_rows)):
+            for j in range(i+1, len(l_rows)):
+                diff = np.array(l_rows[i]) - np.array(l_rows[j])
+                if all(diff >= 0):
+                    rows_to_add.remove(l_rows[j])
+                elif all(diff <= 0):
+                    rows_to_add.remove(l_rows[i])
+        return rows_to_add
 
     def __add_to_dict_set(self, to_add: set, i: int):
         if i not in self.on_distance_dom:
