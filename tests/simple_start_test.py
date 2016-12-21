@@ -30,7 +30,6 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual((split_rhs.shape[1] + split_lhs.shape[1]), 4, "check if the sum of RHSs and LHSs is 4")
         dist_m = dm.distance_matrix(split)  # create distance matrix according to split on RHS and LHS
         keys = dist_m.index
-        print(keys)
         expected_pairs = int(len(split_rhs) * (len(split_rhs) - 1) / 2)  # (n*n-1)/2 pairs on n els
         self.assertEqual(len(keys), expected_pairs, "check if number of pairs is n*(n-1)/2")
         # generate a random pair of indexes

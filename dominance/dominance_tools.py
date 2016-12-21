@@ -22,13 +22,15 @@ class NaiveDominance:
         max_dist = max(distance_values)
         for dist in distance_values:
             df_act_dist = d_mtx[d_mtx.RHS == dist]
+            rows_to_add = set()
             for index, row in df_act_dist[lhs].iterrows():
                 last_row = tuple(row.values.tolist())
                 if len(self.tuples_set) == 0 or self.check_dominance(last_row):
-                    self.tuples_set.add(last_row)
-                    self.__add_to_dict_set(last_row, dist)
-        print(self.tuples_set)
-        # print(on_distance_dom)
+                    rows_to_add.add(last_row)
+                self.__add_to_dict_set(rows_to_add, dist)
+            self.tuples_set = self.tuples_set.union(rows_to_add)
+            print(self.tuples_set)
+        print(self.on_distance_dom)
         # print(len(previous))
 
     def check_dominance(self, y: tuple) -> bool:
@@ -51,10 +53,10 @@ class NaiveDominance:
             self.tuples_set = self.tuples_set - to_remove
             return True
 
-    def __add_to_dict_set(self, to_add: tuple, i: int):
+    def __add_to_dict_set(self, to_add: set, i: int):
         if i not in self.on_distance_dom:
             self.on_distance_dom[i] = set()
-        self.on_distance_dom[i].add(to_add)
+        self.on_distance_dom[i] = self.on_distance_dom[i].union(to_add)
 
 
 if __name__ == "__main__":
