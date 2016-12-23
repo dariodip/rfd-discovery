@@ -2,6 +2,11 @@
 
 \usepackage[italian,english]{babel}
 \usepackage{cite}
+\usepackage{algorithm2e}
+\usepackage{amsthm}
+\usepackage[utf8]{inputenc}
+
+\newtheorem{theorem}{Theorem}[section]
 
 \begin{document}
 \title{Discovery RFDs}
@@ -12,7 +17,51 @@
    	
  
 \maketitle
-\section{Relaxed Functional Dependencies}
+%% TODO rivedere gli accenti
+\section{Introduzione}
+\subsubsection{Notazioni preliminari}
+Uno \textit{schema di relazione} \'e costituito da un simbolo $R$, detto \textit{nome della relazione}, e da un insieme di \textit{attributi} $X = \left\{ A_1, A_2,\ldots, A_n \right\}$, di solito indicato con $R(X)$. A ciascun attributo \'e associato un dominio. \\
+Uno \textit{schema di base di dati} \'e un insieme di schemi di relazione con nomi diversi:
+\begin{center}
+	\textbf{R} = $R_1(X_1), R_2(X_2), \ldots, R_n(X_n)$.
+\end{center}
+Una \textit{relazione} su uno schema $R(X)$ \'e un insieme $r$ di tuple su $X$ \cite{atzeni1999basi}.
+\section{Dipendenze funzionali e dipendenze funzionali rilassate}
+\subsection{Dipendenze funzionali canoniche}
+Una \textit{dipendenza funzionale} \'e un vincolo di integrit\'a per il modello relazionale che descrive i legami di tipo funzionale tra gli attributi di una relazione. \\
+Data una relazione $r$ su uno schema $R(X)$ e due sottoinsiemi di attributi non vuoti $Y$ e $Z$ di $X$, diremo che esiste su $r$ una dipendenza funzionale tra $Y$ e $Z$, se, per ogni coppia di tuple $t_1$ e $t_2$ di $r$ aventi gli stessi valori sugli attributi $Y$, risulta che $t_1$ e $t_2$ hanno gli stessi valori sugli attributi $Z$. Una dipendenza funzionale tra gli attributi $Y$ e $Z$ viene indicata con la notazione $Y \rightarrow Z$ e viene associata a uno schema. \\
+Se l'insieme $Z$ \'e composto da attributi $A_1, A_2, \ldots, A_k$, allora una relazione soddisfa $Y \rightarrow Z$ se e solo se essa soddisfa tutte le $k$ dipendenze $Y \rightarrow A_1$, $Y \rightarrow A_2$,..., $Y \rightarrow A_k$. Di conseguenza, quando opportuno, possiamo assumere che le dipendenze abbiano la forma $Y \rightarrow A$, in cui $A$ \'e un singolo attributo. \\
+Una relazione funzionale è \textit{non banale} se $A$ non compare tra gli attributi di $Y$. \\
+\'E opportuno notare che, data una chiave $K$ di una relazione $r$, si pu\'o facilmente notare che esiste una dipendenza funzionale tra $K$ ed ogni altro attributo dello schema di $r$. Quindi una dipendenza funzionale $Y \rightarrow Z$ su uno schema $R(X)$ degenera nel vincolo di chiave se l'unione di $Y$ e $Z$ \'e pari a $X$. In tal caso $Y$ \'e superchiave per lo schema $R(X)$ . \\
+Diciamo che un insieme di dipendenze funzionali $F$ \textit{implica} un'altra dipendenza funzionale $f$ se ogni relazione che soddisfa tutte le dipendenze funzionali in $F$ soddisfa anche $f$. Occorre ora chiarire il modo in cui \'e possibile verificare se, dati $F$ ed $f$, $F$ implica $f$. \\
+Dati uno schema $R(U)$ ed un insieme di dipendenze funzionali $F$ definite sugli attributi in $U$. Sia $X$ un insieme di attributi contenuti in $U$ ($X \subseteq U$); la \textit{chiusura} di $X$ rispetto ad $F$, indicata con $X^{+}_F$, \'e l'insieme degli attributi che dipendono funzionalmente da $X$:
+\begin{eqnarray}
+X_F^{+} = \left\{A | A \in U, F implica X \rightarrow A \right\}.
+\end{eqnarray}
+Se vogliamo vedere se $X \rightarrow A$ \'e implicata da $F$, basta vedere se $A$ appartiene a $X_F^{+}$, poich\'e l'insieme $X_F^{+}$ pu\'o essere calcolato molto facilmente mediante il seguente algoritmo:
+\begin{algorithm}
+	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+	\Input{Un insieme $X$ di attributi e un insieme $F$ di dipendenze}
+	\Output{Un insieme $X_p$ di attributi}
+	\BlankLine
+	$X_p \leftarrow X$; \\
+	Se in $F$ esiste una dipendenza $Y \rightarrow A$ con $Y \subseteq X_p$ e $A \notin X_p$ allora aggiungiamo $A$ a $X_p$; \\
+	Ripetiamo il passo precedente fino al momento in cui non vi sono ulteriori attributi che possono essere aggiunti a $X_p$.
+	%%da formalizzare
+\end{algorithm}
+Pu\'o essere utiale sostituire ad un insieme di dipendenze funzionali, un altro insieme che specifichi le stesse propriet\'a e che sia pi\'u semplice da gestire. \\
+Due insiemi di dipendenze funzionali $F_1$ e $F_2$ sono \textit{equivalenti} se $F_1$ implica $F_2$ e viceversa. Se due insiemi sono equivalenti diciamo che ognuno \'e \textit{copertura} dell'altro. Quindi, dati due insiemi $F_1$ ed $F_2$ equivalenti, una relazione soddisfa $F_1$ se e solo se essa soddisfa $F_2$. Inoltre, un insieme di dipendenze funzionali $F$ \'e \textit{non ridondante} se non esiste una dipendenza $f \in F$ tale che $F - \left\{f\right\}$ implica $f$; mentre \'e \textit{ridotto} se non \'e ridondante e non esiste un insieme $F'$ equivalente ad $F$ ottenuto eliminando attributi dai primi membri di una o pi\'u dipendenze di $F$. \\
+Per trovare una copertura non ridondante \'e sufficiente esaminare ripetutamente le dipendenze dell'insieme dato, eliminando quelle implicate da altre e fermandosi quando non ve ne sono pi\'u; l'insieme rimasto \'e una copertura non ridondante di quello inziale  \cite{atzeni1999basi}. \\
+Per trovare una copertura ridotta, per qualunque insieme di dipendenze funzionali, possiamo procedere in tre passi:
+\begin{itemize}
+	\item Sostituiamo l'insieme dato con quello equivalente che ha tutti i secondi membri costituiti da singoli attributi;
+	\item Eliminiamo le dipendenze ridondanti;
+	\item Per ogni dipendenza verifichiamo se esistono attributi eliminabili dal primo membro; ossia, se $F$ \'e l'insieme corrrente, per ogni dipendenza $Y \rightarrow A \in F$, verifichiamo se esiste $Y \subseteq X$ tale che $F$ \'e equivalente a $F - \left\{ X \rightarrow A \right\} \cup \left\{ Y \rightarrow A \right\} $.
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Dipendenze funzionali rilassate}
 Una RFD $X \rightarrow Y$ si verifica su una relazione $r$ se e solo se la distanza tra due tuple $t_1$ e $t_2$ in $r$ è inferiore di una certa soglia $\alpha_A$ su ogni attributo $A \in X$, allora la loro distanza è inferiore ad una soglia $\alpha_B$ su ogni attributo $I \in Y$. 
 Data una relazione $r$, la scoperta di una RFD è il problema di trovare un \textit{minimal cover set} di RFD che si verificano per $r$. Questo problema aggiunge ulteriore complessità al problema già complesso della scoperta delle dipendenze dei dati visto l'estremamente ampio spazio di ricerca dei possibili vincoli di similarità. Dunque è necessario trovare algoritmi efficienti in grado di estrarre RFD con vincoli di similarità significativi
 
