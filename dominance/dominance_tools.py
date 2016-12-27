@@ -1,7 +1,7 @@
 from loader.distance_mtr import DiffMatrix
 import pandas as pnd
 import numpy as np
-
+from ast import literal_eval
 
 class NaiveDominance:
 
@@ -32,9 +32,6 @@ class NaiveDominance:
                      rows_to_add[index] = last_row
             rows_to_add = self.clean_tuple_dict(rows_to_add)
             self.tuples_dict.update(rows_to_add)
-            self.__add_to_dict_set(rows_to_add, dist)
-        print(self.tuples_dict)
-        print(self.on_distance_dom)
         return d_mtx[d_mtx.index.map(lambda x: x in self.tuples_dict.keys())]
 
     def check_dominance(self, y: tuple, dist) -> bool:
@@ -54,14 +51,15 @@ class NaiveDominance:
             return rows_to_add
         row_index = list(rows_to_add.keys())
         for i in range(0, len(row_index)):
-            for j in range(i+1, len(row_index)):
-                diff = np.array(rows_to_add[row_index[i]]) - np.array(rows_to_add[row_index[j]])
-                if all(diff >= 0):
-                    if rows_to_add[row_index[j]] in rows_to_add:
-                        del rows_to_add[row_index[j]]
-                elif all(diff <= 0):
-                    if rows_to_add[row_index[i]] in rows_to_add:
-                        del rows_to_add[row_index[i]]
+            if row_index[i] in rows_to_add:
+                for j in range(i+1, len(row_index)):
+                    if row_index[j] in rows_to_add:
+                        diff = np.array(rows_to_add[row_index[i]]) - np.array(rows_to_add[row_index[j]])
+                        if all(diff >= 0):
+                            del rows_to_add[row_index[i]]
+                            break
+                        elif all(diff <= 0):
+                            del rows_to_add[row_index[j]]
         return rows_to_add
 
     def __add_to_dict_set(self, to_add: set, i: int):
