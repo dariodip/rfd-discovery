@@ -18,23 +18,32 @@ class NaiveDominance:
         return self.distance_matrix
 
     def naive_dominance(self, d_mtx: pnd.DataFrame, lhs: list, rhs: list) -> pnd.DataFrame:
+        selected_row = list()
         distance_values = list(set(np.asarray(d_mtx.iloc[:, rhs].values, dtype='int').flatten()))
         distance_values.sort(reverse=True)
         max_dist = max(distance_values)
         df_keys = list(self.distance_matrix.keys())
         df_keys.remove('RHS')
         for dist in distance_values:
+            rows_to_delete = set()
             df_act_dist = d_mtx[d_mtx.RHS == dist]
             rows_to_add = dict()
             for index, row in df_act_dist[df_keys].iterrows():
                 last_row = tuple(row.values.tolist())
-                if len(self.tuples_dict) == 0 or self.check_dominance(last_row, dist):
+                if len(self.tuples_dict) == 0 or self.check_dominance(last_row, rows_to_delete):
                      rows_to_add[index] = last_row
+
+            for key in rows_to_delete:
+                del self.tuples_dict[key]
+
+            selected_row = selected_row + list(rows_to_add.keys())
             rows_to_add = self.clean_tuple_dict(rows_to_add)
             self.tuples_dict.update(rows_to_add)
-        return d_mtx[d_mtx.index.map(lambda x: x in self.tuples_dict.keys())]
 
-    def check_dominance(self, y: tuple, dist) -> bool:
+        print(self.tuples_dict)
+        return d_mtx[d_mtx.index.map(lambda x: x in selected_row)]
+
+    def check_dominance(self, y: tuple, rows_to_delete: set) -> bool:
         # X dominates X iff foreach x in X, foreach y in Y, x <= y <=> x - y <= 0
         if len(self.tuples_dict) == 0:
             return True
@@ -43,7 +52,7 @@ class NaiveDominance:
             if all(diff <= 0):  # X dominates Y
                 return False
             elif all(diff >= 0):  # Y dominates X
-                del self.tuples_dict[x]
+                rows_to_delete.add(x)
         return True
 
     def clean_tuple_dict(self, rows_to_add: dict) -> dict:
