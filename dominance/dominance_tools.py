@@ -9,6 +9,8 @@ class NaiveDominance:
         self.tuples_dict = dict()
         self.distance_matrix = None
         self.on_distance_dom = dict()
+        self.min_vector = None
+        self.on_minumum_df = None
 
     def get_dominance(self, path: str, dominance_funct, HSs : dict):
         diff_mtx = DiffMatrix(path)
@@ -19,9 +21,11 @@ class NaiveDominance:
 
     def naive_dominance(self, d_mtx: pnd.DataFrame, lhs: list, rhs: list) -> pnd.DataFrame:
         selected_row = list()
+        self.on_minumum_df = pnd.DataFrame()
         distance_values = list(set(np.asarray(d_mtx.iloc[:, rhs].values, dtype='int').flatten()))
         distance_values.sort(reverse=True)
         max_dist = max(distance_values)
+        self.min_vector = np.array([np.inf for i in range(len(lhs))])
         df_keys = list(self.distance_matrix.keys())
         df_keys.remove('RHS')
         for dist in distance_values:
@@ -31,7 +35,8 @@ class NaiveDominance:
             for index, row in df_act_dist[df_keys].iterrows():
                 last_row = tuple(row.values.tolist())
                 if len(self.tuples_dict) == 0 or self.check_dominance(last_row, rows_to_delete):
-                     rows_to_add[index] = last_row
+                    rows_to_add[index] = last_row
+                    self.check_min(last_row, index)
 
             for key in rows_to_delete:
                 del self.tuples_dict[key]
@@ -40,11 +45,12 @@ class NaiveDominance:
             rows_to_add = self.clean_tuple_dict(rows_to_add)
             self.tuples_dict.update(rows_to_add)
 
+        print(self.on_minumum_df)
         print(self.tuples_dict)
         return d_mtx[d_mtx.index.map(lambda x: x in selected_row)]
 
     def check_dominance(self, y: tuple, rows_to_delete: set) -> bool:
-        # X dominates X iff foreach x in X, foreach y in Y, x <= y <=> x - y <= 0
+        # X dominates Y iff foreach x in X, foreach y in Y, x <= y <=> x - y <= 0
         if len(self.tuples_dict) == 0:
             return True
         for x in list(self.tuples_dict.keys()):
@@ -70,6 +76,13 @@ class NaiveDominance:
                         elif all(diff <= 0):
                             del rows_to_add[row_index[j]]
         return rows_to_add
+
+    def check_min(self, last_row : list, index):
+        to_add_array = np.array([np.nan for i in range(len(last_row))])
+        for i in range(len(last_row)):
+            if last_row[i] < self.min_vector[i]:
+                to_add_array[i] = self.min_vector[i] = last_row[i]
+        self.on_minumum_df[index] = to_add_array
 
     def __add_to_dict_set(self, to_add: set, i: int):
         if i not in self.on_distance_dom:
