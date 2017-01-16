@@ -2,6 +2,7 @@ from loader.distance_mtr import DiffMatrix
 import pandas as pnd
 import numpy as np
 from ast import literal_eval
+import utils.utils as ut
 
 class NaiveDominance:
 
@@ -10,7 +11,7 @@ class NaiveDominance:
         self.distance_matrix = None
         self.on_distance_dom = dict()
         self.min_vector = None
-        self.on_minumum_df = None
+        self.on_minmum_df = None
 
     def get_dominance(self, path: str, dominance_funct, HSs : dict):
         diff_mtx = DiffMatrix(path)
@@ -21,11 +22,10 @@ class NaiveDominance:
 
     def naive_dominance(self, d_mtx: pnd.DataFrame, lhs: list, rhs: list) -> pnd.DataFrame:
         selected_row = list()
-        self.on_minumum_df = pnd.DataFrame()
+        self.on_minmum_df = pnd.DataFrame()
         distance_values = list(set(np.asarray(d_mtx.iloc[:, rhs].values, dtype='int').flatten()))
         distance_values.sort(reverse=True)
-        max_dist = max(distance_values)
-        self.min_vector = np.array([np.inf for i in range(len(lhs))])
+        self.min_vector = np.array([np.inf] * len(lhs))
         df_keys = list(self.distance_matrix.keys())
         df_keys.remove('RHS')
         for dist in distance_values:
@@ -45,7 +45,7 @@ class NaiveDominance:
             rows_to_add = self.clean_tuple_dict(rows_to_add)
             self.tuples_dict.update(rows_to_add)
 
-        print(self.on_minumum_df)
+        print(self.on_minmum_df)
         print(self.tuples_dict)
         return d_mtx[d_mtx.index.map(lambda x: x in selected_row)]
 
@@ -82,7 +82,7 @@ class NaiveDominance:
         for i in range(len(last_row)):
             if last_row[i] < self.min_vector[i]:
                 to_add_array[i] = self.min_vector[i] = last_row[i]
-        self.on_minumum_df[index] = to_add_array
+        self.on_minmum_df[index] = to_add_array
 
     def __add_to_dict_set(self, to_add: set, i: int):
         if i not in self.on_distance_dom:
@@ -91,8 +91,6 @@ class NaiveDominance:
 
 
 if __name__ == "__main__":
-    import time
     nd = NaiveDominance()
-    start = time.clock()
-    print(nd.get_dominance("../resources/dataset.csv", nd.naive_dominance, {"lhs": [1, 2, 3], "rhs": [0]}))
-    print("elapsed time: ", time.clock() - start)
+    with ut.timeit_context("Whole time"):
+        print(nd.get_dominance("../resources/dataset.csv", nd.naive_dominance, {"lhs": [1, 2, 3], "rhs": [0]}))
