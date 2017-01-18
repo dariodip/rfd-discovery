@@ -1,6 +1,7 @@
 import pandas as pnd
 import numpy as np
-
+import operator as op
+import utils.utils as ut
 
 class DiffMatrix:
     """Class used to build the the difference matrix respect to a Relaxed Functional Dependencies RFD.
@@ -62,19 +63,20 @@ class DiffMatrix:
             n_row = lhs.shape[0]
         else:
             raise Exception("Different number of rows in LHS and RHS")
+
+        [ops_rhs,ops_lhs] = self.__map_types__(rhs, lhs)
         col_names = self.__row_names__(rhs, lhs)
         r_keys = col_names['r_keys']
         col_names = ['RHS'] + col_names['l_keys']  # retrieve row names (RHS and LHS)
-        self.distance_df = pnd.DataFrame(columns= col_names)
+        self.distance_df = pnd.DataFrame(columns=col_names)
         for i in range(1, n_row):
             for j in range(i+1, n_row+1):  # iterate on each pair of rows
                 index_t = (i, j)
                 # absolute difference between rows i and j (both for rhs and lhs) in order to get distance between them
-                rhs_dist = np.absolute(np.array(rhs.loc[[i]]) - np.array(rhs.loc[[j]]))
-                lhs_dist = np.absolute(np.array(lhs.loc[[i]]) - np.array(lhs.loc[[j]]))
-                row = np.concatenate([rhs_dist, lhs_dist], axis=1)
-                self.distance_df.loc[str(index_t)] = row.tolist()[0]
-
+                rhs_dist = [np.absolute(fn(a, b)) for a, b, fn in list(zip(*[np.array(rhs.loc[i]),np.array(rhs.loc[j]),ops_rhs]))]
+                lhs_dist = [np.absolute(fn(a, b)) for a, b, fn in list(zip(*[np.array(lhs.loc[i]),np.array(lhs.loc[j]),ops_lhs]))]
+                row = np.concatenate([rhs_dist, lhs_dist], axis=0) #todo check axis 0
+                self.distance_df.loc[str(index_t)] = row.tolist()
                 # insert a row containing distances into the distance data frame
         # assign row names for the data frame
         self.distance_df.sort_values(by=['RHS'], axis=0, inplace=True, ascending=False)  # sort data frame by r_keys
@@ -91,3 +93,30 @@ class DiffMatrix:
         r_keys = ["r_" + str(rk) for rk in rhs.keys()]
         l_keys = ["l_" + str(lk) for lk in lhs.keys()]
         return {"r_keys" : r_keys, "l_keys":  l_keys}
+
+    def __map_types__(self, rhs: pnd.DataFrame, lhs : pnd.DataFrame) -> list:
+        """
+        Perform a mapping for the dtypes of both RHS and LHS DataFrames with the corrisponding subtraction function.
+        :param rhs: a pandas' DataFrame containing RHS attributes
+        :param lhs: a pandas' DataFrame containing LHS attributes
+        :returns: an array of lists of subtraction function [(RHS subtraction functions), (LHS subtraction functions)]
+        """
+        rhs_types = list(map(self.__diff_criterium__,rhs.dtypes))
+        lhs_types = list(map(self.__diff_criterium__,lhs.dtypes))
+        return [rhs_types,lhs_types]
+
+    def __diff_criterium__(self,dtype):
+        """
+        Takes in input a numpy dtype and returns the subtraction function.
+        :param dtype: numpy dtype
+        :returns: subtraction function
+        TODO: maybe handle unicode strings (dtype:basestring)
+        """
+        numeric = {np.dtype('int'), np.dtype('int32'), np.dtype('int64'), np.dtype('float')}
+        string = {np.dtype('string_'), np.dtype('object')}
+        if dtype in numeric:
+            return op.sub
+        elif dtype in string:
+            return ut.levenshtein
+        else:
+            raise Exception("Unrecognized dtype")
