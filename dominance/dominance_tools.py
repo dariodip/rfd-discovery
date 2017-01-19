@@ -54,19 +54,36 @@ class NaiveDominance:
             df_distance_range_filtered = df_distance_range[df_distance_range.index.map(lambda x: x in selected_row)]
 
             self.check_min(df_distance_range_filtered[df_keys], dist)  # create minimum on range vector
-            self.__find_rfd(df_distance_range_filtered[df_keys], dist, old_pool)  # find effective rfd
+            self.__find_rfd(self.on_minimum_df[self.on_minimum_df.RHS == dist][df_keys], dist, old_pool)  # find effective rfd
 
         print(self.on_minimum_df)
         print(self.pool)
+        print(self.rfds)
         return d_mtx[d_mtx.index.map(lambda x: x in selected_row)]
 
     def __find_rfd(self, current_df, dist: int, old_pool :set):
+       # print(current_df)
         for index, row in current_df.iterrows():
+            #print(row)
             if all(~ np.isnan(np.array(row))): #  case 1: all rfds
-                #self.__all_rfds(row)
-                print(row)
+                self.__all_rfds(row, dist)
                 continue
+            NaN_count = sum([1 for i in range(len(row)) if np.isnan(row[i])])
+            if NaN_count == 1:
+                self.__all_rfds(row, dist)
 
+
+    def __all_rfds(self, row : pnd.Series, dist: int):
+        dd = np.zeros((len(row), len(row)))
+        dd.fill(np.nan)
+        np.fill_diagonal(dd, 0)
+        dd = dd + np.diag(np.array(row))
+        for i in range(dd.shape[-1]):
+            #print(dd[..., i])
+            if all(np.isnan(dd[..., i])):
+                continue
+            rfds_to_add = [dist] + list(dd[..., i])
+            self.rfds.loc[self.rfds.shape[0]] = rfds_to_add
 
     def check_dominance(self, y: tuple, rows_to_delete: set) -> bool:
         # X dominates Y iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0
