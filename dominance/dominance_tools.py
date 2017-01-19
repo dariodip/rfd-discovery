@@ -54,7 +54,7 @@ class NaiveDominance:
             pool_rows_to_add = self.clean_pool(pool_rows_to_add)  # clean pool
             self.pool.update(pool_rows_to_add)  # add non-dominating rows into the pool
             # filter selected rows only
-            df_distance_range_filtered = df_distance_range[df_distance_range.index.map(lambda x: x in selected_row)]
+            df_distance_range_filtered = df_distance_range[df_distance_range.index.isin(selected_row)]
 
             self.check_min(df_distance_range_filtered[df_keys], dist)  # create minimum on range vector
             # find effective rfd
@@ -63,7 +63,8 @@ class NaiveDominance:
         print("Minimum df \n", self.on_minimum_df)
         print("Pool:\n", self.pool)
         print("RFDS:\n", self.rfds)
-        return d_mtx[d_mtx.index.map(lambda x: x in selected_row)]
+        print(selected_row)
+        return d_mtx[d_mtx.index.isin(selected_row)]
 
     def __find_rfd(self, current_df, dist: int, old_pool: dict):
         for index, row in current_df.iterrows():
@@ -71,7 +72,7 @@ class NaiveDominance:
             if all(~ np.isnan(np.array(row))):
                 self.__all_rfds(row, dist)
                 continue
-            nan_count = sum([1 for i in range(len(row)) if np.isnan(row[i])])
+            nan_count = sum(np.isnan(row))
             if nan_count == 1:
                 self.__all_rfds(row, dist)
             # case 2:   2 <= |nan| <= |LHS_ATTR|
