@@ -5,7 +5,6 @@ import utils.utils as ut
 
 
 class NaiveDominance:
-
     def __init__(self):
         self.pool = dict()
         self.distance_matrix = None
@@ -14,11 +13,11 @@ class NaiveDominance:
         self.on_minimum_df = None
         self.rfds = None
 
-    def get_dominance(self, path: str, dominance_funct, HSs: dict):
+    def get_dominance(self, path: str, dominance_funct, hss: dict):
         diff_mtx = DiffMatrix(path)
         diff_mtx.load()
-        self.distance_matrix = diff_mtx.distance_matrix(diff_mtx.split_sides(HSs['lhs'], HSs['rhs']))
-        self.distance_matrix = dominance_funct(self.distance_matrix, HSs['lhs'], HSs['rhs'])
+        self.distance_matrix = diff_mtx.distance_matrix(diff_mtx.split_sides(hss['lhs'], hss['rhs']))
+        self.distance_matrix = dominance_funct(self.distance_matrix, hss['lhs'], hss['rhs'])
         return self.distance_matrix
 
     def __initialize_var__(self, rhs, lhs, cols):
@@ -28,62 +27,72 @@ class NaiveDominance:
         self.rfds = pnd.DataFrame(columns=cols)
 
     def naive_dominance(self, d_mtx: pnd.DataFrame, lhs: list, rhs: list) -> pnd.DataFrame:
-        self.__initialize_var__(rhs, lhs, d_mtx.columns[rhs + lhs])
+        self.__initialize_var__(rhs, lhs, d_mtx.columns)
         selected_row = list()
-        distance_values = list(set(np.asarray(d_mtx.iloc[:, rhs].values, dtype='int').flatten()))
+        distance_values = list(set(np.asarray(d_mtx[d_mtx.columns[0]], dtype='int').flatten()))
         distance_values.sort(reverse=True)
         df_keys = list(self.distance_matrix.keys())
         df_keys.remove('RHS')
 
         for dist in distance_values:  # iterate on each different distance
             pool_rows_to_delete = set()  # rows to delete from the pool
-            pool_rows_to_add = dict()    # row to add into the pool
-            df_distance_range = d_mtx[d_mtx.RHS == dist]  # filter the DF taking all rows into a specific distance range
+            pool_rows_to_add = dict()  # row to add into the pool
+            # filter the DF taking all rows into a specific distance range
+            df_distance_range = d_mtx[d_mtx.RHS == dist]
+            if df_distance_range.empty:
+                continue
             for index, row in df_distance_range[df_keys].iterrows():  # extract a row from distance range
-                current_range_row = tuple(row.values.tolist())  # convert row in tuple in order to preserve ordering TODO maybe to remove
+                # convert row in tuple in order to preserve ordering TODO maybe to remove
+                current_range_row = tuple(row.values.tolist())
                 if len(self.pool) == 0 or self.check_dominance(current_range_row, pool_rows_to_delete):  # dom. check
-                    pool_rows_to_add[index] = current_range_row     # if the row passes the test then add it in the pool
-
+                    pool_rows_to_add[index] = current_range_row  # if the row passes the test then add it in the pool
             old_pool = self.pool.copy()  # copy the pool in order to use it into __find_rfd
             for key in pool_rows_to_delete:  # remove dominating rows from the pool
                 del self.pool[key]
-            selected_row = selected_row + list(pool_rows_to_add.keys())  # add rows that pass the test TODO converting in DF
+            # add rows that pass the test TODO converting in DF
+            selected_row = selected_row + list(pool_rows_to_add.keys())
             pool_rows_to_add = self.clean_pool(pool_rows_to_add)  # clean pool
             self.pool.update(pool_rows_to_add)  # add non-dominating rows into the pool
             # filter selected rows only
             df_distance_range_filtered = df_distance_range[df_distance_range.index.map(lambda x: x in selected_row)]
 
             self.check_min(df_distance_range_filtered[df_keys], dist)  # create minimum on range vector
-            self.__find_rfd(self.on_minimum_df[self.on_minimum_df.RHS == dist][df_keys], dist, old_pool)  # find effective rfd
+            # find effective rfd
+            self.__find_rfd(self.on_minimum_df[self.on_minimum_df.RHS == dist][df_keys], dist, old_pool)
 
-        print(self.on_minimum_df)
-        print(self.pool)
-        print(self.rfds)
+        print("Minimum df \n", self.on_minimum_df)
+        print("Pool:\n", self.pool)
+        print("RFDS:\n", self.rfds)
         return d_mtx[d_mtx.index.map(lambda x: x in selected_row)]
 
-    def __find_rfd(self, current_df, dist: int, old_pool :set):
-       # print(current_df)
+    def __find_rfd(self, current_df, dist: int, old_pool: dict):
         for index, row in current_df.iterrows():
-            #print(row)
-            if all(~ np.isnan(np.array(row))): #  case 1: all rfds
+            #  case 1: all rfds or |nan| <= 1
+            if all(~ np.isnan(np.array(row))):
                 self.__all_rfds(row, dist)
                 continue
-            NaN_count = sum([1 for i in range(len(row)) if np.isnan(row[i])])
-            if NaN_count == 1:
+            nan_count = sum([1 for i in range(len(row)) if np.isnan(row[i])])
+            if nan_count == 1:
                 self.__all_rfds(row, dist)
+            # case 2:   2 <= |nan| <= |LHS_ATTR|
+            elif 2 <= nan_count < len(row):
+                self.__any_rfds(row, dist)
 
+    def __any_rfds(self, row: pnd.Series, dist: int):
+        pass  # TODO continue here
 
-    def __all_rfds(self, row : pnd.Series, dist: int):
-        dd = np.zeros((len(row), len(row)))
-        dd.fill(np.nan)
-        np.fill_diagonal(dd, 0)
-        dd = dd + np.diag(np.array(row))
-        for i in range(dd.shape[-1]):
-            #print(dd[..., i])
-            if all(np.isnan(dd[..., i])):
+    def __all_rfds(self, row: pnd.Series, dist: int):
+        # create a diagonal matrix, fill it with NANs, set all the elements in the diagonal to 1,
+        # then set all the elements in the diagonal to dependency values
+        diag_matrix = np.zeros((len(row), len(row)))
+        diag_matrix.fill(np.nan)
+        np.fill_diagonal(diag_matrix, 0)
+        diag_matrix = diag_matrix + np.diag(np.array(row))
+        for i in range(diag_matrix.shape[-1]):
+            if all(np.isnan(diag_matrix[..., i])):  # this occurs when non all elements are notNAN
                 continue
-            rfds_to_add = [dist] + list(dd[..., i])
-            self.rfds.loc[self.rfds.shape[0]] = rfds_to_add
+            rfds_to_add = [dist] + list(diag_matrix[..., i])
+            self.rfds.loc[self.rfds.shape[0]] = rfds_to_add  # add rfd to RFD's data frame
 
     def check_dominance(self, y: tuple, rows_to_delete: set) -> bool:
         # X dominates Y iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0
@@ -103,7 +112,7 @@ class NaiveDominance:
         row_index = list(rows_to_add.keys())
         for i in range(0, len(row_index)):
             if row_index[i] in rows_to_add:
-                for j in range(i+1, len(row_index)):
+                for j in range(i + 1, len(row_index)):
                     if row_index[j] in rows_to_add:
                         diff = np.array(rows_to_add[row_index[i]]) - np.array(rows_to_add[row_index[j]])
                         if all(diff >= 0):
@@ -113,7 +122,7 @@ class NaiveDominance:
                             del rows_to_add[row_index[j]]
         return rows_to_add
 
-    def check_min(self, df_act_dist : pnd.DataFrame, dist: int):
+    def check_min(self, df_act_dist: pnd.DataFrame, dist: int):
         act_min = df_act_dist.min()
         compare = act_min < self.min_vector
         self.min_vector = np.array([self.min_vector[i] if not compare[i] else act_min[i] for i in range(len(act_min))])
