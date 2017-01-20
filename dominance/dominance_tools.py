@@ -80,7 +80,15 @@ class NaiveDominance:
                 self.__any_rfds(row, dist)
 
     def __any_rfds(self, row: pnd.Series, dist: int):
-        pass  # TODO continue here
+        coll_row = np.array([self.distance_matrix.loc[row.name][i]
+                             if np.isnan(row[i])
+                             else np.nan
+                             for i in range(len(row))])
+        if self.check_inv_dominance_nan(coll_row):  # case 6
+            return
+        else:
+            return #TODO other cases
+
 
     def __all_rfds(self, row: pnd.Series, dist: int):
         # create a diagonal matrix, fill it with NANs, set all the elements in the diagonal to 1,
@@ -96,7 +104,7 @@ class NaiveDominance:
             self.rfds.loc[self.rfds.shape[0]] = rfds_to_add  # add rfd to RFD's data frame
 
     def check_dominance(self, y: tuple, rows_to_delete: set) -> bool:
-        # X dominates Y iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0
+    # X dominates Y iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0
         if len(self.pool) == 0:
             return True
         for x in list(self.pool.keys()):
@@ -106,6 +114,18 @@ class NaiveDominance:
             elif all(diff >= 0):  # X dominates Y
                 rows_to_delete.add(x)
         return True
+
+    def check_inv_dominance_nan(self, y: tuple) -> bool:
+        """
+        :return: True if Y dominates at least one vector in the pool
+        """
+    # X dominates Y (with NANs) iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0 || x - y == nan
+        for x in list(self.pool.keys()):
+            diff = np.array(y) - np.array(self.pool[x])
+            if gt_or_nan(diff):  #this should return T if all >= 0 or nan, false otherwise
+                return True
+        return False
+
 
     def clean_pool(self, rows_to_add: dict) -> dict:
         if len(rows_to_add) == 1:
@@ -136,3 +156,9 @@ class NaiveDominance:
         if i not in self.on_distance_dom:
             self.on_distance_dom[i] = set()
         self.on_distance_dom[i] = self.on_distance_dom[i].union(to_add)
+
+def gt_or_nan(to_check):
+    for i in to_check:
+        if i < 0:
+            return False
+    return True
