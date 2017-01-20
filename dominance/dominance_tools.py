@@ -136,9 +136,3 @@ class NaiveDominance:
         if i not in self.on_distance_dom:
             self.on_distance_dom[i] = set()
         self.on_distance_dom[i] = self.on_distance_dom[i].union(to_add)
-
-
-if __name__ == "__main__":
-    nd = NaiveDominance()
-    with ut.timeit_context("Whole time"):
-        print(nd.get_dominance("../resources/dataset.csv", nd.naive_dominance, {"lhs": [1, 2, 3], "rhs": [0]}))
