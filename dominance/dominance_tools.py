@@ -61,7 +61,7 @@ class RFDDiscovery:
 
     def __check_min(self, df_act_dist: pnd.DataFrame, dist: int) -> None:
         """
-        For each range, check whether one of its rows' values is minimum on pool's row.
+        For each range, check whether one of its rows' values is minimum on row's pool.
         Add that minimum in self.min_vector and in self.on_minimum_df
         :param df_act_dist: current main data frame range
         :param dist: current distance
@@ -78,8 +78,9 @@ class RFDDiscovery:
     def __find_rfd(self, current_df, dist: int, old_pool: dict) -> None:
         """
         Find RFDs for current distance.
-        :param current_df: current main data frame range
-        :param dist: current dist
+        :param current_df: portion of the main data frame formed by the rows with
+               distance is equal to dist
+        :param dist: current distance
         :param old_pool: the pool before update
         """
         for index, row in current_df.iterrows():
@@ -97,11 +98,11 @@ class RFDDiscovery:
     def __check_dominance(self, y: tuple, rows_to_delete: set) -> bool:
         """
         Recalling: X dominates Y iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0
-        Check for each value in the current pool, if (1) one of this is dominated by Y or if (2) this value dominates Y.
+        Check for each row in the current pool, if (1) one of this is dominated by Y or if (2) this row dominates Y.
         Case (1):
                 Return false (Do nothing)
         Case (2):
-                Add dominated array into a data structure containing values to be removed
+                Add the array who dominate into a data structure containing values to be removed
         :param y: current array to check
         :param rows_to_delete: a set containing values to be removed
         :return: True if Y is not dominated, False if Y is dominated
@@ -118,11 +119,11 @@ class RFDDiscovery:
 
     def __check_inv_dominance_single(self, y: np.array, old_pool: dict) -> bool:
         """
-        Check, for each single value (previously set to nan), if this dominates (is greater or equals) another value
+        Check, for each single value (previously set to nan), if it dominates (is greater or equals) another value
          in the pool
-        :param y: array for which check if its values dominate some value in the pool
+        :param y: array for which it checks if its values dominate some value in the pool
         :param old_pool: the pool before update
-        :return: True if at least value in y dominates a value in the old pool's arrays
+        :return: True if at least one value in y dominates a value in the old pool's array
         """
         for i in range(len(y)):
             if np.isnan(y[i]):
@@ -137,7 +138,7 @@ class RFDDiscovery:
     def __check_inv_dominance_nan(self, y: np.array, old_pool: dict) -> bool:
         """
         Recalling: X dominates Y (with NANs) iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0 || x - y == nan
-        Check if y dominates at least a value in the pool (including NAN values)
+        Check if y dominates at least one value in the pool (including NAN values)
         :return: True if Y dominates at least one vector in the pool
         """
         for x in list(old_pool.keys()):
@@ -149,13 +150,13 @@ class RFDDiscovery:
     def __all_rfds(self, row: pnd.Series, dist: int) -> None:
         """
         Case [1]: All values are not NAN.
-        Create a diagonal matrix containing the RFD as diagonal, then add this into RFD's data frame.
+        Create a diagonal matrix containing the RFD in the main diagonal, then add this into RFD's data frame.
         :param row: the row containing RFD
-        :param dist: the distance in which RFD is worth
+        :param dist: the distance where RFD is located
         """
         diagonal_matrix = self.__extract_diagonal(row)
         for i in range(diagonal_matrix.shape[1]):
-            if all(np.isnan(diagonal_matrix[..., i])):  # this occurs when non all elements are notNAN
+            if all(np.isnan(diagonal_matrix[..., i])):  # this occurs when not all elements are not NAN
                 continue
             self.__add_rfd(diagonal_matrix[..., i], dist)
 
@@ -166,10 +167,10 @@ class RFDDiscovery:
             1) row dominates at least one array in the old pool (no rfd)
             2) row (as it is) not dominates some array in the old pool:
             check on single value, then
-                2.1) if a single value dominates a value in the old pool -> add to rfd
+                2.1) if a single value dominates one value in the old pool -> add to rfd
                 2.2) otherwise no rfd is discovered
         :param row: the row containing RFD
-        :param dist: the distance in which RFD is worth
+        :param dist: the distance where RFD is located
         :param old_pool: the pool before update
         """
         compl_row = self.__complement_nans(row)
@@ -182,14 +183,14 @@ class RFDDiscovery:
         """
         Add a specific RFD into the data frame containing them using the required format.
         :param rfd: a discovered RFD
-        :param dist: the distance in which RFS is worth
+        :param dist: the distance where RFD is located
         """
         rfds_to_add = [dist] + list(rfd)
         self.rfds.loc[self.rfds.shape[0]] = rfds_to_add  # add rfd to RFD's data frame
 
     def __complement_nans(self, row: pnd.Series) -> np.array:
         """
-        Given an array (row), for each entry, if it is NAN, set it to its numeric value, if it is non nan, set it to nan
+        Given an array (row), for each entry, if it is NAN, set it to its numeric value, if it is not nan, set it to nan
         :param row: array to complementary
         :return: the complementary array
         """
@@ -211,7 +212,7 @@ class RFDDiscovery:
     @staticmethod
     def __clean_pool(rows_to_add: dict) -> dict:
         """
-        Clean the pool's rows to add removing values dominated by other
+        Clean the rows to add's pool by removing values dominated by other
         :param rows_to_add: a dict containing rows to add into the pool
         :return: a clean subset of rows_to_add
         """
@@ -239,7 +240,7 @@ class RFDDiscovery:
         :return: a diagonal matrix having row as diagonal
         """
         # create a diagonal matrix, fill it with NANs, set all the elements in the diagonal to 1,
-        # then set all the elements in the diagonal to dependency values
+        # then set all the elements in the diagonal to the dependency values
         diag_matrix = np.zeros((len(row), len(row)))
         diag_matrix.fill(np.nan)
         np.fill_diagonal(diag_matrix, 0)
@@ -252,7 +253,7 @@ class RFDDiscovery:
         Check if each value is greater than zero or NAN (where NAN is np.nan)
                 https://docs.scipy.org/doc/numpy/reference/generated/numpy.isnan.html
         :param to_check: an array in which check
-        :return: true if each value is grater than zero or NAN, false otherwise
+        :return: true if each value is greater than zero or NAN, false otherwise
         """
         for i in to_check:
             if i < 0:
