@@ -1,10 +1,10 @@
 from loader.distance_mtr import DiffMatrix
 import pandas as pnd
 import numpy as np
-import utils.utils as ut
 
 
-class NaiveDominance:
+class RFDDiscovery:
+
     def __init__(self):
         self.pool = dict()
         self.distance_matrix = None
@@ -19,12 +19,6 @@ class NaiveDominance:
         self.distance_matrix = diff_mtx.distance_matrix(diff_mtx.split_sides(hss['lhs'], hss['rhs']))
         self.distance_matrix = dominance_funct(self.distance_matrix, hss['lhs'], hss['rhs'])
         return self.distance_matrix
-
-    def __initialize_var__(self, rhs, lhs, cols):
-        self.on_minimum_df = pnd.DataFrame(columns=cols)
-        self.min_vector = np.zeros(len(lhs))
-        self.min_vector.fill(np.inf)
-        self.rfds = pnd.DataFrame(columns=cols)
 
     def naive_dominance(self, d_mtx: pnd.DataFrame, lhs: list, rhs: list) -> pnd.DataFrame:
         self.__initialize_var__(rhs, lhs, d_mtx.columns)
@@ -44,29 +38,50 @@ class NaiveDominance:
             for index, row in df_distance_range[df_keys].iterrows():  # extract a row from distance range
                 # convert row in tuple in order to preserve ordering TODO maybe to remove
                 current_range_row = tuple(row.values.tolist())
-                if len(self.pool) == 0 or self.check_dominance(current_range_row, pool_rows_to_delete):  # dom. check
+                if len(self.pool) == 0 or self.__check_dominance(current_range_row, pool_rows_to_delete):  # dom. check
                     pool_rows_to_add[index] = current_range_row  # if the row passes the test then add it in the pool
             old_pool = self.pool.copy()  # copy the pool in order to use it into __find_rfd
             for key in pool_rows_to_delete:  # remove dominating rows from the pool
                 del self.pool[key]
             # add rows that pass the test TODO converting in DF
             selected_row = selected_row + list(pool_rows_to_add.keys())
-            pool_rows_to_add = self.clean_pool(pool_rows_to_add)  # clean pool
+            pool_rows_to_add = self.__clean_pool(pool_rows_to_add)  # clean pool
             self.pool.update(pool_rows_to_add)  # add non-dominating rows into the pool
             # filter selected rows only
             df_distance_range_filtered = df_distance_range[df_distance_range.index.isin(selected_row)]
 
-            self.check_min(df_distance_range_filtered[df_keys], dist)  # create minimum on range vector
+            self.__check_min(df_distance_range_filtered[df_keys], dist)  # create minimum on range vector
             # find effective rfd
             self.__find_rfd(self.on_minimum_df[self.on_minimum_df.RHS == dist][df_keys], dist, old_pool)
 
         print("Minimum df \n", self.on_minimum_df)
         print("Pool:\n", self.pool)
         print("RFDS:\n", self.rfds)
-        print(selected_row)
         return d_mtx[d_mtx.index.isin(selected_row)]
 
-    def __find_rfd(self, current_df, dist: int, old_pool: dict):
+    def __check_min(self, df_act_dist: pnd.DataFrame, dist: int) -> None:
+        """
+        For each range, check whether one of its rows' values is minimum on pool's row.
+        Add that minimum in self.min_vector and in self.on_minimum_df
+        :param df_act_dist: current main data frame range
+        :param dist: current distance
+        :return: None
+        """
+        act_min = df_act_dist.min()
+        compare = act_min < self.min_vector
+        self.min_vector = np.array([self.min_vector[i] if not compare[i] else act_min[i] for i in range(len(act_min))])
+        for index, row in df_act_dist.iterrows():
+            vect = [False if not compare[i] else act_min[i] == row[i] for i in range(len(act_min))]
+            vect = [np.nan if not vect[i] else act_min[i] for i in range(len(act_min))]
+            self.on_minimum_df.loc[index] = np.array([dist] + vect)
+
+    def __find_rfd(self, current_df, dist: int, old_pool: dict) -> None:
+        """
+        Find RFDs for current distance.
+        :param current_df: current main data frame range
+        :param dist: current dist
+        :param old_pool: the pool before update
+        """
         for index, row in current_df.iterrows():
             #  case 1: all rfds or |nan| <= 1
             if all(~ np.isnan(np.array(row))):
@@ -75,36 +90,22 @@ class NaiveDominance:
             nan_count = sum(np.isnan(row))
             if nan_count == 1:
                 self.__all_rfds(row, dist)
-            # case 2:   2 <= |nan| <= |LHS_ATTR|
+            # case 3:   2 <= |nan| <= |LHS_ATTR|
             elif 2 <= nan_count < len(row):
-                self.__any_rfds(row, dist)
+                self.__any_rfds(row, dist, old_pool)
 
-    def __any_rfds(self, row: pnd.Series, dist: int):
-        coll_row = np.array([self.distance_matrix.loc[row.name][i]
-                             if np.isnan(row[i])
-                             else np.nan
-                             for i in range(len(row))])
-        if self.check_inv_dominance_nan(coll_row):  # case 6
-            return
-        else:
-            return #TODO other cases
-
-
-    def __all_rfds(self, row: pnd.Series, dist: int):
-        # create a diagonal matrix, fill it with NANs, set all the elements in the diagonal to 1,
-        # then set all the elements in the diagonal to dependency values
-        diag_matrix = np.zeros((len(row), len(row)))
-        diag_matrix.fill(np.nan)
-        np.fill_diagonal(diag_matrix, 0)
-        diag_matrix = diag_matrix + np.diag(np.array(row))
-        for i in range(diag_matrix.shape[-1]):
-            if all(np.isnan(diag_matrix[..., i])):  # this occurs when non all elements are notNAN
-                continue
-            rfds_to_add = [dist] + list(diag_matrix[..., i])
-            self.rfds.loc[self.rfds.shape[0]] = rfds_to_add  # add rfd to RFD's data frame
-
-    def check_dominance(self, y: tuple, rows_to_delete: set) -> bool:
-    # X dominates Y iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0
+    def __check_dominance(self, y: tuple, rows_to_delete: set) -> bool:
+        """
+        Recalling: X dominates Y iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0
+        Check for each value in the current pool, if (1) one of this is dominated by Y or if (2) this value dominates Y.
+        Case (1):
+                Return false (Do nothing)
+        Case (2):
+                Add dominated array into a data structure containing values to be removed
+        :param y: current array to check
+        :param rows_to_delete: a set containing values to be removed
+        :return: True if Y is not dominated, False if Y is dominated
+        """
         if len(self.pool) == 0:
             return True
         for x in list(self.pool.keys()):
@@ -115,19 +116,105 @@ class NaiveDominance:
                 rows_to_delete.add(x)
         return True
 
-    def check_inv_dominance_nan(self, y: tuple) -> bool:
+    def __check_inv_dominance_single(self, y: np.array, old_pool: dict) -> bool:
         """
-        :return: True if Y dominates at least one vector in the pool
+        Check, for each single value (previously set to nan), if this dominates (is greater or equals) another value
+         in the pool
+        :param y: array for which check if its values dominate some value in the pool
+        :param old_pool: the pool before update
+        :return: True if at least value in y dominates a value in the old pool's arrays
         """
-    # X dominates Y (with NANs) iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0 || x - y == nan
-        for x in list(self.pool.keys()):
-            diff = np.array(y) - np.array(self.pool[x])
-            if gt_or_nan(diff):  #this should return T if all >= 0 or nan, false otherwise
+        for i in range(len(y)):
+            if np.isnan(y[i]):
+                continue
+            y2 = np.zeros(len(y))
+            y2.fill(np.nan)
+            y2[i] = y[i]
+            if self.__check_inv_dominance_nan(y2, old_pool):  # check on single value
                 return True
         return False
 
+    def __check_inv_dominance_nan(self, y: np.array, old_pool: dict) -> bool:
+        """
+        Recalling: X dominates Y (with NANs) iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0 || x - y == nan
+        Check if y dominates at least a value in the pool (including NAN values)
+        :return: True if Y dominates at least one vector in the pool
+        """
+        for x in list(old_pool.keys()):
+            diff = np.array(y) - np.array(old_pool[x])
+            if self.__gt_or_nan(diff):  # this should return T if all >= 0 or nan, false otherwise
+                return True
+        return False
 
-    def clean_pool(self, rows_to_add: dict) -> dict:
+    def __all_rfds(self, row: pnd.Series, dist: int) -> None:
+        """
+        Case [1]: All values are not NAN.
+        Create a diagonal matrix containing the RFD as diagonal, then add this into RFD's data frame.
+        :param row: the row containing RFD
+        :param dist: the distance in which RFD is worth
+        """
+        diagonal_matrix = self.__extract_diagonal(row)
+        for i in range(diagonal_matrix.shape[1]):
+            if all(np.isnan(diagonal_matrix[..., i])):  # this occurs when non all elements are notNAN
+                continue
+            self.__add_rfd(diagonal_matrix[..., i], dist)
+
+    def __any_rfds(self, row: pnd.Series, dist: int, old_pool: dict) -> None:
+        """
+        Case [2]: Some value is not NAN.
+        Check the 2 sub-cases:
+            1) row dominates at least one array in the old pool (no rfd)
+            2) row (as it is) not dominates some array in the old pool:
+            check on single value, then
+                2.1) if a single value dominates a value in the old pool -> add to rfd
+                2.2) otherwise no rfd is discovered
+        :param row: the row containing RFD
+        :param dist: the distance in which RFD is worth
+        :param old_pool: the pool before update
+        """
+        compl_row = self.__complement_nans(row)
+        if self.__check_inv_dominance_nan(compl_row, old_pool):  # compl_row dominantes at least one row: case 6
+            return
+        elif self.__check_inv_dominance_single(compl_row, old_pool):  # check on single attributes
+            self.__add_rfd(compl_row, dist)
+
+    def __add_rfd(self, rfd, dist) -> None:
+        """
+        Add a specific RFD into the data frame containing them using the required format.
+        :param rfd: a discovered RFD
+        :param dist: the distance in which RFS is worth
+        """
+        rfds_to_add = [dist] + list(rfd)
+        self.rfds.loc[self.rfds.shape[0]] = rfds_to_add  # add rfd to RFD's data frame
+
+    def __complement_nans(self, row: pnd.Series) -> np.array:
+        """
+        Given an array (row), for each entry, if it is NAN, set it to its numeric value, if it is non nan, set it to nan
+        :param row: array to complementary
+        :return: the complementary array
+        """
+        coll_row = np.array([self.distance_matrix.loc[row.name][i+1]  # TODO check if it works
+                             if np.isnan(row[i])
+                             else np.nan
+                             for i in range(len(row))])
+        return coll_row
+
+    def __initialize_var__(self, rhs, lhs, cols):
+        """
+        Initialize variables. (just for readability)
+        """
+        self.on_minimum_df = pnd.DataFrame(columns=cols)
+        self.min_vector = np.zeros(len(lhs))
+        self.min_vector.fill(np.inf)
+        self.rfds = pnd.DataFrame(columns=cols)
+
+    @staticmethod
+    def __clean_pool(rows_to_add: dict) -> dict:
+        """
+        Clean the pool's rows to add removing values dominated by other
+        :param rows_to_add: a dict containing rows to add into the pool
+        :return: a clean subset of rows_to_add
+        """
         if len(rows_to_add) == 1:
             return rows_to_add
         row_index = list(rows_to_add.keys())
@@ -143,22 +230,31 @@ class NaiveDominance:
                             del rows_to_add[row_index[j]]
         return rows_to_add
 
-    def check_min(self, df_act_dist: pnd.DataFrame, dist: int):
-        act_min = df_act_dist.min()
-        compare = act_min < self.min_vector
-        self.min_vector = np.array([self.min_vector[i] if not compare[i] else act_min[i] for i in range(len(act_min))])
-        for index, row in df_act_dist.iterrows():
-            vect = [False if not compare[i] else act_min[i] == row[i] for i in range(len(act_min))]
-            vect = [np.nan if not vect[i] else act_min[i] for i in range(len(act_min))]
-            self.on_minimum_df.loc[index] = np.array([dist] + vect)
+    @staticmethod
+    def __extract_diagonal(row: np.array) -> np.ndarray:
+        """
+        Create a diagonal matrix having row's value in its diagonal.
+         This is used to fast insert RFDs into the data frame.
+        :param row: matrix's diagonal
+        :return: a diagonal matrix having row as diagonal
+        """
+        # create a diagonal matrix, fill it with NANs, set all the elements in the diagonal to 1,
+        # then set all the elements in the diagonal to dependency values
+        diag_matrix = np.zeros((len(row), len(row)))
+        diag_matrix.fill(np.nan)
+        np.fill_diagonal(diag_matrix, 0)
+        diag_matrix = diag_matrix + np.diag(np.array(row))
+        return diag_matrix
 
-    def __add_to_dict_set(self, to_add: set, i: int):
-        if i not in self.on_distance_dom:
-            self.on_distance_dom[i] = set()
-        self.on_distance_dom[i] = self.on_distance_dom[i].union(to_add)
-
-def gt_or_nan(to_check):
-    for i in to_check:
-        if i < 0:
-            return False
-    return True
+    @staticmethod
+    def __gt_or_nan(to_check):
+        """
+        Check if each value is greater than zero or NAN (where NAN is np.nan)
+                https://docs.scipy.org/doc/numpy/reference/generated/numpy.isnan.html
+        :param to_check: an array in which check
+        :return: true if each value is grater than zero or NAN, false otherwise
+        """
+        for i in to_check:
+            if i < 0:
+                return False
+        return True
