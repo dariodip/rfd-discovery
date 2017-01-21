@@ -3,6 +3,7 @@ import numpy as np
 import operator as op
 import utils.utils as ut
 
+
 class DiffMatrix:
     """Class used to build the the difference matrix respect to a Relaxed Functional Dependencies RFD.
 
@@ -20,13 +21,13 @@ class DiffMatrix:
     def __init__(self, path):
         self.path = path
         self.df = None
-        self.distance_df = pnd.DataFrame()
+        self.distance_df = None
 
     def load(self):
         """Load a pandas data frame from a csv file stored in the path df.
 
         """
-        self.df = pnd.read_csv(self.path, sep=';', header=0, index_col=0)
+        self.df = pnd.read_csv(self.path, sep=';', header=0, index_col=0, engine='c')
 
     def split_sides(self, lhs: list, rhs: list) -> dict:
         """Split the data frame according to the given RHS and LHS division.
@@ -64,25 +65,38 @@ class DiffMatrix:
         else:
             raise Exception("Different number of rows in LHS and RHS")
 
-        [ops_rhs,ops_lhs] = self.__map_types__(rhs, lhs)
+        [ops_rhs, ops_lhs] = self.__map_types__(rhs, lhs)
         col_names = self.__row_names__(rhs, lhs)
-        r_keys = col_names['r_keys']
         col_names = ['RHS'] + col_names['l_keys']  # retrieve row names (RHS and LHS)
         self.distance_df = pnd.DataFrame(columns=col_names)
         for i in range(1, n_row):
             for j in range(i+1, n_row+1):  # iterate on each pair of rows
                 index_t = (i, j)
                 # absolute difference between rows i and j (both for rhs and lhs) in order to get distance between them
-                rhs_dist = [np.absolute(fn(a, b)) for a, b, fn in list(zip(*[np.array(rhs.loc[i]),np.array(rhs.loc[j]),ops_rhs]))]
-                lhs_dist = [np.absolute(fn(a, b)) for a, b, fn in list(zip(*[np.array(lhs.loc[i]),np.array(lhs.loc[j]),ops_lhs]))]
-                row = np.concatenate([rhs_dist, lhs_dist], axis=0) #todo check axis 0
+                rhs_dist = [np.absolute(fn(a, b))
+                            for a, b, fn in list(zip(*[np.array(rhs.loc[i]), np.array(rhs.loc[j]), ops_rhs]))]
+                lhs_dist = [np.absolute(fn(a, b))
+                            for a, b, fn in list(zip(*[np.array(lhs.loc[i]), np.array(lhs.loc[j]), ops_lhs]))]
+                row = np.concatenate([rhs_dist, lhs_dist], axis=0)  # todo check axis 0
                 self.distance_df.loc[str(index_t)] = row.tolist()
                 # insert a row containing distances into the distance data frame
         # assign row names for the data frame
         self.distance_df.sort_values(by=['RHS'], axis=0, inplace=True, ascending=False)  # sort data frame by r_keys
         return self.distance_df
 
-    def __row_names__(self, rhs: pnd.DataFrame, lhs : pnd.DataFrame) -> list:
+    def __map_types__(self, rhs: pnd.DataFrame, lhs: pnd.DataFrame) -> list:
+        """
+        Perform a mapping for the dtypes of both RHS and LHS DataFrames with the corrisponding subtraction function.
+        :param rhs: a pandas' DataFrame containing RHS attributes
+        :param lhs: a pandas' DataFrame containing LHS attributes
+        :returns: an array of lists of subtraction function [(RHS subtraction functions), (LHS subtraction functions)]
+        """
+        rhs_types = list(map(self.__diff_criteria__, rhs.dtypes))
+        lhs_types = list(map(self.__diff_criteria__, lhs.dtypes))
+        return [rhs_types, lhs_types]
+
+    @staticmethod
+    def __row_names__(rhs: pnd.DataFrame, lhs: pnd.DataFrame) -> dict:
         """
         Place 'r' or 'l' before name data frame's keys, in order to discriminate RHS attributes and LHS attributes
         :param rhs: a pandas' DataFrame containing RHS attributes
@@ -92,20 +106,10 @@ class DiffMatrix:
         """
         r_keys = ["r_" + str(rk) for rk in rhs.keys()]
         l_keys = ["l_" + str(lk) for lk in lhs.keys()]
-        return {"r_keys" : r_keys, "l_keys":  l_keys}
+        return {"r_keys": r_keys, "l_keys": l_keys}
 
-    def __map_types__(self, rhs: pnd.DataFrame, lhs : pnd.DataFrame) -> list:
-        """
-        Perform a mapping for the dtypes of both RHS and LHS DataFrames with the corrisponding subtraction function.
-        :param rhs: a pandas' DataFrame containing RHS attributes
-        :param lhs: a pandas' DataFrame containing LHS attributes
-        :returns: an array of lists of subtraction function [(RHS subtraction functions), (LHS subtraction functions)]
-        """
-        rhs_types = list(map(self.__diff_criterium__,rhs.dtypes))
-        lhs_types = list(map(self.__diff_criterium__,lhs.dtypes))
-        return [rhs_types,lhs_types]
-
-    def __diff_criterium__(self,dtype):
+    @staticmethod
+    def __diff_criteria__(dtype):
         """
         Takes in input a numpy dtype and returns the subtraction function.
         :param dtype: numpy dtype
