@@ -5,20 +5,21 @@ import numpy as np
 
 class RFDDiscovery:
 
-    def __init__(self):
+    def __init__(self, print_res = False):
         self.pool = dict()
         self.distance_matrix = None
         self.on_distance_dom = dict()
         self.min_vector = None
         self.on_minimum_df = None
         self.rfds = None
+        self.print_res = print_res
 
     def get_dominance(self, path: str, dominance_funct, hss: dict):
         diff_mtx = DiffMatrix(path)
         diff_mtx.load()
         self.distance_matrix = diff_mtx.distance_matrix(diff_mtx.split_sides(hss['lhs'], hss['rhs']))
         self.distance_matrix = dominance_funct(self.distance_matrix, hss['lhs'], hss['rhs'])
-        return self.distance_matrix
+        return self.rfds
 
     def naive_dominance(self, d_mtx: pnd.DataFrame, lhs: list, rhs: list) -> pnd.DataFrame:
         self.__initialize_var__(rhs, lhs, d_mtx.columns)
@@ -54,9 +55,10 @@ class RFDDiscovery:
             # find effective rfd
             self.__find_rfd(self.on_minimum_df[self.on_minimum_df.RHS == dist][df_keys], dist, old_pool)
 
-        print("Minimum df \n", self.on_minimum_df)
-        print("Pool:\n", self.pool)
-        print("RFDS:\n", self.rfds)
+        if self.print_res:
+            print("Minimum df \n", self.on_minimum_df)
+            print("Pool:\n", self.pool)
+            print("RFDS:\n", self.rfds)
         return d_mtx[d_mtx.index.isin(selected_row)]
 
     def __check_min(self, df_act_dist: pnd.DataFrame, dist: int) -> None:
