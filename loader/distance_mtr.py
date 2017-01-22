@@ -15,7 +15,7 @@ class DiffMatrix:
 
         Attributes:
             path (str): the path where the CSV is stored.
-            df (pandas.core.frame.DataFrame): data frame where the sets of tuples will be stored.
+            df (pandas.core.frame.DataFrame): data frame where the set of tuples will be stored.
             distance_df (pandas.core.frame.DataFrame): data frame containing distance matrix for each row
         """
     def __init__(self, path):
@@ -60,7 +60,7 @@ class DiffMatrix:
                 * algorithm for an efficient build of the difference matrix"""
         lhs = split_df['lhs']
         rhs = split_df['rhs']
-        if lhs.shape[0] == rhs.shape[0]:  # check if num of rows in lhs are equals to num of rows in rhs
+        if lhs.shape[0] == rhs.shape[0]:  # check if the num of rows in lhs are equals to the num of rows in rhs
             n_row = lhs.shape[0]
         else:
             raise Exception("Different number of rows in LHS and RHS")
@@ -89,7 +89,7 @@ class DiffMatrix:
         Perform a mapping for the dtypes of both RHS and LHS DataFrames with the corrisponding subtraction function.
         :param rhs: a pandas' DataFrame containing RHS attributes
         :param lhs: a pandas' DataFrame containing LHS attributes
-        :returns: an array of lists of subtraction function [(RHS subtraction functions), (LHS subtraction functions)]
+        :returns: an array of lists of subtraction functions [(RHS subtraction functions), (LHS subtraction functions)]
         """
         rhs_types = list(map(self.__diff_criteria__, rhs.dtypes))
         lhs_types = list(map(self.__diff_criteria__, lhs.dtypes))
@@ -101,8 +101,8 @@ class DiffMatrix:
         Place 'r' or 'l' before name data frame's keys, in order to discriminate RHS attributes and LHS attributes
         :param rhs: a pandas' DataFrame containing RHS attributes
         :param lhs: a pandas' DataFrame containing LHS attributes
-        :return: a dict having 'r_keys' and 'l_keys' as keys, respectively for RHS' keys and LHS' keys, preceding by
-        'r_' and 'l_' string
+        :return: a dict having 'r_keys' and 'l_keys' as keys, respectively for RHS' keys and LHS' keys, with
+        'r_' and 'l_' as prefix
         """
         r_keys = ["r_" + str(rk) for rk in rhs.keys()]
         l_keys = ["l_" + str(lk) for lk in lhs.keys()]
