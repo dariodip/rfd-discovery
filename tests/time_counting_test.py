@@ -5,7 +5,7 @@ from datetime import datetime
 import pandas as pd
 import time
 
-cols = ['ds_name', 'ds_len', 'ds_attr_size', 'ds_file_size_B', 'time_elapsed', 'rfd_count', 'attr_comb']
+cols = ['ds_name', 'ds_len', 'ds_attr_size', 'ds_file_size_B', 'time_elapsed', 'rfd_count', 'attr_comb', 'iterations']
 ITERATION_TIME = 10
 
 
@@ -29,7 +29,7 @@ class MyTestCase(unittest.TestCase):
                     rfd_df = rfdd.get_dominance(current_ds, rfdd.naive_dominance, combination)
                     elapsed_time = time.time() - start_time             # get deltaT = now - t0
                     rfd_count = rfd_df.shape[0]
-                    self.__append_result(ds, ds_shape['row'], ds_shape['col'], file_size, elapsed_time*1000,
+                    self.__append_result(ds, ds_shape['row'], ds_shape['col'], file_size, round(elapsed_time*1000,3),
                                          rfd_count, str(combination), result_df)    # append to result df
                     print("Test n.", test_count)
                     test_count += 1
@@ -41,7 +41,7 @@ class MyTestCase(unittest.TestCase):
                         combination: str, df: pd.DataFrame) -> object:
         now = datetime.now()
         id = now.strftime("%Y-%m-%d_%H:%M:%S.%f")
-        row_to_add = [name, row_len, attr_size, file_size, elapsed_time, rdf_count, combination]
+        row_to_add = [name, row_len, attr_size, file_size, elapsed_time, rdf_count, combination, ITERATION_TIME]
         df.loc[id] = row_to_add
 
     @staticmethod
