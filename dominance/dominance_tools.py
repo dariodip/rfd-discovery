@@ -5,7 +5,7 @@ import numpy as np
 
 class RFDDiscovery:
 
-    def __init__(self, print_res = False):
+    def __init__(self, print_res=False):
         self.pool = dict()
         self.distance_matrix = None
         self.on_distance_dom = dict()

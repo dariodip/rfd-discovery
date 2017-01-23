@@ -10,14 +10,13 @@ ITERATION_TIME = 10
 
 
 class MyTestCase(unittest.TestCase):
+
     def test_something(self):
         test_count = 1
         result_df = pd.DataFrame(columns=cols)  # Data frame in which save results
         path = "../resources"  # path in which datasets are stored
         datasets = self.__load_all_files__(path)
         for ds in datasets:
-            if ds not in ['dataset.csv', 'dataset_oracle.csv']:  # TODO
-                continue
             current_ds = path + "/" + ds                                # abs path for current dataset
             file_size = os.stat(current_ds).st_size                     # get file size
             ds_shape = self.__get_ds_shape(current_ds)                  # get df shape
