@@ -37,16 +37,15 @@ class RFDDiscovery:
             if df_distance_range.empty:
                 continue
             for index, row in df_distance_range[df_keys].iterrows():  # extract a row from distance range
-                # convert row in tuple in order to preserve ordering TODO maybe to remove
-                current_range_row = tuple(row.values.tolist())
+                current_range_row = row.values.tolist()
                 if len(self.pool) == 0 or self.__check_dominance(current_range_row, pool_rows_to_delete):  # dom. check
                     pool_rows_to_add[index] = current_range_row  # if the row passes the test then add it in the pool
             old_pool = self.pool.copy()  # copy the pool in order to use it into __find_rfd
-            for key in pool_rows_to_delete:  # remove dominating rows from the pool
-                del self.pool[key]
+            for pool_key in pool_rows_to_delete:  # remove dominating rows from the pool
+                del self.pool[pool_key]
             # add rows that pass the test TODO converting in DF
-            selected_row = selected_row + list(pool_rows_to_add.keys())
             pool_rows_to_add = self.__clean_pool(pool_rows_to_add)  # clean pool
+            selected_row = selected_row + list(pool_rows_to_add.keys())
             self.pool.update(pool_rows_to_add)  # add non-dominating rows into the pool
             # filter selected rows only
             df_distance_range_filtered = df_distance_range[df_distance_range.index.isin(selected_row)]
@@ -55,11 +54,13 @@ class RFDDiscovery:
             # find effective rfd
             self.__find_rfd(self.on_minimum_df[self.on_minimum_df.RHS == dist][df_keys], dist, old_pool)
 
+        self.rfds.drop_duplicates(subset=df_keys, inplace=True)
         if self.print_res:
             print("Minimum df \n", self.on_minimum_df)
             print("Pool:\n", self.pool)
             print("RFDS:\n", self.rfds)
-        return d_mtx[d_mtx.index.isin(selected_row)]
+            print("D_MTX:\n", d_mtx[d_mtx.index.isin(selected_row)])
+        return self.rfds  # se una sola a nan è dip
 
     def __check_min(self, df_act_dist: pnd.DataFrame, dist: int) -> None:
         """
@@ -76,6 +77,8 @@ class RFDDiscovery:
             vect = [False if not compare[i] else act_min[i] == row[i] for i in range(len(act_min))]
             vect = [np.nan if not vect[i] else act_min[i] for i in range(len(act_min))]
             self.on_minimum_df.loc[index] = np.array([dist] + vect)
+            if not all(np.isnan(vect)):
+                self.__all_rfds(vect, dist)
 
     def __find_rfd(self, current_df, dist: int, old_pool: dict) -> None:
         """
@@ -87,17 +90,14 @@ class RFDDiscovery:
         """
         for index, row in current_df.iterrows():
             #  case 1: all rfds or |nan| <= 1
-            if all(~ np.isnan(np.array(row))):
-                self.__all_rfds(row, dist)
-                continue
             nan_count = sum(np.isnan(row))
-            if nan_count == 1:
+            if nan_count <= 1:
                 self.__all_rfds(row, dist)
             # case 3:   2 <= |nan| <= |LHS_ATTR|
             elif 2 <= nan_count < len(row):
-                self.__any_rfds(row, dist, old_pool)
+                self.__any_rfds(row, dist, old_pool) # TODO se tutti nan
 
-    def __check_dominance(self, y: tuple, rows_to_delete: set) -> bool:
+    def __check_dominance(self, y: list, rows_to_delete: set) -> bool:
         """
         Recalling: X dominates Y iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0
         Check for each row in the current pool, if (1) one of this is dominated by Y or if (2) this row dominates Y.
