@@ -23,7 +23,7 @@ class RFDDiscovery:
 
     def naive_dominance(self, d_mtx: pnd.DataFrame, lhs: list, rhs: list) -> pnd.DataFrame:
         self.__initialize_var__(rhs, lhs, d_mtx.columns)
-        selected_row = list()
+        non_dominated_rows = list()
         distance_values = list(set(np.asarray(d_mtx[d_mtx.columns[0]], dtype='int').flatten()))
         distance_values.sort(reverse=True)
         df_keys = list(self.distance_matrix.keys())
@@ -41,26 +41,26 @@ class RFDDiscovery:
                 if len(self.pool) == 0 or self.__check_dominance(current_range_row, pool_rows_to_delete):  # dom. check
                     pool_rows_to_add[index] = current_range_row  # if the row passes the test then add it in the pool
             old_pool = self.pool.copy()  # copy the pool in order to use it into __find_rfd
-            for pool_key in pool_rows_to_delete:  # remove dominating rows from the pool
-                del self.pool[pool_key]
+            for key in pool_rows_to_delete:  # remove dominating rows from the pool
+                del self.pool[key]
             # add rows that pass the test TODO converting in DF
             pool_rows_to_add = self.__clean_pool(pool_rows_to_add)  # clean pool
-            selected_row = selected_row + list(pool_rows_to_add.keys())
+            non_dominated_rows = non_dominated_rows + list(pool_rows_to_add.keys())
             self.pool.update(pool_rows_to_add)  # add non-dominating rows into the pool
             # filter selected rows only
-            df_distance_range_filtered = df_distance_range[df_distance_range.index.isin(selected_row)]
+            df_distance_range_filtered = df_distance_range[df_distance_range.index.isin(non_dominated_rows)]
 
             self.__check_min(df_distance_range_filtered[df_keys], dist)  # create minimum on range vector
             # find effective rfd
             self.__find_rfd(self.on_minimum_df[self.on_minimum_df.RHS == dist][df_keys], dist, old_pool)
 
-        self.rfds.drop_duplicates(subset=df_keys, inplace=True)
+        self.rfds.drop_duplicates(inplace=True)
         if self.print_res:
             print("Minimum df \n", self.on_minimum_df)
             print("Pool:\n", self.pool)
             print("RFDS:\n", self.rfds)
-            print("D_MTX:\n", d_mtx[d_mtx.index.isin(selected_row)])
-        return self.rfds  # se una sola a nan è dip
+            print(d_mtx[d_mtx.index.isin(non_dominated_rows)])
+        return self.rfds
 
     def __check_min(self, df_act_dist: pnd.DataFrame, dist: int) -> None:
         """
@@ -76,9 +76,11 @@ class RFDDiscovery:
         for index, row in df_act_dist.iterrows():
             vect = [False if not compare[i] else act_min[i] == row[i] for i in range(len(act_min))]
             vect = [np.nan if not vect[i] else act_min[i] for i in range(len(act_min))]
+            diag = self.__extract_diagonal(vect)
+            for matrix_row in diag:
+                if not all(np.isnan(matrix_row)):
+                    self.__add_rfd(matrix_row, dist)
             self.on_minimum_df.loc[index] = np.array([dist] + vect)
-            if not all(np.isnan(vect)):
-                self.__all_rfds(vect, dist)
 
     def __find_rfd(self, current_df, dist: int, old_pool: dict) -> None:
         """
@@ -90,12 +92,15 @@ class RFDDiscovery:
         """
         for index, row in current_df.iterrows():
             #  case 1: all rfds or |nan| <= 1
+            if all(~ np.isnan(np.array(row))):
+                self.__all_rfds(row, dist)
+                continue
             nan_count = sum(np.isnan(row))
-            if nan_count <= 1:
-                self.__all_rfds(row.tolist(), dist)
+            if nan_count == 1:
+                self.__all_rfds(row, dist)
             # case 3:   2 <= |nan| <= |LHS_ATTR|
             elif 2 <= nan_count < len(row):
-                self.__any_rfds(row, dist, old_pool) # TODO se tutti nan
+                self.__any_rfds(row, dist, old_pool)
 
     def __check_dominance(self, y: list, rows_to_delete: set) -> bool:
         """
@@ -119,7 +124,7 @@ class RFDDiscovery:
                 rows_to_delete.add(x)
         return True
 
-    def __check_inv_dominance_single(self, y: np.array, old_pool: dict) -> bool:
+    def __check_inv_dominance_single(self, y: np.array, old_pool_list: list, old_pool: dict) -> bool:
         """
         Check, for each single value (previously set to nan), if it dominates (is greater or equals) another value
          in the pool
@@ -127,14 +132,13 @@ class RFDDiscovery:
         :param old_pool: the pool before update
         :return: True if at least one value in y dominates a value in the old pool's array
         """
-        for i in range(len(y)):
-            if np.isnan(y[i]):
-                continue
-            y2 = np.zeros(len(y))
-            y2.fill(np.nan)
-            y2[i] = y[i]
-            if self.__check_inv_dominance_nan(y2, old_pool):  # check on single value
-                return True
+        for x in range(len(old_pool_list)):
+            pool_t =
+            diff = y - np.array(old_pool[old_pool_list[pool_index]])
+            diff = self.__complement_nans_n_lt_zero(diff, y)
+            if all(np.isnan(diff)):
+                return False
+            if self.__check_inv_dominance_nan()
         return False
 
     def __check_inv_dominance_nan(self, y: np.array, old_pool: dict) -> bool:
@@ -149,7 +153,7 @@ class RFDDiscovery:
                 return True
         return False
 
-    def __all_rfds(self, row: list, dist: int) -> None:
+    def __all_rfds(self, row: pnd.Series, dist: int) -> None:
         """
         Case [1]: All values are not NAN.
         Create a diagonal matrix containing the RFD in the main diagonal, then add this into RFD's data frame.
@@ -176,9 +180,9 @@ class RFDDiscovery:
         :param old_pool: the pool before update
         """
         compl_row = self.__complement_nans(row)
-        if self.__check_inv_dominance_nan(compl_row, old_pool):  # compl_row dominantes at least one row: case 6
-            return
-        elif self.__check_inv_dominance_single(compl_row, old_pool):  # check on single attributes
+        if self.__check_inv_dominance_nan(compl_row, old_pool):  # compl_row dominantes at least one row in pool: case 6
+            return      # no rfd
+        elif self.__check_inv_dominance_single(compl_row, list(old_pool), old_pool):  # check on single attributes
             self.__add_rfd(compl_row, dist)
 
     def __add_rfd(self, rfd, dist) -> None:
@@ -187,6 +191,8 @@ class RFDDiscovery:
         :param rfd: a discovered RFD
         :param dist: the distance where RFD is located
         """
+        if all(np.isnan(rfd)):
+            return
         rfds_to_add = [dist] + list(rfd)
         self.rfds.loc[self.rfds.shape[0]] = rfds_to_add  # add rfd to RFD's data frame
 
@@ -198,6 +204,18 @@ class RFDDiscovery:
         """
         coll_row = np.array([self.distance_matrix.loc[row.name][i+1]  # TODO check if it works
                              if np.isnan(row[i])
+                             else np.nan
+                             for i in range(len(row))])
+        return coll_row
+
+    def __complement_nans_n_lt_zero(self, row, replacemenmt_row) -> np.array:
+        """
+        Given an array (row), for each entry, if it is NAN, set it to its numeric value, if it is not nan, set it to nan
+        :param row: array to complementary
+        :return: the complementary array
+        """
+        coll_row = np.array([replacemenmt_row[i]  # TODO check if it works
+                             if np.isnan(row[i]) or row[i] < 0
                              else np.nan
                              for i in range(len(row))])
         return coll_row
