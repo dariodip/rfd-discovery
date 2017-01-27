@@ -120,7 +120,7 @@ class RFDDiscovery:
                 rows_to_delete.add(x)
         return True
 
-    def __check_inv_dominance_single(self, y: np.array, old_pool: dict, dist: int) -> bool:
+    def __check_dominance_single(self, y: np.array, old_pool: dict, dist: int) -> bool:
         """
         Check, for each single value (previously set to nan), if it dominates (is greater or equals) another value
          in the pool
@@ -131,18 +131,21 @@ class RFDDiscovery:
         pool_keys = list(old_pool)
         for i in range(len(pool_keys)):
             diff = y - np.array(old_pool[pool_keys[i]])
-            new_y = np.array([np.nan if diff[j] < 0 else y[j] for j in range(len(y))])
+            new_y = np.array([np.nan if diff[j] > 0 else y[j] for j in range(len(y))])
             print("----------------------------------")
-            print("Y:\n",y)
-            print("Old Pool:\n" , old_pool)
+            print("Y:\n", y)
+            print("Old Pool:\n", old_pool)
             print("Selected Pool:\n", old_pool[pool_keys[i]])
             print("Sliced Pool:\n", pool_keys[:i] + pool_keys[i+1:])
             print("New Y:\n", new_y)
             print("----------------------------------")
             if self.__check_dominance_pool_slice(new_y, old_pool, pool_keys[:i] + pool_keys[i+1:]):
-                self.__add_rfd(y, dist)
+                print("*******new Y to add", new_y)
+                self.__add_rfd(new_y, dist)
+                return False
+        return True
 
-    def __check_dominance_pool_slice(self, y: np.array, pool: dict, sliced_pool_keys : list) -> bool:
+    def __check_dominance_pool_slice(self, y: np.array, pool: dict, sliced_pool_keys: list) -> bool:
         """
         TODO change pool's name
 
@@ -151,13 +154,13 @@ class RFDDiscovery:
         :param sliced_pool_keys:
         :return: True if Y dominates at least one vector in the sliced pool
         """
-        for i in sliced_pool_keys:
-            diff = y - np.array(pool[i])
-            if not self.__gt_or_nan(diff):
+        for x_p in sliced_pool_keys:
+            diff = y - np.array(pool[x_p])
+            if not self.__gte_or_nan(diff):
                 return True
         return False
 
-    def __check_inv_dominance_nan(self, y: np.array, old_pool: dict) -> bool:
+    def __check_dominance_nan(self, y: np.array, old_pool: dict) -> bool:
         """
         Recalling: X dominates Y (with NANs) iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0 || x - y == nan
         Check if y dominates at least one value in the pool (including NAN values)
@@ -196,9 +199,9 @@ class RFDDiscovery:
         :param old_pool: the pool before update
         """
         compl_row = self.__complement_nans(row)
-        if self.__check_inv_dominance_nan(compl_row, old_pool):  # compl_row dominantes at least one row: case 6
+        if self.__check_dominance_nan(compl_row, old_pool):  # compl_row dominantes at least one row: case 6
             return
-        elif self.__check_inv_dominance_single(compl_row, old_pool, dist):  # check on single attributes
+        elif self.__check_dominance_single(compl_row, old_pool, dist):  # check on single attributes
             self.__add_rfd(compl_row, dist)
 
     def __add_rfd(self, rfd, dist) -> None:
@@ -282,3 +285,15 @@ class RFDDiscovery:
                 return False
         return True
 
+    @staticmethod
+    def __gte_or_nan(to_check):
+        """
+        Check if each value is greater than zero or NAN (where NAN is np.nan)
+                https://docs.scipy.org/doc/numpy/reference/generated/numpy.isnan.html
+        :param to_check: an array in which check
+        :return: true if each value is greater than zero or NAN, false otherwise
+        """
+        for i in to_check:
+            if i <= 0:
+                return False
+        return True
