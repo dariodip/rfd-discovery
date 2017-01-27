@@ -27,6 +27,7 @@ class DiffMatrix:
         self.path = path
         self.df = None
         self.distance_df = None
+        self.semantic = True
         self.sysnset_dic = {}
         self.semantic_diff_dic = {}
 
@@ -75,8 +76,7 @@ class DiffMatrix:
         else:
             raise Exception("Different number of rows in LHS and RHS")
 
-        [ops_rhs, ops_lhs] = self.__preprocess_map_types__(hss)
-        #[ops_rhs, ops_lhs] = self.__map_types__(rhs, lhs)
+        [ops_rhs, ops_lhs] = self.__map_types__(hss)
         col_names = self.__row_names__(rhs, lhs)
         col_names = ['RHS'] + col_names['l_keys']  # retrieve row names (RHS and LHS)
         self.distance_df = pnd.DataFrame(columns=col_names)
@@ -93,38 +93,36 @@ class DiffMatrix:
         self.distance_df.sort_values(by=['RHS'], axis=0, inplace=True, ascending=False)  # sort data frame by r_keys
         return self.distance_df
 
-    def __map_types__(self, rhs: pnd.DataFrame, lhs: pnd.DataFrame) -> list:
+    def __map_types__(self, hss: dict) -> list:
         """
         Perform a mapping for the dtypes of both RHS and LHS DataFrames with the corrisponding subtraction function.
-        :param rhs: a pandas' DataFrame containing RHS attributes
-        :param lhs: a pandas' DataFrame containing LHS attributes
+        :param hss: dict of list of the RHS and LHS indexes
         :returns: an array of lists of subtraction functions [(RHS subtraction functions), (LHS subtraction functions)]
         """
-        rhs_types = list(map(self.__diff_criteria__, rhs.dtypes))
-        lhs_types = list(map(self.__diff_criteria__, lhs.dtypes))
-        return [rhs_types, lhs_types]
-
-    def __preprocess_map_types__(self, hss: dict) -> list:
         numeric = {np.dtype('int'), np.dtype('int32'), np.dtype('int64'), np.dtype('float')}
         string = {np.dtype('string_'), np.dtype('object')}
-
-        ops = np.array(list(map(lambda el: op.sub if el in numeric else None, self.df.dtypes))) #init() ops array with op.sub and None
-        string_columns = self.df.select_dtypes(include=['object'])
-        # iterate over columns
-        for i, (col_label, col) in enumerate(string_columns.iteritems()):
-            for val in col:
-                s = wn.synsets(val)
-                if len(s) > 0:
-                    if val not in self.sysnset_dic:
-                        self.sysnset_dic[val] = s[0]  # NOTE terms added from later dropped columns are kept in dict
-                        ops[i] = self.semantic_diff
-                else:
-                    ops[i] = nltk.edit_distance
-                    break
-        return [ops[hss['rhs']], ops[hss['lhs']]]
+        if self.semantic:
+            ops = np.array(list(map(lambda el: op.sub if el in numeric else None, self.df.dtypes))) #init() ops array with op.sub and None
+            string_columns = self.df.select_dtypes(include=['object'])
+            # iterate over columns
+            for i, (col_label, col) in enumerate(string_columns.iteritems()):
+                for val in col:
+                    s = wn.synsets(val)
+                    if len(s) > 0:
+                        if val not in self.sysnset_dic:
+                            self.sysnset_dic[val] = s[0]  # NOTE terms added from later dropped columns are kept in dict
+                            ops[i] = self.semantic_diff
+                    else:
+                        ops[i] = nltk.edit_distance
+                        break
+            return [ops[hss['rhs']], ops[hss['lhs']]]
+        else:
+            rhs_types = list(map(self.__diff_criteria__, self.df[hss['rhs']].dtypes))
+            lhs_types = list(map(self.__diff_criteria__, self.df[hss['lhs']].dtypes))
+            return [rhs_types, lhs_types]
 
     def semantic_diff(self, a: str, b: str) -> float:
-        #return wn.path_similarity(self.terms[a],self.terms[b])
+        #return wn.path_similarity(self.terms[a],self.terms[b]) #decomment in case of direct path_similarity query test
         if (a, b) in self.semantic_diff_dic:
             return self.semantic_diff_dic[(a, b)]
         else:
@@ -164,6 +162,6 @@ class DiffMatrix:
 
         #   WILD IDEAS
         #   preprocessare la matrice per vedere se wordnet conosce le parole
-        #   valutare: scartare quando non definito
+        #   valutare: scartare row quando non definito
         #   eseguire l'algoritmo su ciò che wordnet conosce e poi generare una func di interpolazione per i termini sconosciuti (e.g. edit distance sul termine più vicino)
 
