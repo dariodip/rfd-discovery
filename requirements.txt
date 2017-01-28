@@ -3,4 +3,4 @@ numpy
 pandas
 tornado
 Cython
-ntlk
+nltk
