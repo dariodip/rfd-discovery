@@ -1,9 +1,10 @@
 import pandas as pnd
 import numpy as np
 import operator as op
-import utils.utils as ut
 import nltk
 from nltk.corpus import wordnet as wn
+from dateutil import parser
+
 pnd.set_option('display.width', 320)
 
 
@@ -23,19 +24,21 @@ class DiffMatrix:
             synset_dic WordNet synset dictionary of the searched lemmas
             semantic_diff_dic dictionary of the inverse path similarity computed
         """
-    def __init__(self, path):
+    def __init__(self, path, options=None):
         self.path = path
         self.df = None
         self.distance_df = None
-        self.semantic = True
+        self.semantic = False
         self.sysnset_dic = {}
         self.semantic_diff_dic = {}
+        self.options = options
 
     def load(self) -> pnd.DataFrame:
         """Load a pandas data frame from a csv file stored in the path df.
 
         """
         self.df = pnd.read_csv(self.path, sep=';', header=0, index_col=0, engine='c')
+        #print(self.df)
         return self.df
 
     def split_sides(self, lhs: list, rhs: list) -> dict:
@@ -75,7 +78,10 @@ class DiffMatrix:
             n_row = lhs.shape[0]
         else:
             raise Exception("Different number of rows in LHS and RHS")
-
+        #print('---------concat------------')
+        #print(pnd.concat([rhs,lhs], axis=1))
+        #print(pnd.concat([rhs, lhs], axis=1).dtypes)
+        #print('---------/concat------------')
         [ops_rhs, ops_lhs] = self.__map_types__(hss)
         col_names = self.__row_names__(rhs, lhs)
         col_names = ['RHS'] + col_names['l_keys']  # retrieve row names (RHS and LHS)
@@ -99,30 +105,67 @@ class DiffMatrix:
         :param hss: dict of list of the RHS and LHS indexes
         :returns: an array of lists of subtraction functions [(RHS subtraction functions), (LHS subtraction functions)]
         """
-        numeric = {np.dtype('int'), np.dtype('int32'), np.dtype('int64'), np.dtype('float')}
-        string = {np.dtype('string_'), np.dtype('object')}
         if self.semantic:
-            ops = np.array(list(map(lambda el: op.sub if el in numeric else None, self.df.dtypes))) #init() ops array with op.sub and None
-            string_columns = self.df.select_dtypes(include=['object'])
             # iterate over columns
-            for i, (col_label, col) in enumerate(string_columns.iteritems()):
-                for val in col:
-                    s = wn.synsets(val)
-                    if len(s) > 0:
-                        if val not in self.sysnset_dic:
-                            self.sysnset_dic[val] = s[0]  # NOTE terms added from later dropped columns are kept in dict
-                            ops[i] = self.semantic_diff
-                    else:
-                        ops[i] = nltk.edit_distance
-                        break
-            return [ops[hss['rhs']], ops[hss['lhs']]]
+            rhs_types = np.array([self.__semantic_diff_criteria__(col_label, col) for i, (col_label, col) in enumerate(self.df[hss['rhs']].iteritems())])
+            lhs_types = np.array([self.__semantic_diff_criteria__(col_label, col) for i, (col_label, col) in enumerate(self.df[hss['lhs']].iteritems())])
+            return [rhs_types, lhs_types]
         else:
-            rhs_types = list(map(self.__diff_criteria__, self.df[hss['rhs']].dtypes))
-            lhs_types = list(map(self.__diff_criteria__, self.df[hss['lhs']].dtypes))
+            rhs_types = np.array([self.__diff_criteria__(col_label, col) for i, (col_label, col) in enumerate(self.df[hss['rhs']].iteritems())])
+            lhs_types = np.array([self.__diff_criteria__(col_label, col) for i, (col_label, col) in enumerate(self.df[hss['lhs']].iteritems())])
             return [rhs_types, lhs_types]
 
+    def __diff_criteria__(self, col_label: str, col: pnd.DataFrame):
+        """
+        Takes in input a DataFrame and its label and returns the subtraction function.
+        :param col_label: column name
+        :param col: Dataframe
+        :returns: subtraction function
+        TODO: maybe handle unicode strings (dtype:basestring)
+        """
+        numeric = {np.dtype('int'),np.dtype('int32'),np.dtype('int64'),np.dtype('float'),np.dtype('float64')}
+        string = {np.dtype('string_'), np.dtype('object')}
+        # TODO all numeric: dtype = np.number
+        if 'datetime' in self.options and col_label in self.options['datetime']:
+            return self.__date_diff
+        if col.dtype in numeric:
+            return op.sub
+        elif col.dtype in string:
+            return nltk.edit_distance
+        else:
+            raise Exception("Unrecognized dtype")
+
+    def __semantic_diff_criteria__(self, col_label: str, col: pnd.DataFrame):
+        """
+        Takes in input a DataFrame and its label and returns the subtraction
+        function taking into account the semantic difference where is possible.
+        :param col_label: column name
+        :param col: Dataframe
+        :returns: subtraction function
+        """
+        numeric = {np.dtype('int'),np.dtype('int32'),np.dtype('int64'),np.dtype('float'),np.dtype('float64')}
+        string = {np.dtype('string_'), np.dtype('object')}
+        if 'datetime' in self.options and col_label in self.options['datetime']:
+            return self.__date_diff
+        if col.dtype in numeric:
+            return op.sub
+        if col.dtype in string:
+            for val in col:
+                s = wn.synsets(val)
+                if len(s) > 0:
+                    if val not in self.sysnset_dic:
+                        self.sysnset_dic[val] = s[0]  # NOTE terms added from later dropped columns are kept in dict
+                else:
+                    return nltk.edit_distance
+            return self.semantic_diff
+
     def semantic_diff(self, a: str, b: str) -> float:
-        #return wn.path_similarity(self.terms[a],self.terms[b]) #decomment in case of direct path_similarity query test
+        """
+        Computes the semantic difference as (1 - path_similarity) and store the result in semantic_diff_dic
+        :param a: first term
+        :param b: comparation term
+        :return: semantic difference
+        """
         if (a, b) in self.semantic_diff_dic:
             return self.semantic_diff_dic[(a, b)]
         else:
@@ -144,21 +187,17 @@ class DiffMatrix:
         return {"r_keys": r_keys, "l_keys": l_keys}
 
     @staticmethod
-    def __diff_criteria__(dtype):
+    def __date_diff(a: str, b: str) -> float:
         """
-        Takes in input a numpy dtype and returns the subtraction function.
-        :param dtype: numpy dtype
-        :returns: subtraction function
-        TODO: maybe handle unicode strings (dtype:basestring)
+        Computes the aritmetic difference on given dates
+        :param a: date in string
+        :param b: date in string
+        :return: difference in days
         """
-        numeric = {np.dtype('int'), np.dtype('int32'), np.dtype('int64'), np.dtype('float')}
-        string = {np.dtype('string_'), np.dtype('object')}
-        if dtype in numeric:
-            return op.sub
-        elif dtype in string:
-            return nltk.edit_distance
-        else:
-            raise Exception("Unrecognized dtype")
+        try:
+            return (parser.parse(a)-parser.parse(b)).days
+        except:
+            print("error parsing date")
 
         #   WILD IDEAS
         #   preprocessare la matrice per vedere se wordnet conosce le parole

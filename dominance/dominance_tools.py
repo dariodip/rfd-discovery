@@ -14,8 +14,8 @@ class RFDDiscovery:
         self.rfds = None
         self.print_res = print_res
 
-    def get_dominance(self, path: str, dominance_funct, hss: dict):
-        diff_mtx = DiffMatrix(path)
+    def get_dominance(self, path: str, dominance_funct, hss: dict, options: dict):
+        diff_mtx = DiffMatrix(path,options)
         diff_mtx.load()
         # self.distance_matrix = diff_mtx.distance_matrix(diff_mtx.split_sides(hss['lhs'], hss['rhs']))
         self.distance_matrix = diff_mtx.distance_matrix(hss)
