@@ -8,7 +8,7 @@ import sys
 import logging
 
 SERVER_PORT = 9091
-TWENTY_FOUR_HOURS = 24*60*60
+TWENTY_FOUR_HOURS = 24*60*60 + 10
 BACKUP_TIME = 60*60
 TEN_MINUTES = 10*60
 
@@ -19,7 +19,8 @@ fh.setFormatter(formatter)
 logger_ = logging.getLogger(__name__)
 logger_.addHandler(fh)
 
-def choose_tweets(on_method = True):
+
+def choose_tweets(on_method=True):
     Timer(TEN_MINUTES, choose_tweets).start()
     if on_method:
         web_socket_listener.choose_rows()
@@ -35,7 +36,7 @@ if __name__ == "__main__":
     logger_.info("Server in ascolto sulla porta %d", SERVER_PORT)
     choose_tweets(False)
     server_instance = tornado.ioloop.IOLoop.instance()
-    Timer(BACKUP_TIME, web_socket_listener.backup).start()
+    Timer(BACKUP_TIME, web_socket_listener.backup, [BACKUP_TIME]).start()
     Timer(TWENTY_FOUR_HOURS, web_socket_listener.save_file_and_close).start()
     server_instance.start()
 

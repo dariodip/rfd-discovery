@@ -21,11 +21,10 @@ logger_.addHandler(fh)
 pandas_cols = ['created_at', 'sentiment_word_count', 'sentiment_comparative', 'sentiment_score',
                  'sentiment_positive_count', 'sentiment_tokens', 'text', '_msgid', 'retweet_count',
                  'sentiment_negative_count']
+sorting_keys = ['sentiment_word_count', 'sentiment_tokens']
 session_data_frame = pd.DataFrame(columns=pandas_cols)
 global_data_frame = pd.DataFrame(columns=pandas_cols)
 CHOSEN_ROWS = 5
-BACKUP_TIME = 60*60
-
 
 
 class WebSocketListener(tornado.websocket.WebSocketHandler):
@@ -51,7 +50,7 @@ class WebSocketListener(tornado.websocket.WebSocketHandler):
 
 class ParserAndSaver(threading.Thread):
 
-    def __init__(self, message_dict : dict):
+    def __init__(self, message_dict: dict):
         self.message_d = message_dict
 
     def run(self):
@@ -61,13 +60,16 @@ class ParserAndSaver(threading.Thread):
         session_data_frame.loc[session_data_frame.shape[0]] = pandas_row
         logger_.debug("Messaggio aggiunto al data frame")
 
+
 def choose_rows():
     logger_.info("Procedura di selezione delle righe iniziata.")
-    df_len = session_data_frame.shape[0]
-    sample = rnd.sample(range(0,df_len), CHOSEN_ROWS)
-    for s in sample:
-        global_data_frame.loc[global_data_frame.shape[0]] = session_data_frame.loc[s]
+    session_data_frame.sort_values(by=sorting_keys, inplace=True, ascending=False)
+    #global_data_frame.append(session_data_frame.head(CHOSEN_ROWS))
+    to_append = session_data_frame.head(CHOSEN_ROWS)
+    for index, row in to_append.iterrows():
+        global_data_frame.loc[global_data_frame.shape[0]] = row
     logger_.info("Procedura di selezione delle righe terminata")
+    session_data_frame.drop(session_data_frame.index, inplace=True)
 
 
 def save_file_and_close():
@@ -76,8 +78,10 @@ def save_file_and_close():
     logger_.info("File salvato")
     quit()
 
-def backup():
-    threading.Timer(BACKUP_TIME, backup).start()
+
+def backup(backup_time: int):
+    threading.Timer(backup_time, backup, [backup_time]).start()
+    logger_.info("Prossimo backup programmato")
     logger_.info("Avvio backup")
     try:
         global_data_frame.to_csv("crawled-tweets.csv.bak", sep=";")
