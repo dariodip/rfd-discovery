@@ -142,9 +142,9 @@ class RFDDiscovery:
             print("Old Pool:\n", old_pool)
             print("Selected Pool:\n", old_pool[pool_keys[i]])
             print("Sliced Pool:\n", pool_keys[:i] + pool_keys[i+1:])
-            print("New Y:\n", new_y)
+            print("New Y:6\n", new_y)
             print("----------------------------------")
-            if self.__check_dominance_pool_slice(new_y, old_pool, pool_keys[:i] + pool_keys[i+1:]):
+            if not self.__check_dominance_pool_slice(new_y, old_pool, pool_keys[:i] + pool_keys[i+1:]):
                 print("*******new Y to add", new_y)
                 self.__add_rfd(new_y, dist)
                 flag = False
@@ -161,7 +161,7 @@ class RFDDiscovery:
         """
         for x_p in sliced_pool_keys:
             diff = y - np.array(pool[x_p])
-            if not self.__gt_or_nan(diff):
+            if self.__gt_or_nan(diff):
                 return True
         return False
 
