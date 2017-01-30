@@ -130,11 +130,15 @@ class RFDDiscovery:
         :return: True if at least one value in y dominates a value in the old pool's array
         """
         pool_keys = list(old_pool)
+        flag = True
         for i in range(len(pool_keys)):
             diff = y - np.array(old_pool[pool_keys[i]])
             new_y = np.array([np.nan if diff[j] > 0 else y[j] for j in range(len(y))])
             print("----------------------------------")
+            print("pool_keys:\n", pool_keys)
             print("Y:\n", y)
+            print("np.array(old_pool[pool_keys[i]]):\n", np.array(old_pool[pool_keys[i]]))
+            print("diff:\n", diff)
             print("Old Pool:\n", old_pool)
             print("Selected Pool:\n", old_pool[pool_keys[i]])
             print("Sliced Pool:\n", pool_keys[:i] + pool_keys[i+1:])
@@ -143,8 +147,8 @@ class RFDDiscovery:
             if self.__check_dominance_pool_slice(new_y, old_pool, pool_keys[:i] + pool_keys[i+1:]):
                 print("*******new Y to add", new_y)
                 self.__add_rfd(new_y, dist)
-                return False
-        return True
+                flag = False
+        return flag
 
     def __check_dominance_pool_slice(self, y: np.array, pool: dict, sliced_pool_keys: list) -> bool:
         """
@@ -157,7 +161,7 @@ class RFDDiscovery:
         """
         for x_p in sliced_pool_keys:
             diff = y - np.array(pool[x_p])
-            if not self.__gte_or_nan(diff):
+            if not self.__gt_or_nan(diff):
                 return True
         return False
 

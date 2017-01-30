@@ -1,4 +1,6 @@
 matplotlib
 numpy
 pandas
+tornado
+Cython
 nltk
