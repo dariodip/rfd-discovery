@@ -24,11 +24,11 @@ class DiffMatrix:
             synset_dic WordNet synset dictionary of the searched lemmas
             semantic_diff_dic dictionary of the inverse path similarity computed
         """
-    def __init__(self, path, options={}):
+    def __init__(self, path, semantic=False, options={}):
         self.path = path
         self.df = None
         self.distance_df = None
-        self.semantic = False
+        self.semantic = semantic
         self.sysnset_dic = {}
         self.semantic_diff_dic = {}
         self.options = options
