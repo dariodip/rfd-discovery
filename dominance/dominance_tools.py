@@ -5,7 +5,7 @@ import numpy as np
 
 class RFDDiscovery:
 
-    def __init__(self, print_res=False):
+    def __init__(self, dist_matrix: pnd.DataFrame, print_res=False):
         self.pool = dict()
         self.distance_matrix = None
         self.on_distance_dom = dict()
@@ -13,16 +13,14 @@ class RFDDiscovery:
         self.on_minimum_df = None
         self.rfds = None
         self.print_res = print_res
+        self.distance_matrix = dist_matrix
 
-    def get_dominance(self, path: str, dominance_funct, hss: dict, options: dict):
-        diff_mtx = DiffMatrix(path,options)
-        diff_mtx.load()
+    def get_rfds(self, dominance_funct, hss: dict):
         # self.distance_matrix = diff_mtx.distance_matrix(diff_mtx.split_sides(hss['lhs'], hss['rhs']))
-        self.distance_matrix = diff_mtx.distance_matrix(hss)
         self.distance_matrix = dominance_funct(self.distance_matrix, hss['lhs'], hss['rhs'])
         return self.rfds
 
-    def naive_dominance(self, d_mtx: pnd.DataFrame, lhs: list, rhs: list) -> pnd.DataFrame:
+    def standard_algorithm(self, d_mtx: pnd.DataFrame, lhs: list, rhs: list) -> pnd.DataFrame:
         self.__initialize_var__(rhs, lhs, d_mtx.columns)
         selected_row = list()
         distance_values = list(set(np.asarray(d_mtx[d_mtx.columns[0]], dtype='int').flatten()))
@@ -134,18 +132,18 @@ class RFDDiscovery:
         for i in range(len(pool_keys)):
             diff = y - np.array(old_pool[pool_keys[i]])
             new_y = np.array([np.nan if diff[j] > 0 else y[j] for j in range(len(y))])
-            print("----------------------------------")
-            print("pool_keys:\n", pool_keys)
-            print("Y:\n", y)
-            print("np.array(old_pool[pool_keys[i]]):\n", np.array(old_pool[pool_keys[i]]))
-            print("diff:\n", diff)
-            print("Old Pool:\n", old_pool)
-            print("Selected Pool:\n", old_pool[pool_keys[i]])
-            print("Sliced Pool:\n", pool_keys[:i] + pool_keys[i+1:])
-            print("New Y:6\n", new_y)
-            print("----------------------------------")
+            # print("----------------------------------")
+            # print("pool_keys:\n", pool_keys)
+            # print("Y:\n", y)
+            # print("np.array(old_pool[pool_keys[i]]):\n", np.array(old_pool[pool_keys[i]]))
+            # print("diff:\n", diff)
+            # print("Old Pool:\n", old_pool)
+            # print("Selected Pool:\n", old_pool[pool_keys[i]])
+            # print("Sliced Pool:\n", pool_keys[:i] + pool_keys[i+1:])
+            # print("New Y:6\n", new_y)
+            # print("----------------------------------")
             if not self.__check_dominance_pool_slice(new_y, old_pool, pool_keys[:i] + pool_keys[i+1:]):
-                print("*******new Y to add", new_y)
+               # print("*******new Y to add", new_y)
                 self.__add_rfd(new_y, dist)
                 flag = False
         return flag

@@ -24,7 +24,7 @@ class DiffMatrix:
             synset_dic WordNet synset dictionary of the searched lemmas
             semantic_diff_dic dictionary of the inverse path similarity computed
         """
-    def __init__(self, path, options=None):
+    def __init__(self, path, options={}):
         self.path = path
         self.df = None
         self.distance_df = None
@@ -38,7 +38,6 @@ class DiffMatrix:
 
         """
         self.df = pnd.read_csv(self.path, sep=';', header=0, index_col=0, engine='c')
-        #print(self.df)
         return self.df
 
     def split_sides(self, lhs: list, rhs: list) -> dict:
