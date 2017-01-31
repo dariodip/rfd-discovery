@@ -1,6 +1,7 @@
 from setuptools import setup
 from Cython.Build import cythonize
 import numpy as np
+import nltk
 
 with open("requirements.txt", "r") as req:
     requires = [row for row in req]
@@ -12,3 +13,5 @@ setup(
     #ext_modules=cythonize(["loader/*.pyx", "dominance/*.pyx"]),
     include_dirs=[np.get_include()]
 )
+
+nltk.download('wordnet')

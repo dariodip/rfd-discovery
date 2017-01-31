@@ -24,11 +24,11 @@ class DiffMatrix:
             synset_dic WordNet synset dictionary of the searched lemmas
             semantic_diff_dic dictionary of the inverse path similarity computed
         """
-    def __init__(self, path, options=None):
+    def __init__(self, path, semantic=False, options={}):
         self.path = path
         self.df = None
         self.distance_df = None
-        self.semantic = True
+        self.semantic = semantic
         self.sysnset_dic = {}
         self.semantic_diff_dic = {}
         self.options = options
@@ -89,7 +89,6 @@ class DiffMatrix:
         for i in range(1, n_row):
             for j in range(i+1, n_row+1):  # iterate on each pair of rows
                 index_t = (i, j)
-                # print(index_t)
                 # absolute difference between rows i and j (both for rhs and lhs) in order to get distance between them
                 rhs_dist = [np.absolute(fn(a, b)) for a, b, fn in list(zip(*[np.array(rhs.loc[i]), np.array(rhs.loc[j]), ops_rhs]))]
                 lhs_dist = [np.absolute(fn(a, b)) for a, b, fn in list(zip(*[np.array(lhs.loc[i]), np.array(lhs.loc[j]), ops_lhs]))]

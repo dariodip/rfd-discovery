@@ -1,5 +1,6 @@
 import unittest
 from dominance.dominance_tools import RFDDiscovery
+from loader.distance_mtr import DiffMatrix
 import os
 from datetime import datetime
 import pandas as pd
@@ -22,10 +23,14 @@ class MyTestCase(unittest.TestCase):
             ds_shape = self.__get_ds_shape(current_ds)                  # get df shape
             lhs_vs_rhs = self.__get_hs_combination(ds_shape['col'])     # combination for HS
             for combination in lhs_vs_rhs:
+                diff_matrix = DiffMatrix(current_ds, {})
+                diff_matrix.load()
+                dist_mtx = diff_matrix.distance_matrix(combination)
+                diff_mtx = None  # for free unused memory
                 for i in range(ITERATION_TIME):                         # repeat test X times
                     start_time = time.time()                            # get t0
-                    rfdd = RFDDiscovery()
-                    rfd_df = rfdd.get_dominance(current_ds, rfdd.naive_dominance, combination)
+                    rfdd = RFDDiscovery(dist_mtx)
+                    rfd_df = rfdd.get_rfds(rfdd.standard_algorithm, combination)
                     elapsed_time = time.time() - start_time             # get deltaT = now - t0
                     rfd_count = rfd_df.shape[0]
                     self.__append_result(ds, ds_shape['row'], ds_shape['col'], file_size, round(elapsed_time*1000,3),
