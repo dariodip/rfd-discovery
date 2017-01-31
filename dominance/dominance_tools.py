@@ -55,6 +55,8 @@ class RFDDiscovery:
 
         self.rfds.drop_duplicates(subset=df_keys, inplace=True)
         self.rfds.reset_index(inplace=True)
+        self.rfds = self.rfds.drop(['index'], axis = 1) # Remove the distance matrix's indexes
+
         if self.print_res:
             print("Minimum df \n", self.on_minimum_df)
             print("Pool:\n", self.pool)
@@ -74,8 +76,9 @@ class RFDDiscovery:
         compare = act_min < self.min_vector
         self.min_vector = np.array([self.min_vector[i] if not compare[i] else act_min[i] for i in range(len(act_min))])
         for index, row in df_act_dist.iterrows():
-            vect = [False if not compare[i] else act_min[i] == row[i] for i in range(len(act_min))]
-            vect = [np.nan if not vect[i] else act_min[i] for i in range(len(act_min))]
+            #vect = [False if not compare[i] else act_min[i] == row[i] for i in range(len(act_min))]
+            #vect = [np.nan if not vect[i] else act_min[i] for i in range(len(act_min))]
+            vect = [np.nan if not compare[i] or act_min[i] != row[i] else act_min[i] for i in range(len(act_min))]
             self.on_minimum_df.loc[index] = np.array([dist] + vect)
             if not all(np.isnan(vect)):
                 self.__all_rfds(vect, dist)
@@ -93,9 +96,14 @@ class RFDDiscovery:
             nan_count = sum(np.isnan(row))
             if nan_count <= 1:
                 self.__all_rfds(row.tolist(), dist)
-            # case 3:   2 <= |nan| <= |LHS_ATTR|
-            elif 2 <= nan_count:
-                self.__any_rfds(row, dist, old_pool) # TODO se tutti nan
+            # case 2:   2 <= |nan| < |LHS_ATTR|
+            elif 2 <= nan_count < len(row):
+                self.__any_rfds(row, dist, old_pool)
+            # case 3:   |nan| == |LHS_ATTR|
+            else:
+                compl_row = self.__complement_nans(row)
+                if self.__check_dominance_single(compl_row, old_pool, dist):  # check on single attributes
+                    self.__add_rfd(compl_row, dist)
 
     def __check_dominance(self, y: list, rows_to_delete: set) -> bool:
         """
@@ -140,21 +148,21 @@ class RFDDiscovery:
             # print("Old Pool:\n", old_pool)
             # print("Selected Pool:\n", old_pool[pool_keys[i]])
             # print("Sliced Pool:\n", pool_keys[:i] + pool_keys[i+1:])
-            # print("New Y:6\n", new_y)
+            # print("New Y:\n", new_y)
             # print("----------------------------------")
             if not self.__check_dominance_pool_slice(new_y, old_pool, pool_keys[:i] + pool_keys[i+1:]):
-               # print("*******new Y to add", new_y)
+                #print("*******new Y to add", new_y)
                 self.__add_rfd(new_y, dist)
                 flag = False
         return flag
 
     def __check_dominance_pool_slice(self, y: np.array, pool: dict, sliced_pool_keys: list) -> bool:
         """
-        TODO change pool's name
-
-        :param y:
-        :param pool:
-        :param sliced_pool_keys:
+        Recalling: X dominates Y (with NANs) iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0 || x - y == nan
+        Check if y dominates at least one value in the pool (including NAN values)
+        :param y: row to check
+        :param pool: row's pool to analyze
+        :param sliced_pool_keys: pool's key without the one used to create y
         :return: True if Y dominates at least one vector in the sliced pool
         """
         for x_p in sliced_pool_keys:
