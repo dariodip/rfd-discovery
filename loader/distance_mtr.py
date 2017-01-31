@@ -28,7 +28,7 @@ class DiffMatrix:
         self.path = path
         self.df = None
         self.distance_df = None
-        self.semantic = False
+        self.semantic = True
         self.sysnset_dic = {}
         self.semantic_diff_dic = {}
         self.options = options
@@ -89,6 +89,7 @@ class DiffMatrix:
         for i in range(1, n_row):
             for j in range(i+1, n_row+1):  # iterate on each pair of rows
                 index_t = (i, j)
+                # print(index_t)
                 # absolute difference between rows i and j (both for rhs and lhs) in order to get distance between them
                 rhs_dist = [np.absolute(fn(a, b)) for a, b, fn in list(zip(*[np.array(rhs.loc[i]), np.array(rhs.loc[j]), ops_rhs]))]
                 lhs_dist = [np.absolute(fn(a, b)) for a, b, fn in list(zip(*[np.array(lhs.loc[i]), np.array(lhs.loc[j]), ops_lhs]))]
@@ -109,11 +110,11 @@ class DiffMatrix:
             # iterate over columns
             rhs_types = np.array([self.__semantic_diff_criteria__(col_label, col) for i, (col_label, col) in enumerate(self.df[hss['rhs']].iteritems())])
             lhs_types = np.array([self.__semantic_diff_criteria__(col_label, col) for i, (col_label, col) in enumerate(self.df[hss['lhs']].iteritems())])
-            return [rhs_types, lhs_types]
         else:
             rhs_types = np.array([self.__diff_criteria__(col_label, col) for i, (col_label, col) in enumerate(self.df[hss['rhs']].iteritems())])
             lhs_types = np.array([self.__diff_criteria__(col_label, col) for i, (col_label, col) in enumerate(self.df[hss['lhs']].iteritems())])
-            return [rhs_types, lhs_types]
+        #print([rhs_types, lhs_types])
+        return [rhs_types, lhs_types]
 
     def __diff_criteria__(self, col_label: str, col: pnd.DataFrame):
         """
@@ -151,12 +152,12 @@ class DiffMatrix:
             return op.sub
         if col.dtype in string:
             for val in col:
-                s = wn.synsets(val)
-                if len(s) > 0:
-                    if val not in self.sysnset_dic:
+                if val not in self.sysnset_dic:
+                    s = wn.synsets(val)
+                    if len(s) > 0:
                         self.sysnset_dic[val] = s[0]  # NOTE terms added from later dropped columns are kept in dict
-                else:
-                    return nltk.edit_distance
+                    else:
+                        return nltk.edit_distance
             return self.semantic_diff
 
     def semantic_diff(self, a: str, b: str) -> float:
@@ -166,6 +167,7 @@ class DiffMatrix:
         :param b: comparation term
         :return: semantic difference
         """
+        #print(a,b)
         if (a, b) in self.semantic_diff_dic:
             return self.semantic_diff_dic[(a, b)]
         else:

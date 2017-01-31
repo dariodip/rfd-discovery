@@ -34,3 +34,4 @@ build/
 dist/
 */__pycache__/
 /dist/*.egg
+/rfd-server/node_modules

@@ -1,0 +1,14 @@
+{
+  "name": "rfd-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.py",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "blueimp-file-upload-node": "^2.1.0"
+  }
+}
