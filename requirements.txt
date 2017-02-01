@@ -1,3 +1,4 @@
+dateutil
 matplotlib
 numpy
 pandas
@@ -5,3 +6,4 @@ tornado
 Cython
 nltk
 python-dateutil
+flask

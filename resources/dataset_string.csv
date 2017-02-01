@@ -1,8 +1,8 @@
-id;name;sex;city;age
-1;john;male;newyork;20
-2;jack;male;newyork;21
-3;mary;female;losangeles;45
-4;maryanne;female;losangeles;48
-5;eric;male;san francisco;29
-6;jenny;female;boston2;30
-7;mattia;na;BostonDynamics;50
+name;sex;city;age
+john;male;newyork;20
+jack;male;newyork;21
+mary;female;losangeles;45
+maryanne;female;losangeles;48
+eric;male;san francisco;29
+jenny;female;boston2;30
+mattia;na;BostonDynamics;50

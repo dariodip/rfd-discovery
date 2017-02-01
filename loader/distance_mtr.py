@@ -24,21 +24,22 @@ class DiffMatrix:
             synset_dic WordNet synset dictionary of the searched lemmas
             semantic_diff_dic dictionary of the inverse path similarity computed
         """
-    def __init__(self, path, semantic=False, options={}):
+    def __init__(self, path, semantic=False, options=None, sep=';', first_col_header=0):
         self.path = path
         self.df = None
         self.distance_df = None
         self.semantic = semantic
         self.sysnset_dic = {}
         self.semantic_diff_dic = {}
-        self.options = options
+        self.options = {} if options is None else options
+        self.sep = sep
+        self.first_col_header = first_col_header
 
-    def load(self) -> pnd.DataFrame:
+    def load(self, index_col=False) -> pnd.DataFrame:
         """Load a pandas data frame from a csv file stored in the path df.
 
         """
-        self.df = pnd.read_csv(self.path, sep=';', header=0, index_col=0, engine='c')
-        #print(self.df)
+        self.df = pnd.read_csv(self.path, sep=self.sep, header=self.first_col_header, index_col=index_col, engine='c')
         return self.df
 
     def split_sides(self, lhs: list, rhs: list) -> dict:
@@ -78,20 +79,24 @@ class DiffMatrix:
             n_row = lhs.shape[0]
         else:
             raise Exception("Different number of rows in LHS and RHS")
-        #print('---------concat------------')
-        #print(pnd.concat([rhs,lhs], axis=1))
-        #print(pnd.concat([rhs, lhs], axis=1).dtypes)
-        #print('---------/concat------------')
+        # print('---------concat------------')
+        # print(pnd.concat([rhs,lhs], axis=1))
+        # print(pnd.concat([rhs, lhs], axis=1).dtypes)
+        # print('---------/concat------------')
         [ops_rhs, ops_lhs] = self.__map_types__(hss)
         col_names = self.__row_names__(rhs, lhs)
         col_names = ['RHS'] + col_names['l_keys']  # retrieve row names (RHS and LHS)
         self.distance_df = pnd.DataFrame(columns=col_names)
-        for i in range(1, n_row):
-            for j in range(i+1, n_row+1):  # iterate on each pair of rows
+        for i in range(0, n_row):
+            for j in range(i+1, n_row):  # iterate on each pair of rows
                 index_t = (i, j)
                 # absolute difference between rows i and j (both for rhs and lhs) in order to get distance between them
-                rhs_dist = [np.absolute(fn(a, b)) for a, b, fn in list(zip(*[np.array(rhs.loc[i]), np.array(rhs.loc[j]), ops_rhs]))]
-                lhs_dist = [np.absolute(fn(a, b)) for a, b, fn in list(zip(*[np.array(lhs.loc[i]), np.array(lhs.loc[j]), ops_lhs]))]
+                rhs_dist = [np.absolute(fn(a, b))
+                            for a, b, fn
+                            in list(zip(*[np.array(rhs.iloc[i]), np.array(rhs.iloc[j]), ops_rhs]))]
+                lhs_dist = [np.absolute(fn(a, b))
+                            for a, b, fn
+                            in list(zip(*[np.array(lhs.iloc[i]), np.array(lhs.iloc[j]), ops_lhs]))]
                 row = np.concatenate([rhs_dist, lhs_dist], axis=0)  # todo check axis 0
                 self.distance_df.loc[str(index_t)] = row.tolist()
                 # insert a row containing distances into the distance data frame
@@ -107,12 +112,15 @@ class DiffMatrix:
         """
         if self.semantic:
             # iterate over columns
-            rhs_types = np.array([self.__semantic_diff_criteria__(col_label, col) for i, (col_label, col) in enumerate(self.df[hss['rhs']].iteritems())])
-            lhs_types = np.array([self.__semantic_diff_criteria__(col_label, col) for i, (col_label, col) in enumerate(self.df[hss['lhs']].iteritems())])
+            rhs_types = np.array([self.__semantic_diff_criteria__(col_label, col)
+                                  for i, (col_label, col) in enumerate(self.df[hss['rhs']].iteritems())])
+            lhs_types = np.array([self.__semantic_diff_criteria__(col_label, col)
+                                  for i, (col_label, col) in enumerate(self.df[hss['lhs']].iteritems())])
         else:
-            rhs_types = np.array([self.__diff_criteria__(col_label, col) for i, (col_label, col) in enumerate(self.df[hss['rhs']].iteritems())])
-            lhs_types = np.array([self.__diff_criteria__(col_label, col) for i, (col_label, col) in enumerate(self.df[hss['lhs']].iteritems())])
-        #print([rhs_types, lhs_types])
+            rhs_types = np.array([self.__diff_criteria__(col_label, col)
+                                  for i, (col_label, col) in enumerate(self.df[hss['rhs']].iteritems())])
+            lhs_types = np.array([self.__diff_criteria__(col_label, col)
+                                  for i, (col_label, col) in enumerate(self.df[hss['lhs']].iteritems())])
         return [rhs_types, lhs_types]
 
     def __diff_criteria__(self, col_label: str, col: pnd.DataFrame):
@@ -123,7 +131,7 @@ class DiffMatrix:
         :returns: subtraction function
         TODO: maybe handle unicode strings (dtype:basestring)
         """
-        numeric = {np.dtype('int'),np.dtype('int32'),np.dtype('int64'),np.dtype('float'),np.dtype('float64')}
+        numeric = {np.dtype('int'), np.dtype('int32'), np.dtype('int64'), np.dtype('float'), np.dtype('float64')}
         string = {np.dtype('string_'), np.dtype('object')}
         # TODO all numeric: dtype = np.number
         if 'datetime' in self.options and col_label in self.options['datetime']:
@@ -143,7 +151,7 @@ class DiffMatrix:
         :param col: Dataframe
         :returns: subtraction function
         """
-        numeric = {np.dtype('int'),np.dtype('int32'),np.dtype('int64'),np.dtype('float'),np.dtype('float64')}
+        numeric = {np.dtype('int'), np.dtype('int32'), np.dtype('int64'), np.dtype('float'), np.dtype('float64')}
         string = {np.dtype('string_'), np.dtype('object')}
         if 'datetime' in self.options and col_label in self.options['datetime']:
             return self.__date_diff
@@ -166,7 +174,6 @@ class DiffMatrix:
         :param b: comparation term
         :return: semantic difference
         """
-        #print(a,b)
         if (a, b) in self.semantic_diff_dic:
             return self.semantic_diff_dic[(a, b)]
         else:
@@ -197,11 +204,11 @@ class DiffMatrix:
         """
         try:
             return (parser.parse(a)-parser.parse(b)).days
-        except:
-            print("error parsing date")
+        except Exception as ex:
+            print("error parsing date: ", str(ex))
 
         #   WILD IDEAS
         #   preprocessare la matrice per vedere se wordnet conosce le parole
         #   valutare: scartare row quando non definito
-        #   eseguire l'algoritmo su ciò che wordnet conosce e poi generare una func di interpolazione per i termini sconosciuti (e.g. edit distance sul termine più vicino)
-
+        #   eseguire l'algoritmo su ciò che wordnet conosce e poi generare una func di interpolazione per i
+        # termini sconosciuti (e.g. edit distance sul termine più vicino)
