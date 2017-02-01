@@ -10,7 +10,7 @@ setup(
     name = "rfd-discovery",
     version = "0.0.1",
     install_requires = requires,
-    #ext_modules=cythonize(["loader/*.pyx", "dominance/*.pyx"]),
+    ext_modules=cythonize(["dominance/*.pyx"]),
     include_dirs=[np.get_include()]
 )
 
