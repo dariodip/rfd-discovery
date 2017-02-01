@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "blueimp-file-upload-node": "^2.1.0"
+    "blueimp-file-upload-node": "^2.1.0",
+    "datatables.net": "^2.1.1",
+    "datatables.net-dt": "^2.1.1"
   }
 }

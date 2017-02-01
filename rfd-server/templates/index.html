@@ -7,6 +7,8 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
     <link href="static/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+    <link href="static/js/jquery.dataTables/css/jquery.dataTables.css" type="text/css" rel="stylesheet"
+          media="screen,projection"/>
 </head>
 <body>
 <nav class="white" role="navigation">
@@ -26,7 +28,8 @@
         <div class="container">
             <br><br>
 
-            <h1 class="header center white-text">  <img src="static/images/pythonlogo.png" /> <br> Relaxed Functional Dependencies Discovery</h1>
+            <h1 class="header center white-text"><img src="static/images/pythonlogo.png"/> <br> Relaxed Functional
+                Dependencies Discovery</h1>
             <div class="row center">
                 <h5 class="header col s12 white-text"></h5>
             </div>
@@ -40,31 +43,75 @@
     <div class="parallax"><img src="static/images/neural.png" alt="neural network"></div>
 </div>
 <div class="container pad">
-    <div class="section">
+    <div class="section" id="step1">
         <div class="row">
             <div class="col s12">
                 <form action="#" id="file-form" enctype="multipart/form-data">
-                    <div class="file-field input-field" >
+                    <div class="file-field input-field">
                         <div class="btn">
                             <span>Select CSV</span>
                             <input type="file" id="jfileupload" name="file" data-url="/api/upload">
                         </div>
                         <div class="file-path-wrapper">
-                            <input class="file-path validate" type="text">
+                            <input id="file-path" class="file-path validate" type="text">
                         </div>
+                        <div class="progress">
+                            <div class="determinate" id="progressbar" style="width: 70%"></div>
+                        </div>
+
                     </div>
+
                 </form>
 
             </div>
         </div>
     </div>
+
+    <div class="section preview" id="step2" style="display: none;">
+        <h3>Preview</h3>
+        <table id="table" class="display" cellspacing="0" width="100%"></table>
+
+        <div class="card-panel">
+            <p class="">Options</p>
+            <div class="row">
+                <div class="col s3">
+                    <input type="checkbox" id="semantic"/>
+                    <label for="semantic">Semantic</label>
+                </div>
+                <div class="col s3">
+                    <input type="checkbox" id="opt2"/>
+                    <label for="opt2">Separator</label>
+                </div>
+                <div class="col s3">
+                    <input type="checkbox" id="opt3"/>
+                    <label for="opt3">Option 3</label>
+                </div>
+                <div class="col s3">
+                    <input type="checkbox" id="opt4"/>
+                    <label for="opt4">Option 4</label>
+                </div>
+            </div>
+
+        </div>
+        <div class="center">
+            <a class="waves-effect waves-light btn-large center" id="run"><i class="material-icons right">send</i>
+                Run</a>
+        </div>
+
+    </div>
+
+    <div class="section" id="step3" style="display: none;">
+
+    </div>
+
+
 </div>
 
 <footer class="page-footer teal">
     <div class="container">
         <div class="row">
             <div class="col l6 s12">
-                <h5 class="white-text">Aboud</h5>
+                <h5 class="white-text">About</h5>
                 <p class="grey-text text-lighten-4">lorem ipsum</p>
 
 
@@ -93,19 +140,75 @@
 <script src="static/js/jquery.ui.widget.js"></script>
 <script src="static/js/jquery.iframe-transport.js"></script>
 <script src="static/js/jquery.fileupload.js"></script>
+<script src="static/js/jquery.fileupload.js"></script>
+<script src="static/js/jquery.dataTables/jquery.dataTables.js"></script>
+<script src="static/js/jquery.dataTables/jquery.dataTables.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.2.4/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.colVis.min.js"></script>
 
 
 <script type=text/javascript>
-    $SCRIPT_ROOT = {{request.script_root | tojson | safe}};
-    $('#jfileupload').fileupload({
-        //dataType: 'json',
-        autoUpload: true,
-        done: function (e, data) {
-            console.log(data.result)
-        }
+    $(document).ready(function () {
+        //$SCRIPT_ROOT = {{request.script_root | tojson | safe}};
+        //var $table = $('#table').DataTable();
+
+        $('#jfileupload').fileupload({
+            //dataType: 'json',
+            autoUpload: true,
+            done: function (e, data) {
+                var $table = $('#table');
+                $table.html('')
+                var dd = data.result.split(/\r?\n/)
+                var header = dd[0]
+                var dataset = dd.slice(1, 10)
+
+                var thead = $('<thead></thead>');
+                var tr = $('<tr></tr>');
+                header.split(";").forEach(function (j, cellData) {
+                    tr.append($('<td>' + j + '</td>'));
+                });
+                thead.append(tr);
+                $table.append(thead);
+                var tbody = $('<tbody></tbody>');
+                dataset.forEach(function (row) {
+                    var tr = $('<tr></tr>');
+                    row.split(";").forEach(function (j, cellData) {
+                        tr.append($('<td>' + j + '</td>'));
+                    });
+                    tbody.append(tr);
+                });
+                $table.append(tbody);
+                $table.DataTable();
+            },
+            progressall: function (e, data) {
+                var progress = parseInt(data.loaded / data.total * 100, 10);
+                $('#progressbar').css(
+                    'width',
+                    progress + '%'
+                );
+            }
+        }).bind('fileuploadadd', function (e, data) {
+            console.log(data.files[0].name)
+            $('#file-path').val(data.files[0].name)
+
+            $('#step2').fadeIn()
+            scrollTo('#step2')
+        })
+
+        $("#run").on("click", function () {
+            //$('#step3').fadeIn()
+            //scrollTo('#step3')
+        });
+
+
+        // $('#example').DataTable();
     });
 
-
+    function scrollTo(toEl) {
+        $('html, body').animate({
+            scrollTop: $(toEl).offset().top
+        }, 1000);
+    }
 </script>
 
 </body>
