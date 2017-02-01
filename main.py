@@ -14,5 +14,3 @@ if __name__ == "__main__":
         with ut.timeit_context("RFD Discover time"):
             nd = RFDDiscovery(dist_mtx)
             print(nd.get_rfds(nd.standard_algorithm, hss))
-
-        #print(nd.get_rfds("resources/flight_1k_2.csv", nd.standard_algorithm, {"lhs": [1,2], "rhs": [5]},{'datetime':['FlightDate']}))
