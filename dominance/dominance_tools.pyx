@@ -1,8 +1,10 @@
-import pandas as pnd
-import numpy as np
-cimport numpy as np
-import cython
+#defining NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#cython: boundscheck=False, wraparound=False, nonecheck=False
+
 cimport cython
+import pandas as pnd
+cimport numpy as np
+import numpy as np
 
 class RFDDiscovery:
 
@@ -255,6 +257,8 @@ cpdef clean_pool(rows_to_add: dict):
     if len(rows_to_add) == 1:
         return rows_to_add
     row_index = list(rows_to_add.keys())
+    cdef int i
+    cdef int j
     for i in range(0, len(row_index)):
         if row_index[i] in rows_to_add:
             for j in range(i + 1, len(row_index)):
