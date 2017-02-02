@@ -63,3 +63,6 @@ h1 {
 .pad {
     padding: 100px 0;
 }
+
+.lhs { background: red}
+.rhs { background: green}

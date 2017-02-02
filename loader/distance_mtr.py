@@ -24,22 +24,27 @@ class DiffMatrix:
             synset_dic WordNet synset dictionary of the searched lemmas
             semantic_diff_dic dictionary of the inverse path similarity computed
         """
-    def __init__(self, path, semantic=False, options=None, sep=';', first_col_header=0):
+    def __init__(self, path, semantic=False, datetime=False, sep=';', missing='?', first_col_header=0):
         self.path = path
         self.df = None
         self.distance_df = None
         self.semantic = semantic
         self.sysnset_dic = {}
         self.semantic_diff_dic = {}
-        self.options = {} if options is None else options
+        self.datetime = datetime
         self.sep = sep
+        self.missing = missing
         self.first_col_header = first_col_header
 
     def load(self, index_col=False) -> pnd.DataFrame:
         """Load a pandas data frame from a csv file stored in the path df.
 
         """
-        self.df = pnd.read_csv(self.path, sep=self.sep, header=self.first_col_header, index_col=index_col, engine='c')
+        self.df = pnd.read_csv(self.path, sep=self.sep, header=self.first_col_header, index_col=index_col, engine='c',na_values=['',self.missing],parse_dates=self.datetime)
+        self.df = self.df.replace(np.nan, np.inf)
+        #print(self.df)
+        #print(self.df.dtypes)
+
         return self.df
 
     def split_sides(self, lhs: list, rhs: list) -> dict:
@@ -91,17 +96,14 @@ class DiffMatrix:
             for j in range(i+1, n_row):  # iterate on each pair of rows
                 index_t = (i, j)
                 # absolute difference between rows i and j (both for rhs and lhs) in order to get distance between them
-                rhs_dist = [np.absolute(fn(a, b))
-                            for a, b, fn
-                            in list(zip(*[np.array(rhs.iloc[i]), np.array(rhs.iloc[j]), ops_rhs]))]
-                lhs_dist = [np.absolute(fn(a, b))
-                            for a, b, fn
-                            in list(zip(*[np.array(lhs.iloc[i]), np.array(lhs.iloc[j]), ops_lhs]))]
+                rhs_dist = [np.absolute(fn(a, b)) for a, b, fn in list(zip(*[np.array(rhs.iloc[i]), np.array(rhs.iloc[j]), ops_rhs]))]
+                lhs_dist = [np.absolute(fn(a, b)) for a, b, fn in list(zip(*[np.array(lhs.iloc[i]), np.array(lhs.iloc[j]), ops_lhs]))]
                 row = np.concatenate([rhs_dist, lhs_dist], axis=0)  # todo check axis 0
                 self.distance_df.loc[str(index_t)] = row.tolist()
                 # insert a row containing distances into the distance data frame
         # assign row names for the data frame
         self.distance_df.sort_values(by=['RHS'], axis=0, inplace=True, ascending=False)  # sort data frame by r_keys
+        #print(self.distance_df)
         return self.distance_df
 
     def __map_types__(self, hss: dict) -> list:
@@ -133,13 +135,14 @@ class DiffMatrix:
         """
         numeric = {np.dtype('int'), np.dtype('int32'), np.dtype('int64'), np.dtype('float'), np.dtype('float64')}
         string = {np.dtype('string_'), np.dtype('object')}
+        datetime = {np.dtype('<M8[ns]')} #TODO check
         # TODO all numeric: dtype = np.number
-        if 'datetime' in self.options and col_label in self.options['datetime']:
-            return self.__date_diff
         if col.dtype in numeric:
             return op.sub
         elif col.dtype in string:
-            return nltk.edit_distance
+            return self.__edit_dist__
+        elif col.dtype in datetime:
+            return self.__date_diff__
         else:
             raise Exception("Unrecognized dtype")
 
@@ -153,19 +156,24 @@ class DiffMatrix:
         """
         numeric = {np.dtype('int'), np.dtype('int32'), np.dtype('int64'), np.dtype('float'), np.dtype('float64')}
         string = {np.dtype('string_'), np.dtype('object')}
-        if 'datetime' in self.options and col_label in self.options['datetime']:
-            return self.__date_diff
+        datetime = {np.datetime64(),pnd.tslib.Timestamp,np.dtype('<M8[ns]')}
+
         if col.dtype in numeric:
             return op.sub
-        if col.dtype in string:
+        elif col.dtype in datetime:
+            return self.__date_diff__
+        elif col.dtype in string:
             for val in col:
                 if val not in self.sysnset_dic:
                     s = wn.synsets(val)
                     if len(s) > 0:
                         self.sysnset_dic[val] = s[0]  # NOTE terms added from later dropped columns are kept in dict
                     else:
-                        return nltk.edit_distance
+                        return self.__edit_dist__
             return self.semantic_diff
+        else:
+            raise Exception("Unrecognized dtype")
+
 
     def semantic_diff(self, a: str, b: str) -> float:
         """
@@ -174,6 +182,8 @@ class DiffMatrix:
         :param b: comparation term
         :return: semantic difference
         """
+        if a == np.inf or b == np.inf:
+            return np.inf
         if (a, b) in self.semantic_diff_dic:
             return self.semantic_diff_dic[(a, b)]
         else:
@@ -195,17 +205,32 @@ class DiffMatrix:
         return {"r_keys": r_keys, "l_keys": l_keys}
 
     @staticmethod
-    def __date_diff(a: str, b: str) -> float:
+    def __date_diff__(a: pnd.tslib.Timestamp, b: pnd.tslib.Timestamp) -> float:
         """
         Computes the aritmetic difference on given dates
         :param a: date in string
         :param b: date in string
         :return: difference in days
         """
-        try:
-            return (parser.parse(a)-parser.parse(b)).days
-        except Exception as ex:
-            print("error parsing date: ", str(ex))
+        delta = a-b
+        return int(delta / np.timedelta64(1, 'D'))
+        # try:
+        #     return (parser.parse(a)-parser.parse(b)).days
+        # except Exception as ex:
+        #     print("error parsing date: ", str(ex))
+
+
+    @staticmethod
+    def __edit_dist__(a: str, b: str) -> float:
+        """
+        Computes the Levenshtein distance between two terms
+        :param a: first term
+        :param b: second term
+        :return: Levenshtein distance
+        """
+        if a == np.inf or b == np.inf:
+            return np.inf
+        return nltk.edit_distance(a, b)
 
         #   WILD IDEAS
         #   preprocessare la matrice per vedere se wordnet conosce le parole

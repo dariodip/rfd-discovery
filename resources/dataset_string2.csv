@@ -1,8 +1,8 @@
-name;sex;age
-cat;male;20
-cat;male;21
-cat;female;45
-cat;female;48
-dog;male;29
-dog;female;30
-dog;male;100
+name;sex;age;date
+cat;male;20;2001/01/02
+cat;male;21;2001/03/02
+cat;female;45;2001/04/02
+cat;female;48;2001/06/02
+dog;male;29;2001/08/02
+dog;female;30;2001/09/02
+dog;male;?;2001/04/02

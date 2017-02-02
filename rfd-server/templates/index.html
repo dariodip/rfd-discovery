@@ -7,8 +7,6 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
     <link href="static/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
-    <link href="static/js/jquery.dataTables/css/jquery.dataTables.css" type="text/css" rel="stylesheet"
-          media="screen,projection"/>
 </head>
 <body>
 <nav class="white" role="navigation">
@@ -43,10 +41,11 @@
     <div class="parallax"><img src="static/images/neural.png" alt="neural network"></div>
 </div>
 <div class="container pad">
-    <div class="section" id="step1">
-        <div class="row">
-            <div class="col s12">
-                <form action="#" id="file-form" enctype="multipart/form-data">
+    <form action="#" id="file-form" enctype="multipart/form-data">
+        <div class="section" id="step1">
+            <div class="row">
+                <div class="col s12">
+
                     <div class="file-field input-field">
                         <div class="btn">
                             <span>Select CSV</span>
@@ -55,56 +54,72 @@
                         <div class="file-path-wrapper">
                             <input id="file-path" class="file-path validate" type="text">
                         </div>
-                        <div class="progress">
-                            <div class="determinate" id="progressbar" style="width: 70%"></div>
-                        </div>
 
                     </div>
-
-                </form>
-
-            </div>
-        </div>
-    </div>
-
-    <div class="section preview" id="step2" style="display: none;">
-        <h3>Preview</h3>
-        <table id="table" class="display" cellspacing="0" width="100%"></table>
-
-        <div class="card-panel">
-            <p class="">Options</p>
-            <div class="row">
-                <div class="col s3">
-                    <input type="checkbox" id="semantic"/>
-                    <label for="semantic">Semantic</label>
-                </div>
-                <div class="col s3">
-                    <input type="checkbox" id="opt2"/>
-                    <label for="opt2">Separator</label>
-                </div>
-                <div class="col s3">
-                    <input type="checkbox" id="opt3"/>
-                    <label for="opt3">Option 3</label>
-                </div>
-                <div class="col s3">
-                    <input type="checkbox" id="opt4"/>
-                    <label for="opt4">Option 4</label>
                 </div>
             </div>
-
         </div>
-        <div class="center">
-            <a class="waves-effect waves-light btn-large center" id="run"><i class="material-icons right">send</i>
-                Run</a>
+        <div id="details"></div>
+        <div class="section preview" id="step2" style="display: none;">
+
+            <div class="card-panel">
+                <p class="">Options</p>
+                <div class="row">
+                    <div class="col s6">
+                        <input type="checkbox" id="semantic"/>
+                        <label for="semantic">Semantic</label>
+                    </div>
+                    <div class="col s6">
+                        <input type="checkbox" id="header" checked="true"/>
+                        <label for="header">Header</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class=" col s12">
+                        <div class="input-field">
+                            <select id="separator">
+                                <option value="" disabled selected>Select</option>
+                                <option value=";" selected> ;</option>
+                                <option value=","> ,</option>
+                            </select>
+                            <label>Separator</label>
+                        </div>
+                    </div>
+                </div>
+                 <!-- <div class="row">
+                    <div class=" col s3">
+                        <div class="input-field">
+                              <input id="delimiter" type="text" >
+                              <label for="delimiter">Delimiter</label>
+                        </div>
+                    </div>
+                    <div class="col s3">
+                        <input type="checkbox" id="previewcheckbox"/>
+                        <label for="previewcheckbox">Table preview</label>
+                    </div>
+
+                     <div class="col s3">
+                              <input id="unknow" type="text" value="?" readonly>
+                        <label for="unknow">Unknow value placeholder</label>
+                    </div>
+                  </div> -->
+            </div>
+            <h3>Preview</h3>
+            <div id="table">contents</div>
+
+            <br>
+            <div class="center">
+                <a class="waves-effect waves-light btn-large center" id="run"><i class="material-icons right">send</i> Run</a>
+            </div>
+             <div id="progressbox"class="progress" style="display: none;">
+                 <div class="determinate" id="progressbar" ></div>
+             </div>
+            <div id="progressvalue"></div>
         </div>
-
-    </div>
-
-    <div class="section" id="step3" style="display: none;">
-
-    </div>
-
-
+    </form>
+            <div class="section result" id="step3" style="">
+                <div id="result"></div>
+            </div>
 </div>
 
 <footer class="page-footer teal">
@@ -140,62 +155,153 @@
 <script src="static/js/jquery.ui.widget.js"></script>
 <script src="static/js/jquery.iframe-transport.js"></script>
 <script src="static/js/jquery.fileupload.js"></script>
-<script src="static/js/jquery.fileupload.js"></script>
-<script src="static/js/jquery.dataTables/jquery.dataTables.js"></script>
-<script src="static/js/jquery.dataTables/jquery.dataTables.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.2.4/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.colVis.min.js"></script>
-
+<script src="static/js/jquery.tablesorter/jquery.tablesorter.js"></script>
+<script src="static/js/jquery.csv.js"></script>
+<script src="static/js/html5LineReader.js"></script>
+<script src="static/js/line-navigator/file-wrapper.js"></script>
+<script src="static/js/line-navigator/line-navigator.js"></script>
 
 <script type=text/javascript>
+
+    var _PREVIEW = true;
+    var _csv = {
+        data: null,
+        separator: $('#separator').val(),
+        header: $('#header').val(),
+        delimiter:'"'
+    };
+
     $(document).ready(function () {
+
+         $('select').material_select();
+
+        $('#previewcheckbox').change(function () {
+            _PREVIEW = $(this).is(":checked")
+        });
+        $('#separator').change(function () {
+            _csv.separator = $(this).val()
+            printTable()
+        });
+        $('#delimiter').bind("propertychange change click keyup input paste",function () {
+            _csv.delimiter = $(this).val() || '"'
+            printTable()
+        });
+        $('#header').click(function () {
+            _csv.header = $(this).is(":checked")
+            printTable()
+        });
+
         //$SCRIPT_ROOT = {{request.script_root | tojson | safe}};
         //var $table = $('#table').DataTable();
 
+        $('#jfileupload').bind('change', handleFileSelect);
+        function handleFileSelect(evt) {
+            var files = evt.target.files; // FileList object
+            var file = files[0];
+            _csv.data = file;
+            //file metadata
+            var output = ''
+            + ' - FileType: ' + (file.type || 'n/a') + '<br />\n'
+            + ' - FileSize: ' + file.size + ' bytes<br />\n'
+            + ' - LastModified: ' + (file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() : 'n/a') + '<br />\n';
+            printTable();
+            $('#details').html(output);
+        }
+
+        function printTable() {
+            var navigator = new LineNavigator(_csv.data);
+            navigator.readLines(0,10, function (err, index, lines, isEof, progress) {
+                var html = '<table class="striped">';
+                if(_csv.header){
+                    html += ("<thead><tr>"+ $.map(lines[0].split(_csv.separator), function (c) {return "<th>" + c }).join("") + "</tr></thead>");
+                    lines.shift()
+                }
+                if(lines && lines.length>0){
+                    html +='<tbody>';
+                    lines.forEach(function(line){
+                       html += ("<tr>"+ $.map(line.split(_csv.separator), function (c) {return "<td>" + c + "</td>"; }).join("") + "</tr>\r\n");
+                    });
+                    html +='</tbody>';
+                }
+                html +='</table>';
+                $('#table').html(html);
+            });
+
+            /*var reader = new FileReader();
+            reader.readAsText(_csv.data);
+            reader.onload = function (event) {
+                var csv = event.target.result;
+                var data = $.csv.toArrays(csv, {separator:_csv.separator,delimiter:_csv.delimiter});
+                var html = '<table class="striped">';
+
+                if(_csv.header){
+                    html += ("<thead><tr>"+ $.map(data[0], function (c) {return "<th>" + c }).join("") + "</tr></thead>");
+                    data.shift()
+                }
+                for (var row in data) {
+                    html += '<tr>\r\n';
+                    for (var item in data[row]) {
+                        html += '<td>' + data[row][item] + '</td>\r\n';
+                    }
+                    html += '</tr>\r\n';
+                }
+                html +='</table>'
+                $('#table').html(html);
+
+                $('thead tr th','#table').click(function () {
+                  console.log('left click'+$(this))
+
+                    $(this).addClass("lhs")
+                })
+                $('thead tr th','#table').bind('contextmenu',function (e) {
+                    e.preventDefault()
+                    $(this).addClass("rhs")
+                  console.log('right click'+$(this))
+                })
+            };
+
+            reader.onerror = function () {
+                alert('Unable to read ' + _csv.data.fileName);
+            };*/
+        }
+
         $('#jfileupload').fileupload({
             //dataType: 'json',
-            autoUpload: true,
-            done: function (e, data) {
-                var $table = $('#table');
-                $table.html('')
-                var dd = data.result.split(/\r?\n/)
-                var header = dd[0]
-                var dataset = dd.slice(1, 10)
-
-                var thead = $('<thead></thead>');
-                var tr = $('<tr></tr>');
-                header.split(";").forEach(function (j, cellData) {
-                    tr.append($('<td>' + j + '</td>'));
-                });
-                thead.append(tr);
-                $table.append(thead);
-                var tbody = $('<tbody></tbody>');
-                dataset.forEach(function (row) {
-                    var tr = $('<tr></tr>');
-                    row.split(";").forEach(function (j, cellData) {
-                        tr.append($('<td>' + j + '</td>'));
+            autoUpload: false,
+            add: function (e, data) {
+                data.context = $('#run')
+                    .click(function () {
+                       // $('#run').after("loading")
+                        data.submit();
                     });
-                    tbody.append(tr);
-                });
-                $table.append(tbody);
-                $table.DataTable();
+            },
+            done: function (e, data) {
+                console.log(data)
+               $('#result').html(data.result)
             },
             progressall: function (e, data) {
                 var progress = parseInt(data.loaded / data.total * 100, 10);
-                $('#progressbar').css(
-                    'width',
-                    progress + '%'
-                );
+                $('#progressbar').css('width',progress + '%');
+                $('#progressvalue').html(progress + '%');
             }
-        }).bind('fileuploadadd', function (e, data) {
-            console.log(data.files[0].name)
+        }).on('fileuploadadd', function (e, data) {
             $('#file-path').val(data.files[0].name)
-
             $('#step2').fadeIn()
             scrollTo('#step2')
-        })
+        }).on('fileuploadprocessalways', function (e, data) {
+            var file = data.files[0];
+            if (file.error) {
+                console.log("error",file.error)
+            }
+            console.log("fileuploadprocessalways")
+        });
 
         $("#run").on("click", function () {
+            console.log("runclick")
+             $('#progressbox').show();
+            $('#file-form').submit(function (e) {
+                e.preventDefault();
+            });
             //$('#step3').fadeIn()
             //scrollTo('#step3')
         });
@@ -204,9 +310,9 @@
         // $('#example').DataTable();
     });
 
-    function scrollTo(toEl) {
+    function scrollTo(el) {
         $('html, body').animate({
-            scrollTop: $(toEl).offset().top
+            scrollTop: $(el).offset().top
         }, 1000);
     }
 </script>

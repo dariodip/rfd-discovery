@@ -11,6 +11,7 @@
   "dependencies": {
     "blueimp-file-upload-node": "^2.1.0",
     "datatables.net": "^2.1.1",
-    "datatables.net-dt": "^2.1.1"
+    "datatables.net-dt": "^2.1.1",
+    "line-navigator": "^2.1.5"
   }
 }

@@ -1,6 +1,12 @@
 from flask import Flask,request,render_template,jsonify
+from dominance.dominance_tools import RFDDiscovery
+from loader.distance_mtr import DiffMatrix
+import io
+import os
+
 
 app = Flask(__name__, static_url_path='/static')
+app.config['UPLOAD_FOLDER'] = os.path.join('..','resources','upload')
 
 
 @app.route("/")
@@ -21,7 +27,18 @@ def upload():
     error = None
     if request.method == 'POST':
         f = request.files['file']
-        return f.read()
+        print(f)
+        print(os.path.join(app.config['UPLOAD_FOLDER'], f.filename))
+        hss = {"lhs": [1, 2, 3], "rhs": [0]}
+        physicalfile = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
+        fd = f.save(physicalfile)
+        diff_mtx = DiffMatrix(physicalfile, {})
+        diff_mtx.load()
+        dist_mtx = diff_mtx.distance_matrix(hss)
+        diff_mtx = None     # for free unused memory
+        nd = RFDDiscovery(dist_mtx)
+        result = str(nd.get_rfds(nd.standard_algorithm, hss))
+        return result
     else:
         error = 'Invalid data'
         return render_template('index.html', error=error,meth="GET")
