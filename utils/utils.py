@@ -19,3 +19,16 @@ def check_sep_n_header(csv_file):
         has_header = sniffer.has_header(csv_f.readline())
         csv_f.seek(0)
     return dialect.delimiter, 0 if has_header else None
+
+
+def get_hs_combination(col_len: int) -> list:
+    col_list = list(range(col_len))
+    combination = list()
+    for i in range(0, len(col_list)):
+        combination.append({'rhs': [col_list[i]], 'lhs': col_list[:i] + col_list[i + 1:]})
+    return combination
+
+
+def get_cols_count(csv_file, c_sep=';'):
+    with open(csv_file) as csv_f:
+        return len(csv_f.readline().split(c_sep))

@@ -79,6 +79,9 @@ cdef class RFDDiscovery(object):
             print("D_MTX:\n", d_mtx[d_mtx.index.isin(selected_row)])
         return self.rfds  # se una sola a nan è dip
 
+    cpdef is_compiled(self):
+        return self.compiled
+
     cdef void __check_min(self, df_act_dist: pnd.DataFrame, double dist):
         """
         For each range, check whether one of its rows' values is minimum on row's pool.

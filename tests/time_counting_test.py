@@ -3,9 +3,7 @@ import os
 import time
 import unittest
 from datetime import datetime
-
 import pandas as pd
-
 import utils.utils as ut
 from loader.distance_mtr import DiffMatrix
 from dominance.dominance_tools import RFDDiscovery
@@ -37,7 +35,7 @@ class MyTestCase(unittest.TestCase):
                 pass
             logging.info("{} has separator '{}' and has {} header".format(ds, c_sep, "no" if has_header is None else ""))
             ds_shape = self.__get_ds_shape(current_ds, sep=c_sep, first_row_head=has_header)  # get df shape
-            lhs_vs_rhs = self.__get_hs_combination(ds_shape['col'])     # combination for HS
+            lhs_vs_rhs = ut.get_hs_combination(ds_shape['col'])     # combination for HS
             for combination in lhs_vs_rhs:
                 logging.info("Testing on combination: {}".format(str(combination)))
                 logging.info("Creating class DiffMatrix")
@@ -81,14 +79,6 @@ class MyTestCase(unittest.TestCase):
         row_to_add = [name, row_len, attr_size, file_size, elapsed_time, dist_time_elaps,
                       rdf_count, combination, ITERATION_TIME]
         df.loc[id] = row_to_add
-
-    @staticmethod
-    def __get_hs_combination(col_len: int) -> list:
-        col_list = list(range(col_len))
-        combination = list()
-        for i in range(0, len(col_list)):
-            combination.append({'rhs': [col_list[i]], 'lhs': col_list[:i] + col_list[i + 1:]})
-        return combination
 
     @staticmethod
     def __load_all_files__(path="../resources") -> list:
