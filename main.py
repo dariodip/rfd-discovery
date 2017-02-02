@@ -1,6 +1,6 @@
 import utils.utils as ut
 from loader.distance_mtr import DiffMatrix
-from old.dominance_tools import RFDDiscovery
+from dominance.dominance_tools import RFDDiscovery
 
 hss = {"lhs": [1, 2, 3], "rhs": [0]}
 
