@@ -15,5 +15,7 @@ def check_sep_n_header(csv_file):
     with open(csv_file) as csv_f:
         sniffer = csv.Sniffer()
         dialect = sniffer.sniff(csv_f.readline())
-        has_header = sniffer.has_header(csv_f.read())
+        csv_f.seek(0)
+        has_header = sniffer.has_header(csv_f.readline())
+        csv_f.seek(0)
     return dialect.delimiter, 0 if has_header else None

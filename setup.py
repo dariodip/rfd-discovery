@@ -1,25 +1,16 @@
-from distutils.core import setup
-from Cython.Build import cythonize
-from distutils.extension import Extension
-import numpy as np
+from setuptools import setup
+from pip.req import parse_requirements
 import nltk
 
-ext_modules=[
-    Extension("*",
-              ["dominance/*.pyx"],
-            extra_compile_args = ["-O3", "-ffast-math", "-march=native"],
-              )
-]
-
-with open("requirements.txt", "r") as req:
-    requires = [row for row in req]
+install_reqs = parse_requirements("requirements.txt", session='hack')
+reqs = [str(ir.req) for ir in install_reqs]
 
 setup(
-    name = "rfd-discovery",
-    version = "0.0.1",
-    #install_requires = requires,
-    ext_modules= cythonize(ext_modules),
-    include_dirs=[np.get_include()]
+    name="rfd-discovery",
+    version="0.0.1",
+    install_requires=reqs,
+    author="Dario Di Pasquale, Mattia Tomeo, Antonio Altamura",
+    license="MIT",
 )
 
 nltk.download('wordnet')
