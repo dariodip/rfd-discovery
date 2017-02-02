@@ -4,6 +4,9 @@ import operator as op
 import nltk
 from nltk.corpus import wordnet as wn
 from dateutil import parser
+import threading
+
+distance_df_lock = threading.Lock()
 
 pnd.set_option('display.width', 320)
 
@@ -91,16 +94,31 @@ class DiffMatrix:
         [ops_rhs, ops_lhs] = self.__map_types__(hss)
         col_names = self.__row_names__(rhs, lhs)
         col_names = ['RHS'] + col_names['l_keys']  # retrieve row names (RHS and LHS)
-        self.distance_df = pnd.DataFrame(columns=col_names)
+        shape_0 = self.df.shape[0]
+        max_couples = int(shape_0 * (shape_0 - 1) / 2)
+        self.distance_df = pnd.DataFrame(columns=col_names, index=list(range(0, max_couples)), dtype=float)
+        k = 0
         for i in range(0, n_row):
             for j in range(i+1, n_row):  # iterate on each pair of rows
-                index_t = (i, j)
                 # absolute difference between rows i and j (both for rhs and lhs) in order to get distance between them
-                rhs_dist = [np.absolute(fn(a, b)) for a, b, fn in list(zip(*[np.array(rhs.iloc[i]), np.array(rhs.iloc[j]), ops_rhs]))]
-                lhs_dist = [np.absolute(fn(a, b)) for a, b, fn in list(zip(*[np.array(lhs.iloc[i]), np.array(lhs.iloc[j]), ops_lhs]))]
+                rhs_i = rhs.iloc[i]
+                rhs_j = rhs.iloc[j]
+                lhs_i = lhs.iloc[i]
+                lhs_j = lhs.iloc[j]
+                rhs_dist = [np.absolute(fn(a, b))
+                            for a, b, fn
+                            in list(zip(*[np.array(rhs_i), np.array(rhs_j), ops_rhs]))]
+                lhs_dist = [np.absolute(fn(a, b))
+                            for a, b, fn
+                            in list(zip(*[np.array(lhs_i), np.array(lhs_j), ops_lhs]))]
                 row = np.concatenate([rhs_dist, lhs_dist], axis=0)  # todo check axis 0
-                self.distance_df.loc[str(index_t)] = row.tolist()
-                # insert a row containing distances into the distance data frame
+                try:
+                    self.insert_in_df(k, row)
+                except IndexError as iex:
+                    print("Index ", k, " out of bound")
+                    print(iex)
+                k += 1
+                    # insert a row containing distances into the distance data frame
         # assign row names for the data frame
         self.distance_df.sort_values(by=['RHS'], axis=0, inplace=True, ascending=False)  # sort data frame by r_keys
         #print(self.distance_df)
