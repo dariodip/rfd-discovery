@@ -26,8 +26,6 @@ class DiffMatrix:
         """
     def __init__(self, path, semantic=False, datetime=False, sep=';', missing='?', first_col_header=0, index_col=False):
         self.path = path
-        self.df = None
-        self.distance_df = None
         self.semantic = semantic
         self.sysnset_dic = {}
         self.semantic_diff_dic = {}
@@ -156,9 +154,8 @@ class DiffMatrix:
         numeric = {np.dtype('int'), np.dtype('int32'), np.dtype('int64'), np.dtype('float'), np.dtype('float64')}
         string = {np.dtype('string_'), np.dtype('object')}
         datetime = {np.dtype('<M8[ns]')} #TODO check
-        # TODO all numeric: dtype = np.number
         if col.dtype in numeric:
-            return op.sub
+            return self.__subnum__
         elif col.dtype in string:
             return self.__edit_dist__
         elif col.dtype in datetime:
@@ -179,9 +176,7 @@ class DiffMatrix:
         datetime = {np.datetime64(),pnd.tslib.Timestamp,np.dtype('<M8[ns]')}
 
         if col.dtype in numeric:
-            return op.sub
-        elif col.dtype in datetime:
-            return self.__date_diff__
+            return self.__subnum__
         elif col.dtype in string:
             for val in col:
                 if val not in self.sysnset_dic:
@@ -191,9 +186,10 @@ class DiffMatrix:
                     else:
                         return self.__edit_dist__
             return self.semantic_diff
+        elif col.dtype in datetime:
+            return self.__date_diff__
         else:
             raise Exception("Unrecognized dtype")
-
 
     def semantic_diff(self, a: str, b: str) -> float:
         """
@@ -202,7 +198,7 @@ class DiffMatrix:
         :param b: comparation term
         :return: semantic difference
         """
-        if a == np.inf or b == np.inf:
+        if np.isnan(a) or np.isnan(b):
             return np.inf
         if (a, b) in self.semantic_diff_dic:
             return self.semantic_diff_dic[(a, b)]
@@ -232,13 +228,14 @@ class DiffMatrix:
         :param b: date in string
         :return: difference in days
         """
+        if np.isnan(a) or np.isnan(b):
+            return np.inf
         delta = a-b
         return int(delta / np.timedelta64(1, 'D'))
         # try:
         #     return (parser.parse(a)-parser.parse(b)).days
         # except Exception as ex:
         #     print("error parsing date: ", str(ex))
-
 
     @staticmethod
     def __edit_dist__(a: str, b: str) -> float:
@@ -248,12 +245,19 @@ class DiffMatrix:
         :param b: second term
         :return: Levenshtein distance
         """
-        if a == np.inf or b == np.inf:
+        if np.isnan(a) or np.isnan(b):
             return np.inf
         return nltk.edit_distance(a, b)
 
-        #   WILD IDEAS
-        #   preprocessare la matrice per vedere se wordnet conosce le parole
-        #   valutare: scartare row quando non definito
-        #   eseguire l'algoritmo su ciò che wordnet conosce e poi generare una func di interpolazione per i
-        # termini sconosciuti (e.g. edit distance sul termine più vicino)
+    @staticmethod
+    def __subnum__(a: float, b: float) -> float:
+        """
+        Computes the aritmetic difference on given floats
+        :param a: first number
+        :param b: subtracting number
+        :return: difference in float
+        """
+        if np.isnan(a) or np.isnan(b):
+            return np.inf
+        return op.sub
+
