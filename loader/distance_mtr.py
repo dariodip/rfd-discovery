@@ -124,6 +124,9 @@ class DiffMatrix:
         #print(self.distance_df)
         return self.distance_df
 
+    def insert_in_df(self, k, row):
+        self.distance_df.iloc[k] = row
+
     def __map_types__(self, hss: dict) -> list:
         """
         Perform a mapping for the dtypes of both RHS and LHS DataFrames with the corrisponding subtraction function.
