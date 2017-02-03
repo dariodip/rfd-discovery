@@ -24,9 +24,9 @@ rfd-discovery is developed using [Python 3.5](http://www.python.it/) and [Cython
  For installing correctly all the requirements you have to install **pip 9.0** (or high).
  
  rdf-discovery use the following Python's libraries:<br>
-   *[matplotlib\*](http://matplotlib.org/)*<br>
-    *[numpy\*](http://www.numpy.org/)* <br>
-    *[pandas\*](http://pandas.pydata.org/)* <br>
+   *[matplotlib✛](http://matplotlib.org/)*<br>
+    *[numpy✛](http://www.numpy.org/)* <br>
+    *[pandas✛](http://pandas.pydata.org/)* <br>
     *[tornado](http://www.tornadoweb.org/en/stable/)* <br>
     *[Cython](http://cython.org/)* <br>
     *[nltk](http://www.nltk.org/)* <br>
@@ -35,7 +35,7 @@ rfd-discovery is developed using [Python 3.5](http://www.python.it/) and [Cython
     
    You can install these one by one, or following the [Setup Section](#setup).
 
-*these libraries are part of [SciPy stack](https://www.scipy.org/index.html) 
+✛these libraries are part of [SciPy stack](https://www.scipy.org/index.html) 
 ## Setup
 In order to install rfd-discovery and all his requirements, run the following:
 
