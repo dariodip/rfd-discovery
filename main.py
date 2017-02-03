@@ -4,7 +4,7 @@ import utils.utils as ut
 from loader.distance_mtr import DiffMatrix
 from dominance.dominance_tools import RFDDiscovery
 
-usage = 'python main.py -c <csv-file> -r [rhs_index] -l [lhs_indexes] -s [sep] -h [header]'
+usage = 'use python3 main.py -c <csv-file> -r [rhs_index] -l [lhs_indexes] -s [sep] -h [header]'
 
 
 def main(args):
@@ -13,19 +13,17 @@ def main(args):
     if hss is None:
         print(usage)
     if isinstance(hss, list):
-        raise NotImplementedError("This case is not implemented yet in this version.")
-    if isinstance(hss, dict):
-        with ut.timeit_context("Whole time"):
-            with ut.timeit_context("Distance time"):
-                diff_mtx = DiffMatrix(csv_file, {}, sep=c_sep, first_col_header=has_header)
-                diff_mtx.load()
-                dist_mtx = diff_mtx.distance_matrix(hss)
-                diff_mtx = None     # for free unused memory
-            with ut.timeit_context("RFD Discover time"):
-                nd = RFDDiscovery(dist_mtx)
-                # print("{} python code".format('compiled' if nd.is_compiled() else 'pure'))
-                print(nd.get_rfds(nd.standard_algorithm, hss))
-
+        for combination in hss:
+            with ut.timeit_context("Whole time combination: rhs {} - lhs {}".format(combination['rhs'], combination['lhs'])):
+                with ut.timeit_context("Distance time"):
+                    diff_mtx = DiffMatrix(csv_file, {}, sep=c_sep, first_col_header=has_header)
+                    diff_mtx.load()
+                    dist_mtx = diff_mtx.distance_matrix(combination)
+                    diff_mtx = None  # for free unused memory
+                with ut.timeit_context("RFD Discover time"):
+                    nd = RFDDiscovery(dist_mtx)
+                    # print("{} python code".format('compiled' if nd.is_compiled() else 'pure'))
+                    print(nd.get_rfds(nd.standard_algorithm, combination))
 
 def extract_args(args):
     # extraction
@@ -76,11 +74,13 @@ def extract_hss(cols_count, lhs, rhs):
         if not rhs[0] in cols_index:
             print("RHS index is out of bound. Specify a valid value")
             sys.exit(-1)
-        hss = dict()
-        hss['rhs'] = rhs
-        hss['lhs'] = cols_index[:rhs[0]] + cols_index[rhs[0] + 1:]
+        hss = list()
+        hss.append({'rhs': rhs, 'lhs': cols_index[:rhs[0]] + cols_index[rhs[0] + 1:]})
+        #hss['rhs'] = rhs
+        #hss['lhs'] = cols_index[:rhs[0]] + cols_index[rhs[0] + 1:]
     else:
-        hss = {'rhs': rhs, 'lhs': lhs}
+        hss = list()
+        hss.append({'rhs': rhs, 'lhs': lhs})
     return hss
 
 
