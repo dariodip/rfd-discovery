@@ -13,15 +13,6 @@ app.config['UPLOAD_FOLDER'] = os.path.join('..','resources','upload')
 def index():
     return render_template('index.html', name="")
 
-
-@app.route('/_add_numbers')
-def add_numbers():
-    print (request)
-    a = request.args.get('a', 0, type=int)
-    b = request.args.get('b', 0, type=int)
-    return jsonify(result=a + b)
-
-
 @app.route('/api/upload', methods=['POST', 'GET'])
 def upload():
     error = None
