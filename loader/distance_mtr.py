@@ -45,7 +45,7 @@ class DiffMatrix:
         """
         self.df = pnd.read_csv(self.path, sep=self.sep, header=self.first_col_header, index_col=index_col, engine='c',
                                na_values=['', self.missing], parse_dates=self.datetime)
-        self.df = self.df.replace(np.nan, np.inf)
+        #self.df = self.df.replace(np.nan, np.inf)
         return self.df
 
     def split_sides(self, hss : dict) -> pnd.DataFrame:
@@ -133,7 +133,7 @@ class DiffMatrix:
         datetime = {np.dtype('<M8[ns]')} # TODO check
         # TODO all numeric: dtype = np.number
         if col.dtype in numeric:
-            return op.sub
+            return self.__subnum__
         elif col.dtype in string:
             return self.__edit_dist__
         elif col.dtype in datetime:
@@ -154,7 +154,7 @@ class DiffMatrix:
         datetime = {np.datetime64(),pnd.tslib.Timestamp,np.dtype('<M8[ns]')}
 
         if col.dtype in numeric:
-            return op.sub
+            return self.__subnum__
         elif col.dtype in datetime:
             return self.__date_diff__
         elif col.dtype in string:
@@ -176,7 +176,7 @@ class DiffMatrix:
         :param b: comparation term
         :return: semantic difference
         """
-        if a == np.inf or b == np.inf:
+        if np.isnan(a) or np.isnan(b):
             return np.inf
         if (a, b) in self.semantic_diff_dic:
             return self.semantic_diff_dic[(a, b)]
@@ -207,6 +207,8 @@ class DiffMatrix:
         :param b: date in string
         :return: difference in days
         """
+        if np.isnan(a) or np.isnan(b):
+            return np.inf
         delta = a-b
         return int(delta / np.timedelta64(1, 'D'))
         # try:
@@ -222,12 +224,18 @@ class DiffMatrix:
         :param b: second term
         :return: Levenshtein distance
         """
-        if a == np.inf or b == np.inf:
+        if np.isnan(a) or np.isnan(b):
             return np.inf
         return nltk.edit_distance(a, b)
 
-        #   WILD IDEAS
-        #   preprocessare la matrice per vedere se wordnet conosce le parole
-        #   valutare: scartare row quando non definito
-        #   eseguire l'algoritmo su ciò che wordnet conosce e poi generare una func di interpolazione per i
-        # termini sconosciuti (e.g. edit distance sul termine più vicino)
+    @staticmethod
+    def __subnum__(a: float, b: float) -> float:
+        """
+        Computes the aritmetic difference on given floats
+        :param a: first number
+        :param b: subtracting number
+        :return: difference in float
+        """
+        if np.isnan(a) or np.isnan(b):
+            return np.inf
+        return op.sub(a, b)
