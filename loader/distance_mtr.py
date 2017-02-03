@@ -5,6 +5,7 @@ import nltk
 from nltk.corpus import wordnet as wn
 from utils.utils import deprecated
 
+
 pnd.set_option('display.width', 320)
 
 

@@ -8,6 +8,7 @@ import utils.utils as ut
 from loader.distance_mtr import DiffMatrix
 from dominance.dominance_tools import RFDDiscovery
 
+
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 cols = ['ds_name', 'ds_len', 'ds_attr_size', 'ds_file_size_B', 'time_elapsed', 'distance_time',
         'rfd_count', 'attr_comb', 'iterations']

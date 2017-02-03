@@ -4,6 +4,7 @@ import utils.utils as ut
 from loader.distance_mtr import DiffMatrix
 from dominance.dominance_tools import RFDDiscovery
 
+
 usage = 'use python3 main.py -c <csv-file> -r [rhs_index] -l [lhs_indexes] -s [sep] -h [header]'
 
 
