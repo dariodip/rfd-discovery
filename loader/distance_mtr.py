@@ -207,7 +207,9 @@ class DiffMatrix:
         :param b: date in string
         :return: difference in days
         """
-        if np.isnan(a) or np.isnan(b):
+        if isinstance(a, float) and np.isnan(a):
+            return np.inf
+        if isinstance(b, float) and np.isnan(b):
             return np.inf
         delta = a-b
         return int(delta / np.timedelta64(1, 'D'))
@@ -224,7 +226,9 @@ class DiffMatrix:
         :param b: second term
         :return: Levenshtein distance
         """
-        if np.isnan(a) or np.isnan(b):
+        if isinstance(a, float) and np.isnan(a):
+            return np.inf
+        if isinstance(b, float) and np.isnan(b):
             return np.inf
         return nltk.edit_distance(a, b)
 
@@ -236,6 +240,8 @@ class DiffMatrix:
         :param b: subtracting number
         :return: difference in float
         """
-        if np.isnan(a) or np.isnan(b):
+        if isinstance(a, float) and np.isnan(a):
+            return np.inf
+        if isinstance(b, float) and np.isnan(b):
             return np.inf
         return op.sub(a, b)
