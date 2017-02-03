@@ -14,13 +14,16 @@ def main(args):
     if hss is None:
         print(usage)
     if isinstance(hss, list):
-        with ut.timeit_context("Whole time"):
-            with ut.timeit_context("Distance time"):
-                diff_mtx = DiffMatrix(csv_file, {}, sep=c_sep, first_col_header=has_header)
-            for combination in hss:
-                comb_dist_mtx = diff_mtx.split_sides(combination)
-                with ut.timeit_context("RFD Discover time for {}".format(str(combination))):
-                    nd = RFDDiscovery(comb_dist_mtx)
+        for combination in hss:
+            with ut.timeit_context("Whole time combination: rhs {} - lhs {}".format(combination['rhs'], combination['lhs'])):
+                with ut.timeit_context("Distance time"):
+                    diff_mtx = DiffMatrix(csv_file, {}, sep=c_sep, first_col_header=has_header)
+                    diff_mtx.load()
+                    dist_mtx = diff_mtx.distance_matrix(combination)
+                    diff_mtx = None  # for free unused memory
+                with ut.timeit_context("RFD Discover time"):
+                    nd = RFDDiscovery(dist_mtx)
+                    # print("{} python code".format('compiled' if nd.is_compiled() else 'pure'))
                     print(nd.get_rfds(nd.standard_algorithm, combination))
 
 def extract_args(args):
