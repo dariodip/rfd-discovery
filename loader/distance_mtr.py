@@ -3,7 +3,6 @@ import numpy as np
 import operator as op
 import nltk
 from nltk.corpus import wordnet as wn
-from dateutil import parser
 import threading
 
 distance_df_lock = threading.Lock()

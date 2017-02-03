@@ -155,11 +155,10 @@
 <script src="static/js/jquery.ui.widget.js"></script>
 <script src="static/js/jquery.iframe-transport.js"></script>
 <script src="static/js/jquery.fileupload.js"></script>
-<script src="static/js/jquery.tablesorter/jquery.tablesorter.js"></script>
 <script src="static/js/jquery.csv.js"></script>
 <script src="static/js/html5LineReader.js"></script>
-<script src="static/js/line-navigator/file-wrapper.js"></script>
-<script src="static/js/line-navigator/line-navigator.js"></script>
+<script src="static/js/line-navigator/file-wrapper.min.js"></script>
+<script src="static/js/line-navigator/line-navigator.min.js"></script>
 
 <script type=text/javascript>
 
@@ -167,7 +166,7 @@
     var _csv = {
         data: null,
         separator: $('#separator').val(),
-        header: $('#header').val(),
+        header: true,
         delimiter:'"'
     };
 
@@ -209,6 +208,7 @@
         }
 
         function printTable() {
+            console.log(_csv)
             var navigator = new LineNavigator(_csv.data);
             navigator.readLines(0,10, function (err, index, lines, isEof, progress) {
                 var html = '<table class="striped">';
@@ -226,43 +226,6 @@
                 html +='</table>';
                 $('#table').html(html);
             });
-
-            /*var reader = new FileReader();
-            reader.readAsText(_csv.data);
-            reader.onload = function (event) {
-                var csv = event.target.result;
-                var data = $.csv.toArrays(csv, {separator:_csv.separator,delimiter:_csv.delimiter});
-                var html = '<table class="striped">';
-
-                if(_csv.header){
-                    html += ("<thead><tr>"+ $.map(data[0], function (c) {return "<th>" + c }).join("") + "</tr></thead>");
-                    data.shift()
-                }
-                for (var row in data) {
-                    html += '<tr>\r\n';
-                    for (var item in data[row]) {
-                        html += '<td>' + data[row][item] + '</td>\r\n';
-                    }
-                    html += '</tr>\r\n';
-                }
-                html +='</table>'
-                $('#table').html(html);
-
-                $('thead tr th','#table').click(function () {
-                  console.log('left click'+$(this))
-
-                    $(this).addClass("lhs")
-                })
-                $('thead tr th','#table').bind('contextmenu',function (e) {
-                    e.preventDefault()
-                    $(this).addClass("rhs")
-                  console.log('right click'+$(this))
-                })
-            };
-
-            reader.onerror = function () {
-                alert('Unable to read ' + _csv.data.fileName);
-            };*/
         }
 
         $('#jfileupload').fileupload({
@@ -288,12 +251,18 @@
             $('#file-path').val(data.files[0].name)
             $('#step2').fadeIn()
             scrollTo('#step2')
-        }).on('fileuploadprocessalways', function (e, data) {
+        }).on('fileuploadsubmit', function(e,data){
+            data.formData = {
+                header: _csv.header,
+                separator: _csv.separator
+                //delimiter: $('#delimiter').val()
+            }
+        })
+            .on('fileuploadprocessalways', function (e, data) {
             var file = data.files[0];
             if (file.error) {
-                console.log("error",file.error)
+                console.error("error",file.error)
             }
-            console.log("fileuploadprocessalways")
         });
 
         $("#run").on("click", function () {
@@ -305,9 +274,6 @@
             //$('#step3').fadeIn()
             //scrollTo('#step3')
         });
-
-
-        // $('#example').DataTable();
     });
 
     function scrollTo(el) {
