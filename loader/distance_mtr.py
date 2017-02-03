@@ -43,7 +43,7 @@ class DiffMatrix:
 
         """
         self.df = pnd.read_csv(self.path, sep=self.sep, header=self.first_col_header, index_col=index_col, engine='c',na_values=['',self.missing],parse_dates=self.datetime)
-        self.df = self.df.replace(np.nan, np.inf)
+        #self.df = self.df.replace(np.nan, np.inf)
         #print(self.df)
         #print(self.df.dtypes)
 
@@ -202,7 +202,7 @@ class DiffMatrix:
         :param b: comparation term
         :return: semantic difference
         """
-        if a == np.inf or b == np.inf:
+        if np.isnan(a) or np.isnan(b):
             return np.inf
         if (a, b) in self.semantic_diff_dic:
             return self.semantic_diff_dic[(a, b)]
@@ -232,6 +232,8 @@ class DiffMatrix:
         :param b: date in string
         :return: difference in days
         """
+        if np.isnan(a) or np.isnan(b):
+            return np.inf
         delta = a-b
         return int(delta / np.timedelta64(1, 'D'))
         # try:
@@ -248,7 +250,7 @@ class DiffMatrix:
         :param b: second term
         :return: Levenshtein distance
         """
-        if a == np.inf or b == np.inf:
+        if np.isnan(a) or np.isnan(b):
             return np.inf
         return nltk.edit_distance(a, b)
 
