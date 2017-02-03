@@ -3,9 +3,7 @@ import numpy as np
 import operator as op
 import nltk
 from nltk.corpus import wordnet as wn
-import threading
-
-distance_df_lock = threading.Lock()
+from utils.utils import deprecated
 
 pnd.set_option('display.width', 320)
 
@@ -26,7 +24,7 @@ class DiffMatrix:
             synset_dic WordNet synset dictionary of the searched lemmas
             semantic_diff_dic dictionary of the inverse path similarity computed
         """
-    def __init__(self, path, semantic=False, datetime=False, sep=';', missing='?', first_col_header=0):
+    def __init__(self, path, semantic=False, datetime=False, sep=';', missing='?', first_col_header=0, index_col=False):
         self.path = path
         self.df = None
         self.distance_df = None
@@ -37,19 +35,19 @@ class DiffMatrix:
         self.sep = sep
         self.missing = missing
         self.first_col_header = first_col_header
+        self.__load(index_col=index_col)
+        self.distance_df = self.distance_matrix()
+        self.df = None
 
-    def load(self, index_col=False) -> pnd.DataFrame:
+    def __load(self, index_col=False) -> pnd.DataFrame:
         """Load a pandas data frame from a csv file stored in the path df.
-
         """
-        self.df = pnd.read_csv(self.path, sep=self.sep, header=self.first_col_header, index_col=index_col, engine='c',na_values=['',self.missing],parse_dates=self.datetime)
+        self.df = pnd.read_csv(self.path, sep=self.sep, header=self.first_col_header, index_col=index_col, engine='c',
+                               na_values=['', self.missing], parse_dates=self.datetime)
         self.df = self.df.replace(np.nan, np.inf)
-        #print(self.df)
-        #print(self.df.dtypes)
-
         return self.df
 
-    def split_sides(self, lhs: list, rhs: list) -> dict:
+    def split_sides(self, hss : dict) -> pnd.DataFrame:
         """Split the data frame according to the given RHS and LHS division.
 
             The Relaxed Functional Dependencies is in the form: lhs -> rhs
@@ -61,14 +59,15 @@ class DiffMatrix:
                 dict: a dictionary containing two keys: 'lhs' containing the projection of the set of tuples on the lhs'
                 attributes and 'rhs' containing the the projection of the set of tuples on the rhs' attributes.
         """
-        lhs_keys = [self.df.keys()[key] for key in lhs]
-        rhs_keys = [self.df.keys()[key] for key in rhs]
-        return({
-            'lhs': self.df[lhs_keys],
-            'rhs': self.df[rhs_keys]
-        })
+        df_to_split = self.distance_df
+        cols = df_to_split.columns.tolist()
+        lhs_keys = [cols[key] for key in hss['lhs']]
+        rhs_keys = [cols[key] for key in hss['rhs']]
+        ncols = rhs_keys + lhs_keys
+        df_to_split = df_to_split[ncols].rename(columns={str(rhs_keys[0]): 'RHS'})
+        return df_to_split
 
-    def distance_matrix(self, hss: dict) -> pnd.DataFrame:
+    def distance_matrix(self) -> pnd.DataFrame:
         """Build the distance matrix according to the given division in RHS and LHS in hss.
 
             Args:
@@ -79,54 +78,33 @@ class DiffMatrix:
             Todo:
                 * algorithm for an efficient build of the difference matrix"""
 
-        split_df = self.split_sides(hss['lhs'], hss['rhs'])
-        lhs = split_df['lhs']
-        rhs = split_df['rhs']
-        if lhs.shape[0] == rhs.shape[0]:  # check if the num of rows in lhs are equals to the num of rows in rhs
-            n_row = lhs.shape[0]
-        else:
-            raise Exception("Different number of rows in LHS and RHS")
-        # print('---------concat------------')
-        # print(pnd.concat([rhs,lhs], axis=1))
-        # print(pnd.concat([rhs, lhs], axis=1).dtypes)
-        # print('---------/concat------------')
-        [ops_rhs, ops_lhs] = self.__map_types__(hss)
-        col_names = self.__row_names__(rhs, lhs)
-        col_names = ['RHS'] + col_names['l_keys']  # retrieve row names (RHS and LHS)
+        ops = self.__map_types__()
         shape_0 = self.df.shape[0]
         max_couples = int(shape_0 * (shape_0 - 1) / 2)
-        self.distance_df = pnd.DataFrame(columns=col_names, index=list(range(0, max_couples)), dtype=float)
+        self.distance_df = pnd.DataFrame(columns=self.df.columns.tolist(),
+                                         index=list(range(0, max_couples)), dtype=float)
         k = 0
+        n_row = self.df.shape[0]
         for i in range(0, n_row):
             for j in range(i+1, n_row):  # iterate on each pair of rows
-                # absolute difference between rows i and j (both for rhs and lhs) in order to get distance between them
-                rhs_i = rhs.iloc[i]
-                rhs_j = rhs.iloc[j]
-                lhs_i = lhs.iloc[i]
-                lhs_j = lhs.iloc[j]
-                rhs_dist = [np.absolute(fn(a, b))
-                            for a, b, fn
-                            in list(zip(*[np.array(rhs_i), np.array(rhs_j), ops_rhs]))]
-                lhs_dist = [np.absolute(fn(a, b))
-                            for a, b, fn
-                            in list(zip(*[np.array(lhs_i), np.array(lhs_j), ops_lhs]))]
-                row = np.concatenate([rhs_dist, lhs_dist], axis=0)  # todo check axis 0
+                df_i = self.df.iloc[i]
+                df_j = self.df.iloc[j]
+                row = [np.absolute(fn(a, b))
+                       for a, b, fn
+                       in list(zip(*[np.array(df_i), np.array(df_j), ops]))]
                 try:
-                    self.insert_in_df(k, row)
+                    self.__insert_in_df(k, row)
                 except IndexError as iex:
                     print("Index ", k, " out of bound")
                     print(iex)
                 k += 1
-                    # insert a row containing distances into the distance data frame
         # assign row names for the data frame
-        self.distance_df.sort_values(by=['RHS'], axis=0, inplace=True, ascending=False)  # sort data frame by r_keys
-        #print(self.distance_df)
         return self.distance_df
 
-    def insert_in_df(self, k, row):
+    def __insert_in_df(self, k, row):
         self.distance_df.iloc[k] = row
 
-    def __map_types__(self, hss: dict) -> list:
+    def __map_types__(self) -> list:
         """
         Perform a mapping for the dtypes of both RHS and LHS DataFrames with the corrisponding subtraction function.
         :param hss: dict of list of the RHS and LHS indexes
@@ -134,16 +112,12 @@ class DiffMatrix:
         """
         if self.semantic:
             # iterate over columns
-            rhs_types = np.array([self.__semantic_diff_criteria__(col_label, col)
-                                  for i, (col_label, col) in enumerate(self.df[hss['rhs']].iteritems())])
-            lhs_types = np.array([self.__semantic_diff_criteria__(col_label, col)
-                                  for i, (col_label, col) in enumerate(self.df[hss['lhs']].iteritems())])
+            types =  np.array([self.__semantic_diff_criteria__(col_label, col)
+                               for i, (col_label, col) in enumerate(self.df.iteritems())])
         else:
-            rhs_types = np.array([self.__diff_criteria__(col_label, col)
-                                  for i, (col_label, col) in enumerate(self.df[hss['rhs']].iteritems())])
-            lhs_types = np.array([self.__diff_criteria__(col_label, col)
-                                  for i, (col_label, col) in enumerate(self.df[hss['lhs']].iteritems())])
-        return [rhs_types, lhs_types]
+            types =  np.array([self.__diff_criteria__(col_label, col)
+                                for i, (col_label, col) in enumerate(self.df.iteritems())])
+        return types.tolist()
 
     def __diff_criteria__(self, col_label: str, col: pnd.DataFrame):
         """
@@ -155,7 +129,7 @@ class DiffMatrix:
         """
         numeric = {np.dtype('int'), np.dtype('int32'), np.dtype('int64'), np.dtype('float'), np.dtype('float64')}
         string = {np.dtype('string_'), np.dtype('object')}
-        datetime = {np.dtype('<M8[ns]')} #TODO check
+        datetime = {np.dtype('<M8[ns]')} # TODO check
         # TODO all numeric: dtype = np.number
         if col.dtype in numeric:
             return op.sub
@@ -194,7 +168,6 @@ class DiffMatrix:
         else:
             raise Exception("Unrecognized dtype")
 
-
     def semantic_diff(self, a: str, b: str) -> float:
         """
         Computes the semantic difference as (1 - path_similarity) and store the result in semantic_diff_dic
@@ -212,6 +185,7 @@ class DiffMatrix:
             return 1 - t
 
     @staticmethod
+    @deprecated
     def __row_names__(rhs: pnd.DataFrame, lhs: pnd.DataFrame) -> dict:
         """
         Place 'r' or 'l' before name data frame's keys, in order to discriminate RHS attributes and LHS attributes
@@ -238,7 +212,6 @@ class DiffMatrix:
         #     return (parser.parse(a)-parser.parse(b)).days
         # except Exception as ex:
         #     print("error parsing date: ", str(ex))
-
 
     @staticmethod
     def __edit_dist__(a: str, b: str) -> float:

@@ -33,5 +33,9 @@ __pycache__/
 build/
 dist/
 */__pycache__/
-/dist/*.egg
 /rfd-server/node_modules
+old/*
+dominance/dominance_tools.c
+dominance/dominance_tools.cp35-win_amd64.pyd
+rfd_discovery.egg-info/
+

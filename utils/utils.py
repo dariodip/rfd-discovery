@@ -1,6 +1,8 @@
 from contextlib import contextmanager
 import time
 import csv
+from functools import wraps
+from warnings import simplefilter, warn
 
 
 @contextmanager
@@ -32,3 +34,16 @@ def get_hs_combination(col_len: int) -> list:
 def get_cols_count(csv_file, c_sep=';'):
     with open(csv_file) as csv_f:
         return len(csv_f.readline().split(c_sep))
+
+
+def deprecated(func):
+    """This is a decorator which can be used to mark functions
+    as deprecated. It will result in a warning being emmitted
+    when the function is used."""
+
+    def new_funct(*args, **kwargs):
+        simplefilter('always', DeprecationWarning)
+        warn('Call to deprecated function {}'.format(func.__name__), category=DeprecationWarning, stacklevel=2)
+        simplefilter('default', DeprecationWarning)
+        return func(*args, **kwargs)
+    return new_funct
