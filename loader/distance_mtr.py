@@ -4,9 +4,7 @@ import operator as op
 import nltk
 from nltk.corpus import wordnet as wn
 import threading
-
 distance_df_lock = threading.Lock()
-
 pnd.set_option('display.width', 320)
 
 
@@ -26,7 +24,7 @@ class DiffMatrix:
             synset_dic WordNet synset dictionary of the searched lemmas
             semantic_diff_dic dictionary of the inverse path similarity computed
         """
-    def __init__(self, path, semantic=False, datetime=False, sep=';', missing='?', first_col_header=0):
+    def __init__(self, path, semantic=False, datetime=False, sep=';', missing='?', first_col_header=0, index_col=False):
         self.path = path
         self.df = None
         self.distance_df = None
@@ -37,8 +35,11 @@ class DiffMatrix:
         self.sep = sep
         self.missing = missing
         self.first_col_header = first_col_header
+        self.__load(index_col=index_col)
+        self.distance_df = self.distance_matrix()
+        self.df = None
 
-    def load(self, index_col=False) -> pnd.DataFrame:
+    def __load(self, index_col=False) -> pnd.DataFrame:
         """Load a pandas data frame from a csv file stored in the path df.
 
         """
@@ -46,7 +47,6 @@ class DiffMatrix:
         #self.df = self.df.replace(np.nan, np.inf)
         #print(self.df)
         #print(self.df.dtypes)
-
         return self.df
 
     def split_sides(self, lhs: list, rhs: list) -> dict:
@@ -202,7 +202,7 @@ class DiffMatrix:
         :param b: comparation term
         :return: semantic difference
         """
-        if np.isnan(a) or np.isnan(b):
+        if a == np.inf or b == np.inf:
             return np.inf
         if (a, b) in self.semantic_diff_dic:
             return self.semantic_diff_dic[(a, b)]
@@ -232,8 +232,6 @@ class DiffMatrix:
         :param b: date in string
         :return: difference in days
         """
-        if np.isnan(a) or np.isnan(b):
-            return np.inf
         delta = a-b
         return int(delta / np.timedelta64(1, 'D'))
         # try:
@@ -250,7 +248,7 @@ class DiffMatrix:
         :param b: second term
         :return: Levenshtein distance
         """
-        if np.isnan(a) or np.isnan(b):
+        if a == np.inf or b == np.inf:
             return np.inf
         return nltk.edit_distance(a, b)
 
