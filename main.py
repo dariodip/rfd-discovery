@@ -19,10 +19,9 @@ def main(args):
                 diff_mtx = DiffMatrix(csv_file, {}, sep=c_sep, first_col_header=has_header)
             for combination in hss:
                 comb_dist_mtx = diff_mtx.split_sides(combination)
-                print(comb_dist_mtx)
                 with ut.timeit_context("RFD Discover time for {}".format(str(combination))):
                     nd = RFDDiscovery(comb_dist_mtx)
-    print(nd.get_rfds(nd.standard_algorithm, combination))
+                    print(nd.get_rfds(nd.standard_algorithm, combination))
 
 def extract_args(args):
     # extraction
