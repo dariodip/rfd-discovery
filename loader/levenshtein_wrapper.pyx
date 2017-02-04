@@ -1,7 +1,7 @@
 from libc.stdlib cimport malloc, free
 
 cdef extern from "levenshtein.c":
-    int levenshtein(const char * a, const char * b, unsigned int * column)
+    int levenshtein(char * a, char * b, unsigned int * column)
 
 cpdef int lev_distance(str a, str b):
     if len(a) == 0 or len(b) == 0:

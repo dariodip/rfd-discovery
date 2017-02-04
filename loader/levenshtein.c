@@ -3,7 +3,7 @@
 
 #define MIN3(a, b, c) ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
 
-int levenshtein(const char *, const char *, unsigned int *);
+int levenshtein(char *, char *, unsigned int *);
 
 int levenshtein(char *s1, char *s2, unsigned int * column) {
     unsigned int s1len, s2len, x, y, lastdiag, olddiag;

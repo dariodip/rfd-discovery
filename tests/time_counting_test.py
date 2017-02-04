@@ -12,7 +12,7 @@ from dominance.dominance_tools import RFDDiscovery
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 cols = ['ds_name', 'ds_len', 'ds_attr_size', 'ds_file_size_B', 'time_elapsed', 'distance_time',
         'rfd_count', 'attr_comb', 'iterations']
-ITERATION_TIME = 10
+ITERATION_TIME = 1
 
 
 class MyTestCase(unittest.TestCase):
