@@ -28,7 +28,7 @@ def extract_args(args):
     # extraction
     try:
         csv_file, lhs, rhs, c_sep, has_header, semantic = '', [], [], '', None, False
-        opts, args = getopt.getopt(args, "c:r:l:s:h:w:m:d")
+        opts, args = getopt.getopt(args, "c:r:l:s:h:wm:d")
         for opt, arg in opts:
             if opt == '-c':
                 csv_file = arg

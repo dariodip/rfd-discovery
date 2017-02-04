@@ -198,6 +198,8 @@ cdef class DiffMatrix:
             return np.inf
         if isinstance(b, float) and np.isnan(b):
             return np.inf
+        if a == b:
+            return 0
         if (a, b) in self.semantic_diff_dic:
             return self.semantic_diff_dic[(a, b)]
         else:
@@ -232,6 +234,8 @@ cdef float __edit_dist__(str a, str b):
         return np.inf
     if isinstance(b, float) and np.isnan(b):
         return np.inf
+    if a == b:
+        return 0
     return lw.lev_distance(str(a), str(b))
 
 
