@@ -134,13 +134,11 @@ class DiffMatrix:
         """
         numeric = {np.dtype('int'), np.dtype('int32'), np.dtype('int64'), np.dtype('float'), np.dtype('float64')}
         string = {np.dtype('string_'), np.dtype('object')}
-        datetime = {np.dtype('<M8[ns]')} # TODO check
-        # TODO all numeric: dtype = np.number
         if col.dtype in numeric:
             return self.__subnum__
         elif col.dtype in string:
             return self.__edit_dist__
-        elif col.dtype in datetime:
+        elif np.issubdtype(col.dtype, np.datetime64):
             return self.__date_diff__
         else:
             raise Exception("Unrecognized dtype")
@@ -155,12 +153,8 @@ class DiffMatrix:
         """
         numeric = {np.dtype('int'), np.dtype('int32'), np.dtype('int64'), np.dtype('float'), np.dtype('float64')}
         string = {np.dtype('string_'), np.dtype('object')}
-        datetime = {np.datetime64(),pnd.tslib.Timestamp,np.dtype('<M8[ns]')}
-
         if col.dtype in numeric:
             return self.__subnum__
-        elif col.dtype in datetime:
-            return self.__date_diff__
         elif col.dtype in string:
             for val in col:
                 if val not in self.sysnset_dic:
@@ -170,6 +164,8 @@ class DiffMatrix:
                     else:
                         return self.__edit_dist__
             return self.semantic_diff
+        elif np.issubdtype(col.dtype, np.datetime64):
+            return self.__date_diff__
         else:
             raise Exception("Unrecognized dtype")
 
