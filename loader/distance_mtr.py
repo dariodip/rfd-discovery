@@ -22,8 +22,13 @@ class DiffMatrix:
             path (str): the path where the CSV is stored.
             df (pandas.core.frame.DataFrame): data frame where the set of tuples will be stored.
             distance_df (pandas.core.frame.DataFrame): data frame containing distance matrix for each row
-            synset_dic WordNet synset dictionary of the searched lemmas
-            semantic_diff_dic dictionary of the inverse path similarity computed
+            synset_dic (dict): WordNet synset dictionary of the searched lemmas
+            semantic_diff_dic dict): dictionary of the inverse path similarities computed
+            datetime (Boolean or list): try to parse given columns indexes as pandas datetime
+            sep (str): csv separator
+            missing (str): string to be parse as missing value
+            header (int or list): Row indexes to use as the column names
+            index_col (int): column index to use as the row label
         """
     def __init__(self, path, semantic=False, datetime=False, sep=';', missing='?', first_col_header=0, index_col=False):
         self.path = path
@@ -45,7 +50,6 @@ class DiffMatrix:
         """
         self.df = pnd.read_csv(self.path, sep=self.sep, header=self.first_col_header, index_col=index_col, engine='c',
                                na_values=['', self.missing], parse_dates=self.datetime)
-        #self.df = self.df.replace(np.nan, np.inf)
         return self.df
 
     def split_sides(self, hss : dict) -> pnd.DataFrame:
@@ -105,7 +109,7 @@ class DiffMatrix:
     def __insert_in_df(self, k, row):
         self.distance_df.iloc[k] = row
 
-    def __map_types__(self) -> list:
+    def __map_types__(self):
         """
         Perform a mapping for the dtypes of both RHS and LHS DataFrames with the corrisponding subtraction function.
         :param hss: dict of list of the RHS and LHS indexes
@@ -113,10 +117,10 @@ class DiffMatrix:
         """
         if self.semantic:
             # iterate over columns
-            types =  np.array([self.__semantic_diff_criteria__(col_label, col)
+            types = np.array([self.__semantic_diff_criteria__(col_label, col)
                                for i, (col_label, col) in enumerate(self.df.iteritems())])
         else:
-            types =  np.array([self.__diff_criteria__(col_label, col)
+            types = np.array([self.__diff_criteria__(col_label, col)
                                 for i, (col_label, col) in enumerate(self.df.iteritems())])
         return types.tolist()
 
@@ -207,16 +211,12 @@ class DiffMatrix:
         :param b: date in string
         :return: difference in days
         """
-        if isinstance(a, float) and np.isnan(a):
+        if a is pnd.NaT:
             return np.inf
-        if isinstance(b, float) and np.isnan(b):
+        if b is pnd.NaT:
             return np.inf
         delta = a-b
         return int(delta / np.timedelta64(1, 'D'))
-        # try:
-        #     return (parser.parse(a)-parser.parse(b)).days
-        # except Exception as ex:
-        #     print("error parsing date: ", str(ex))
 
     @staticmethod
     def __edit_dist__(a: str, b: str) -> float:
