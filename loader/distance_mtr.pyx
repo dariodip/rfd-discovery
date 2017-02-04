@@ -6,11 +6,8 @@ cimport cython
 import pandas as pnd
 import numpy as np
 cimport numpy as np
-import operator as op
 from nltk.corpus import wordnet as wn
-from utils.utils import deprecated
 import loader.levenshtein_wrapper as lw
-from libc.stdlib cimport free
 
 pnd.set_option('display.width', 320)
 
@@ -249,4 +246,4 @@ cdef float __subnum__(float a, float b):
         return np.inf
     if isinstance(b, float) and np.isnan(b):
         return np.inf
-    return op.sub(a, b)
+    return a - b
