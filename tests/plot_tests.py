@@ -23,7 +23,8 @@ def plot():
         print("Unable to find separator in file ", files[0])
         return
 
-    test_df = pd.read_csv(file_path, sep=sep, decimal='.')
+
+    test_df = pd.read_csv(file_path, sep=sep, decimal=',')
     grouped_df = test_df.groupby(['ds_name']).mean()
     print(grouped_df)
     grouped_df['ds_file_size_B'].plot(y='time_elapsed')
