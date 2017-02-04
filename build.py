@@ -11,6 +11,9 @@ ext_modules=[
               ),
     Extension("*",
               ["loader/levenshtein_wrapper.pyx"]
+              ),
+    Extension("*",
+              ["loader/distance_mtr.pyx"]
               )
 ]
 

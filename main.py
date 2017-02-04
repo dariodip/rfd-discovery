@@ -5,29 +5,30 @@ from loader.distance_mtr import DiffMatrix
 from dominance.dominance_tools import RFDDiscovery
 
 
-usage = 'use python3 main.py -c <csv-file> -r [rhs_index] -l [lhs_indexes] -s [sep] -h [header]'
+usage = 'use python3 main.py -c <csv-file> -r [rhs_index] -l [lhs_indexes] -s [sep] -h [header] (-w)'
 
 
 def main(args):
-    c_sep, csv_file, has_header = extract_args(args)
+    c_sep, csv_file, has_header, semantic = extract_args(args)
 
     if hss is None:
         print(usage)
     if isinstance(hss, list):
         with ut.timeit_context("Whole time"):
             with ut.timeit_context("Distance time"):
-                diff_mtx = DiffMatrix(csv_file, sep=c_sep, first_col_header=has_header)
+                diff_mtx = DiffMatrix(csv_file, sep=c_sep, first_col_header=has_header, semantic=semantic)
             for combination in hss:
                 comb_dist_mtx = diff_mtx.split_sides(combination)
                 with ut.timeit_context("RFD Discover time for {}".format(str(combination))):
                     nd = RFDDiscovery(comb_dist_mtx)
                     print(nd.get_rfds(nd.standard_algorithm, combination))
 
+
 def extract_args(args):
     # extraction
     try:
-        csv_file, lhs, rhs, c_sep, has_header = '', [], [], '', None
-        opts, args = getopt.getopt(args, "c:r:l:s:h:")
+        csv_file, lhs, rhs, c_sep, has_header, semantic = '', [], [], '', None, False
+        opts, args = getopt.getopt(args, "c:r:l:s:h:w:m:d")
         for opt, arg in opts:
             if opt == '-c':
                 csv_file = arg
@@ -42,6 +43,14 @@ def extract_args(args):
                 c_sep = arg
             elif opt == '-h':
                 has_header = int(arg)
+            elif opt == '-w':
+                semantic = True
+            elif opt == '-m':
+                raise NotImplementedError("To implement")
+                # TODO
+            elif opt == '-d':
+                raise NotImplementedError("To implement")
+                # TODO
     except TypeError as t_err:
         print("Error while trying to convert a string to numeric: {}".format(str(t_err)))
         sys.exit(-1)
@@ -57,7 +66,7 @@ def extract_args(args):
     except Exception as ex:
         print("Error while trying to understand arguments: {}".format(str(ex)))
         sys.exit(-1)
-    return c_sep, csv_file, has_header
+    return c_sep, csv_file, has_header, semantic
 
 
 def extract_hss(cols_count, lhs, rhs):
