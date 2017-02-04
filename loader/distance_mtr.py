@@ -4,7 +4,7 @@ import operator as op
 import nltk
 from nltk.corpus import wordnet as wn
 from utils.utils import deprecated
-
+import loader.levenshtein_wrapper as lw
 
 pnd.set_option('display.width', 320)
 
@@ -91,8 +91,8 @@ class DiffMatrix:
         k = 0
         n_row = self.df.shape[0]
         for i in range(0, n_row):
+            df_i = self.df.iloc[i]
             for j in range(i+1, n_row):  # iterate on each pair of rows
-                df_i = self.df.iloc[i]
                 df_j = self.df.iloc[j]
                 row = [np.absolute(fn(a, b))
                        for a, b, fn
@@ -226,7 +226,7 @@ class DiffMatrix:
             return np.inf
         if isinstance(b, float) and np.isnan(b):
             return np.inf
-        return nltk.edit_distance(a, b)
+        return lw.lev_distance(str(a), str(b))
 
     @staticmethod
     def __subnum__(a: float, b: float) -> float:
