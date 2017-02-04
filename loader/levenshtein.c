@@ -3,35 +3,21 @@
 
 #define MIN3(a, b, c) ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
 
-int levenshtein(const char *, const char *);
+int levenshtein(const char *, const char *, unsigned int *);
 
-int levenshtein(const char *s, const char *t) {
-	int ls = strlen(s), lt = strlen(t);
-	int d[ls + 1][lt + 1];
-
-	for (int i = 0; i <= ls; i++)
-		for (int j = 0; j <= lt; j++)
-			d[i][j] = -1;
-
-	int dist(int i, int j) {
-		if (d[i][j] >= 0) return d[i][j];
-
-		int x;
-		if (i == ls)
-			x = lt - j;
-		else if (j == lt)
-			x = ls - i;
-		else if (s[i] == t[j])
-			x = dist(i + 1, j + 1);
-		else {
-			x = dist(i + 1, j + 1);
-
-			int y;
-			if ((y = dist(i, j + 1)) < x) x = y;
-			if ((y = dist(i + 1, j)) < x) x = y;
-			x++;
-		}
-		return d[i][j] = x;
-	}
-	return dist(0, 0);
+int levenshtein(char *s1, char *s2, unsigned int * column) {
+    unsigned int s1len, s2len, x, y, lastdiag, olddiag;
+    s1len = strlen(s1);
+    s2len = strlen(s2);
+    for (y = 1; y <= s1len; y++)
+        column[y] = y;
+    for (x = 1; x <= s2len; x++) {
+        column[0] = x;
+        for (y = 1, lastdiag = x-1; y <= s1len; y++) {
+            olddiag = column[y];
+            column[y] = MIN3(column[y] + 1, column[y-1] + 1, lastdiag + (s1[y-1] == s2[x-1] ? 0 : 1));
+            lastdiag = olddiag;
+        }
+    }
+    return(column[s1len]);
 }
