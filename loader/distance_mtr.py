@@ -91,8 +91,8 @@ class DiffMatrix:
         k = 0
         n_row = self.df.shape[0]
         for i in range(0, n_row):
+            df_i = self.df.iloc[i]
             for j in range(i+1, n_row):  # iterate on each pair of rows
-                df_i = self.df.iloc[i]
                 df_j = self.df.iloc[j]
                 row = [np.absolute(fn(a, b))
                        for a, b, fn

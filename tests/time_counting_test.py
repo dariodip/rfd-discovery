@@ -38,25 +38,17 @@ class MyTestCase(unittest.TestCase):
             ds_shape = self.__get_ds_shape(current_ds, sep=c_sep, first_row_head=has_header)  # get df shape
             lhs_vs_rhs = ut.get_hs_combination(ds_shape['col'])     # combination for HS
             for combination in lhs_vs_rhs:
+                diff_matrix, elapsed_time_dist = self.__get_diff_mtx(c_sep, current_ds, has_header)
                 logging.info("Testing on combination: {}".format(str(combination)))
-                logging.info("Creating class DiffMatrix")
-                start_time_dist = time.time()
-                diff_matrix = DiffMatrix(current_ds, {}, sep=c_sep, first_col_header=has_header)
-                logging.info("Class DiffMatrix created. Now loading file...")
-                diff_matrix.load()
-                logging.info("File loaded. Now computing distance matrix...")
-                dist_mtx = diff_matrix.distance_matrix(combination)
-                end_time_dist = time.time()
-                logging.info("Computing distance matrix finish. Let's do the true work")
+                dist_mtx = diff_matrix.split_sides(combination)
                 diff_mtx = None  # for free unused memory
                 for i in range(ITERATION_TIME):                         # repeat test X times
                     logging.info("Test no.{}".format(i))
                     start_time = time.time()                            # get t0
                     rfdd = RFDDiscovery(dist_mtx)
-                    compiled = rfdd.compiled
+                    compiled = rfdd.is_compiled()
                     rfd_df = rfdd.get_rfds(rfdd.standard_algorithm, combination)
                     elapsed_time = time.time() - start_time             # get deltaT = now - t0
-                    elapsed_time_dist = end_time_dist - start_time_dist
                     logging.info("RFDs discovery process finished")
                     rfd_count = rfd_df.shape[0]
                     logging.info("Discovered {} RFDs".format(rfd_count))
@@ -66,11 +58,24 @@ class MyTestCase(unittest.TestCase):
                     self.__append_result(ds, ds_shape['row'], ds_shape['col'], file_size, round(elapsed_time*1000,3),
                                          round(elapsed_time_dist*1000,3), rfd_count, str(combination), result_df)
                     test_count += 1
+                    elapsed_time_dist = 0
         logging.info("Saving file")
         abs_path = os.path.abspath("../resources/test/{}-results-{}.csv"
                                    .format(time.strftime("%Y-%m-%d_%H-%M-%S"), "c" if compiled else "p"))
-        result_df.to_csv(abs_path, sep=";", header=cols)
+        result_df.to_csv(abs_path, sep=";", header=cols, decimal=',')
         logging.info("File saved")
+
+    @staticmethod
+    def __get_diff_mtx(c_sep, current_ds, has_header):
+        start_time_dist = time.time()
+        logging.info("Creating class DiffMatrix")
+        logging.info("Class DiffMatrix created. Now loading file...")
+        diff_matrix = DiffMatrix(current_ds, {}, sep=c_sep, first_col_header=has_header)
+        logging.info("File loaded. Now computing distance matrix...")
+        logging.info("Computing distance matrix finish. Let's do the true work")
+        end_time_dist = time.time()
+        elapsed_time_dist = end_time_dist - start_time_dist
+        return diff_matrix, elapsed_time_dist
 
     @staticmethod
     def __append_result(name: str, row_len: int, attr_size: int, file_size: int, elapsed_time: float,

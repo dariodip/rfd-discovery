@@ -6,7 +6,7 @@ plt.style.use('ggplot')
 
 def getfiles(dirpath):
     a = [s for s in os.listdir(dirpath)
-         if os.path.isfile(os.path.join(dirpath, s))]
+         if os.path.isfile(os.path.join(dirpath, s)) and s.endswith(".csv")]
     a.remove(".gitignore")
     a.sort(key=lambda s: os.path.getmtime(os.path.join(dirpath, s)))
     a.reverse()
@@ -17,7 +17,7 @@ def plot():
     dirpath = os.path.abspath("../resources/test")
     files = getfiles(dirpath)
     file_path = os.path.join(dirpath, files[0])
-    test_df = pd.read_csv(file_path, sep=";")
+    test_df = pd.read_csv(file_path, sep=";", decimal=',')
     grouped_df = test_df.groupby(['ds_name']).mean()
     print(grouped_df)
     grouped_df['ds_file_size_B'].plot(y='time_elapsed')
