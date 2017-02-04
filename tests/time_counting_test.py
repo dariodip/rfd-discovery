@@ -37,8 +37,8 @@ class MyTestCase(unittest.TestCase):
             logging.info("{} has separator '{}' and has {} header".format(ds, c_sep, "no" if has_header is None else ""))
             ds_shape = self.__get_ds_shape(current_ds, sep=c_sep, first_row_head=has_header)  # get df shape
             lhs_vs_rhs = ut.get_hs_combination(ds_shape['col'])     # combination for HS
+            diff_matrix, elapsed_time_dist = self.__get_diff_mtx(c_sep, current_ds, has_header)
             for combination in lhs_vs_rhs:
-                diff_matrix, elapsed_time_dist = self.__get_diff_mtx(c_sep, current_ds, has_header)
                 logging.info("Testing on combination: {}".format(str(combination)))
                 dist_mtx = diff_matrix.split_sides(combination)
                 diff_mtx = None  # for free unused memory
@@ -70,7 +70,7 @@ class MyTestCase(unittest.TestCase):
         start_time_dist = time.time()
         logging.info("Creating class DiffMatrix")
         logging.info("Class DiffMatrix created. Now loading file...")
-        diff_matrix = DiffMatrix(current_ds, {}, sep=c_sep, first_col_header=has_header)
+        diff_matrix = DiffMatrix(current_ds, sep=c_sep, first_col_header=has_header)
         logging.info("File loaded. Now computing distance matrix...")
         logging.info("Computing distance matrix finish. Let's do the true work")
         end_time_dist = time.time()

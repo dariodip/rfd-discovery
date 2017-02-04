@@ -202,9 +202,12 @@ cdef class DiffMatrix:
             return 0
         if (a, b) in self.semantic_diff_dic:
             return self.semantic_diff_dic[(a, b)]
+        elif (b, a) in self.semantic_diff_dic:
+            return self.semantic_diff_dic[(b, a)]
         else:
             t = wn.path_similarity(self.sysnset_dic[a], self.sysnset_dic[b])
             self.semantic_diff_dic[(a, b)] = 1 - t
+            self.semantic_diff_dic[(b, a)] = 1 - t
             return 1 - t
 
 
