@@ -30,7 +30,7 @@ class DiffMatrix:
             header (int or list): Row indexes to use as the column names
             index_col (int): column index to use as the row label
         """
-    def __init__(self, path, semantic=False, datetime=False, sep=';', missing='?', first_col_header=0, index_col=False):
+    def __init__(self, path, semantic=True, datetime=False, sep=';', missing='?', first_col_header=0, index_col=False):
         self.path = path
         self.df = None
         self.distance_df = None
@@ -50,6 +50,8 @@ class DiffMatrix:
         """
         self.df = pnd.read_csv(self.path, sep=self.sep, header=self.first_col_header, index_col=index_col, engine='c',
                                na_values=['', self.missing], parse_dates=self.datetime)
+        print(self.df)
+        print(self.df.dtypes)
         return self.df
 
     def split_sides(self, hss : dict) -> pnd.DataFrame:
@@ -157,6 +159,8 @@ class DiffMatrix:
             return self.__subnum__
         elif col.dtype in string:
             for val in col:
+                if isinstance(val, float) and np.isnan(val):
+                    continue
                 if val not in self.sysnset_dic:
                     s = wn.synsets(val)
                     if len(s) > 0:
@@ -176,7 +180,9 @@ class DiffMatrix:
         :param b: comparation term
         :return: semantic difference
         """
-        if np.isnan(a) or np.isnan(b):
+        if isinstance(a, float) and np.isnan(a):
+            return np.inf
+        if isinstance(b, float) and np.isnan(b):
             return np.inf
         if (a, b) in self.semantic_diff_dic:
             return self.semantic_diff_dic[(a, b)]

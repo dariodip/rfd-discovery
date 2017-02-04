@@ -16,7 +16,7 @@ def main(args):
     if isinstance(hss, list):
         with ut.timeit_context("Whole time"):
             with ut.timeit_context("Distance time"):
-                diff_mtx = DiffMatrix(csv_file, {}, sep=c_sep, first_col_header=has_header)
+                diff_mtx = DiffMatrix(csv_file, sep=c_sep, first_col_header=has_header)
             for combination in hss:
                 comb_dist_mtx = diff_mtx.split_sides(combination)
                 with ut.timeit_context("RFD Discover time for {}".format(str(combination))):
