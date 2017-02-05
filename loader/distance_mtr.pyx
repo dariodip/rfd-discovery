@@ -187,7 +187,7 @@ cdef class DiffMatrix:
         else:
             raise Exception("Unrecognized dtype")
 
-    cdef float semantic_diff(self, str a, str b):
+    cpdef float semantic_diff(self, str a, str b):
         """
         Computes the semantic difference as (1 - path_similarity) and store the result in semantic_diff_dic
         :param a: first term
