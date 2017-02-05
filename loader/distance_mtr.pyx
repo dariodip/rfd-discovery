@@ -119,6 +119,7 @@ cdef class DiffMatrix:
                     print(iex)
                 k += 1
         # assign row names for the data frame
+        self.distance_df = self.distance_df.drop_duplicates()
         return self.distance_df
 
     cdef void __insert_in_df(self, unsigned int k, object row):

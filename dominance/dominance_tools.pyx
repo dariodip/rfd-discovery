@@ -41,12 +41,12 @@ cdef class RFDDiscovery(object):
         return self.rfds
 
     cpdef object standard_algorithm(self, d_mtx: pnd.DataFrame, lhs : list, rhs : list):
-        self.__initialize_var__(rhs, lhs, d_mtx.columns)
-        selected_row = list()
-        distance_values = list(set(np.asarray(d_mtx[d_mtx.columns[0]], dtype='int').flatten()))
-        distance_values.sort(reverse=True)
+        self.__initialize_var__(rhs, lhs, d_mtx.columns) # initialize variables
+        selected_row = list()  # list of non-dominating tuples
+        distance_values = list(set(np.asarray(d_mtx[d_mtx.columns[0]], dtype='int').flatten()))  # all unq distances
+        distance_values.sort(reverse=True)  # sort distances
         df_keys = list(self.distance_matrix.keys())
-        df_keys.remove('RHS')
+        df_keys.remove('RHS')  # extract lhs keys
         cdef double dist = 0.0
         for dist in distance_values:  # iterate on each different distance
             pool_rows_to_delete = set()  # rows to delete from the pool
@@ -90,16 +90,21 @@ cdef class RFDDiscovery(object):
         :param dist: current distance
         :return: None
         """
-        act_min = df_act_dist.min()
-        compare = act_min < self.min_vector
+        act_min = df_act_dist.min()  # range minumum
+        compare = act_min < self.min_vector  # which components of rm are lt global mimimum?
+        #update global minimum
         self.min_vector = np.array([self.min_vector[i] if not compare[i] else act_min[i] for i in range(len(act_min))])
+        min_vect = [np.nan if not compare[i] else act_min[i] for i in range(len(act_min))]
+        # for each row in current range
         for index, row in df_act_dist.iterrows():
-            #vect = [False if not compare[i] else act_min[i] == row[i] for i in range(len(act_min))]
-            #vect = [np.nan if not vect[i] else act_min[i] for i in range(len(act_min))]
+            # giving an array row in current range
+            # create a list having np.nan in i if row[i] does not contribute in global minimum
             vect = [np.nan if not compare[i] or act_min[i] != row[i] else act_min[i] for i in range(len(act_min))]
+            # add vect to df of processed arrays
             self.on_minimum_df.loc[index] = np.array([dist] + vect)
-            if not all(np.isnan(vect)):
-                self.__all_rfds(vect, dist)
+        # add elements that contribute to global minimum as RFDs
+        if not all(np.isnan(min_vect)):
+            self.__all_rfds(min_vect, dist)
 
     cdef __find_rfd(self, current_df: pnd.DataFrame, double dist, old_pool: dict):
         """
@@ -123,14 +128,14 @@ cdef class RFDDiscovery(object):
                 compl_row = self.__complement_nans(row)
                 if self.__check_dominance_single(compl_row, old_pool, dist):  # check on single attributes
                     self.__add_rfd(compl_row)
+        # here self.rfd_to_add contains all the RFDs discovered for this distance, let's add them in the rfd's df
         cdef object to_add
         for rfd in self.rfd_to_add:
-            #k = self.rfds.shape[0]
-            ta_rfd = [i if i != NAN_PH else np.nan for i in list(rfd)]
-            to_add = [dist] + ta_rfd
+            ta_rfd = [i if i != NAN_PH else np.nan for i in list(rfd)]  # remove nan placeholder
+            to_add = [dist] + ta_rfd  # create rfd row
             self.rfds.loc[self.rfd_count] = to_add  # add rfd to RFD's data frame
             self.rfd_count += 1
-        self.rfd_to_add = set()
+        self.rfd_to_add = set()  # empty rfd_to_add
 
     cdef cython.bint __check_dominance(self, y: list, rows_to_delete: set):
         """
@@ -144,15 +149,15 @@ cdef class RFDDiscovery(object):
         :param rows_to_delete: a set containing values to be removed
         :return: True if Y is not dominated, False if Y is dominated
         """
-        if len(self.pool) == 0:
+        if len(self.pool) == 0: # empty pool, no dominance possible
             return True
-        for x in list(self.pool.keys()):
-            diff = np.array(self.pool[x]) - np.array(y)
+        for x in list(self.pool.keys()):    # for each array in pool
+            diff = np.array(self.pool[x]) - np.array(y) # compute difference
             if all(diff <= 0):  # Y dominates X
                 return False
             elif all(diff >= 0):  # X dominates Y
                 rows_to_delete.add(x)
-        return True
+        return True # no dominance found
 
     cdef cython.bint __check_dominance_single(self, y: np.array, old_pool: dict, double dist):
         """
@@ -160,17 +165,19 @@ cdef class RFDDiscovery(object):
          in the pool
         :param y: array for which it checks if its values dominate some value in the pool
         :param old_pool: the pool before update
+        :param dist: current distance
         :return: True if at least one value in y dominates a value in the old pool's array
         """
-        pool_keys = list(old_pool)
+        pool_keys = list(old_pool) # pool as list (in order to fix an ordering and do slice)
         cdef cython.bint flag = True
         cdef int i
-        for i in range(len(pool_keys)):
-            diff = y - np.array(old_pool[pool_keys[i]])
-            new_y = np.array([np.nan if diff[j] > 0 else y[j] for j in range(len(y))])
+        for i in range(len(pool_keys)):  # for each row in pool
+            diff = y - np.array(old_pool[pool_keys[i]]) # get difference
+            new_y = np.array([np.nan if diff[j] > 0 else y[j] for j in range(len(y))])  # create y_p
+            # check for each other arrays in the pool if new_y dominates one of them
             if not self.__check_dominance_pool_slice(new_y, old_pool, pool_keys[:i] + pool_keys[i+1:]):
                 self.__add_rfd(new_y)
-                flag = False
+                flag = False  # no dominance found, don't add rfd for y!
         return flag
 
     cdef cython.bint __check_dominance_pool_slice(self, y: np.array, pool: dict, sliced_pool_keys: list):
@@ -184,7 +191,7 @@ cdef class RFDDiscovery(object):
         """
         for x_p in sliced_pool_keys:
             diff = y - np.array(pool[x_p])
-            if gt_or_nan(diff):
+            if gt_or_nan(diff): # this should return T iff all >= 0 or nan, false otherwise
                 return True
         return False
 
@@ -196,7 +203,7 @@ cdef class RFDDiscovery(object):
         """
         for x in list(old_pool.keys()):
             diff = np.array(y) - np.array(old_pool[x])
-            if gt_or_nan(diff):  # this should return T if all >= 0 or nan, false otherwise
+            if gt_or_nan(diff):  # this should return T iff all >= 0 or nan, false otherwise
                 return True
         return False
 
@@ -235,12 +242,13 @@ cdef class RFDDiscovery(object):
     cdef void __add_rfd(self, np.ndarray rfd):
         """
         Add a specific RFD into the data frame containing them using the required format.
+        self.rfd_to_add is a buffer containing unique RFDs discovered for a given distance.
         :param rfd: a discovered RFD
-        :param dist: the distance where RFD is located
         """
-        rfd_l = rfd.tolist()
+        rfd_l = rfd.tolist()  # convert to list
+        # convert in tuple (immutable) and remove np.nan (because np.nan != np.nan), using NAN_PH
         l_rfd = tuple(i if not np.isnan(i) else NAN_PH for i in rfd_l)
-        self.rfd_to_add.add(l_rfd)
+        self.rfd_to_add.add(l_rfd) # add processed string in the buffer
 
     cdef np.ndarray __complement_nans(self, row: pnd.Series):
         """
