@@ -5,7 +5,8 @@ from loader.distance_mtr import DiffMatrix
 from dominance.dominance_tools import RFDDiscovery
 
 
-usage = 'use python3 main.py -c <csv-file> -r [rhs_index] -l [lhs_indexes] -s [sep] -h [header] -i [index col] (-w)'
+usage = 'use python3 main.py -c <csv-file> -r [rhs_index] -l [lhs_indexes] -s [sep]' \
+        ' -h [header] -i [index col] -d [datetime columns] (-w)'
 
 
 def main(args):
@@ -40,7 +41,8 @@ def extract_args(args):
         lhs = []
         rhs = []
 
-        opts, args = getopt.getopt(args, "c:r:l:s:h:wm:d:i:")
+        opts, args = getopt.getopt(args, "c:r:l:s:h:m:d:i:", ["semantic"])
+        print(opts)
         for opt, arg in opts:
             if opt == '-c':
                 csv_file = arg
@@ -55,13 +57,13 @@ def extract_args(args):
                 c_sep = arg
             elif opt == '-h':
                 has_header = int(arg)
-            elif opt == '-w':
+            elif opt == '--semantic':
                 semantic = True
             elif opt == '-m':
                 missing = arg
             elif opt == '-d':
                 has_dt = [int(_) for _ in arg.split(',')]
-            elif opt == '-i':
+            elif opt == '--indexc':
                 ic = int(arg)
     except TypeError as t_err:
         print("Error while trying to convert a string to numeric: {}".format(str(t_err)))

@@ -9,7 +9,23 @@ This project, written in Python and Cython, deals with Discovery of Relaxed Func
 [[1](http://hdl.handle.net/11386/4658456)] using a bottom-up approach:
 instead of giving a fixed threshold on input and discovery all the RDFs, this method infers distances from different RHS
  attributes by itself and then discover the RFDs for these ones.
-wr
+ 
+ rfd-discovery takes a dataset, representing a table of a relational database, in CSV format as input and prints the set
+ of the discovered RFDs. 
+ 
+ CSV file can contain the following formats:
+  - int; <br>
+  - int32; <br>
+  - int64; <br>
+  - float; <br>
+  - float64; <br>
+  - string; <br>
+  - datetime64*. 
+  
+  *for date format you can use each format known by [pandas](http://pandas.pydata.org/pandas-docs/stable/timeseries.html)
+   <br>
+  
+
 ***Index:***
  - [Requirements](#requirements)
  - [Setup rfd-discovery](#setup)
@@ -24,7 +40,7 @@ rfd-discovery is developed using [Python 3.5](http://www.python.it/) and [Cython
  For installing correctly all the requirements you have to install **pip 9.0** (or high).
  
  rdf-discovery use the following Python's libraries:<br>
-   *[matplotlib✛](http://matplotlib.org/)*<br>
+    *[matplotlib✛](http://matplotlib.org/)*<br>
     *[numpy✛](http://www.numpy.org/)* <br>
     *[pandas✛](http://pandas.pydata.org/)* <br>
     *[tornado](http://www.tornadoweb.org/en/stable/)* <br>
@@ -64,7 +80,8 @@ If building phase ends without errors, you should have some *.c* and *.pyd* (or 
 
 Using rdf-discovery is easy enough. Just run the following command:
 
-`python main.py -c <csv-file> -r [rhs_index] -l [lhs_indexes] -s [sep] -h [header]`
+`python3 main.py -c <csv-file> -r [rhs_index] -l [lhs_indexes] -s [sep] -h [header] -i [index col] 
+-d [datetime columns] (--semantic)`
 
 where:
  - *`-c <your-csv>`*: is the path of the dataset on which you want to discover RFDs;
@@ -77,7 +94,13 @@ where:
  - *`-l lhs_indexes`*(optional): column index of LHS' attributes indexes separated by commas (e.g. *1,2,3*). You can avoid to 
  specify them: <br> 
   if you don't specify RHS' attribute index we'll find RFDs using each attribute as RHS and the remaining as LHS; <br>
-  if you specify a valid RHS index we'll assume your LHS as the remaining attributes.
+  if you specify a valid RHS index we'll assume your LHS as the remaining attributes;
+ - *`-i index col`*(optional): the column which contains the primary key of the dataset. Specifying it, this will not 
+ calculate as distance. **NOTE: index column should contains unique values**;
+ - *`-d datetime columns`*(optional): a list of columns which values are in datetime format. Specifying this, rfd-discovery
+ can depict distance between two date in time format (e.g. ms, sec, min);
+ - *`--semantic`*(optional): use semantic distance on Wordnet for string. 
+ For more info [here.](http://www.cs.toronto.edu/pub/gh/Budanitsky+Hirst-2001.pdf)   
  
  
  ##### Valid Examples:
