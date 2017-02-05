@@ -8,6 +8,7 @@ cimport numpy as np
 import numpy as np
 from libc.math cimport isnan
 
+NAN_PH = str(np.nan)
 
 cdef class RFDDiscovery(object):
 
@@ -19,6 +20,8 @@ cdef class RFDDiscovery(object):
     cdef cython.bint print_res
     cdef object distance_matrix
     cdef cython.bint compiled
+    cdef object rfd_to_add
+    cdef unsigned int rfd_count
 
     def __init__(self, dist_matrix: pnd.DataFrame, print_res=False):
         self.compiled = cython.compiled
@@ -29,6 +32,8 @@ cdef class RFDDiscovery(object):
         self.rfds = None
         self.print_res = print_res
         self.distance_matrix = dist_matrix
+        self.rfd_to_add = set()
+        self.rfd_count = 0
 
     cpdef object get_rfds(self, object dominance_funct, hss: dict):
         # self.distance_matrix = diff_mtx.distance_matrix(diff_mtx.split_sides(hss['lhs'], hss['rhs']))
@@ -63,14 +68,9 @@ cdef class RFDDiscovery(object):
             self.pool.update(pool_rows_to_add)  # add non-dominating rows into the pool
             # filter selected rows only
             df_distance_range_filtered = df_distance_range[df_distance_range.index.isin(selected_row)]
-
             self.__check_min(df_distance_range_filtered[df_keys], dist)  # create minimum on range vector
             # find effective rfd
             self.__find_rfd(self.on_minimum_df[self.on_minimum_df.RHS == dist][df_keys], dist, old_pool)
-
-        self.rfds.drop_duplicates(subset=df_keys, inplace=True)
-        self.rfds.reset_index(inplace=True)
-        self.rfds = self.rfds.drop(['index'], axis = 1) # Remove the distance matrix's indexes
 
         if self.print_res:
             print("Minimum df \n", self.on_minimum_df)
@@ -109,7 +109,7 @@ cdef class RFDDiscovery(object):
         :param dist: current distance
         :param old_pool: the pool before update
         """
-        cdef int nan_count = 0
+        cdef unsigned int nan_count = 0
         for index, row in current_df.iterrows():
             #  case 1: all rfds or |nan| <= 1
             nan_count = sum(np.isnan(row))
@@ -122,7 +122,15 @@ cdef class RFDDiscovery(object):
             else:
                 compl_row = self.__complement_nans(row)
                 if self.__check_dominance_single(compl_row, old_pool, dist):  # check on single attributes
-                    self.__add_rfd(compl_row, dist)
+                    self.__add_rfd(compl_row)
+        cdef object to_add
+        for rfd in self.rfd_to_add:
+            #k = self.rfds.shape[0]
+            ta_rfd = [i if i != NAN_PH else np.nan for i in list(rfd)]
+            to_add = [dist] + ta_rfd
+            self.rfds.loc[self.rfd_count] = to_add  # add rfd to RFD's data frame
+            self.rfd_count += 1
+        self.rfd_to_add = set()
 
     cdef cython.bint __check_dominance(self, y: list, rows_to_delete: set):
         """
@@ -160,19 +168,8 @@ cdef class RFDDiscovery(object):
         for i in range(len(pool_keys)):
             diff = y - np.array(old_pool[pool_keys[i]])
             new_y = np.array([np.nan if diff[j] > 0 else y[j] for j in range(len(y))])
-            # print("----------------------------------")
-            # print("pool_keys:\n", pool_keys)
-            # print("Y:\n", y)
-            # print("np.array(old_pool[pool_keys[i]]):\n", np.array(old_pool[pool_keys[i]]))
-            # print("diff:\n", diff)
-            # print("Old Pool:\n", old_pool)
-            # print("Selected Pool:\n", old_pool[pool_keys[i]])
-            # print("Sliced Pool:\n", pool_keys[:i] + pool_keys[i+1:])
-            # print("New Y:\n", new_y)
-            # print("----------------------------------")
             if not self.__check_dominance_pool_slice(new_y, old_pool, pool_keys[:i] + pool_keys[i+1:]):
-                #print("*******new Y to add", new_y)
-                self.__add_rfd(new_y, dist)
+                self.__add_rfd(new_y)
                 flag = False
         return flag
 
@@ -214,7 +211,7 @@ cdef class RFDDiscovery(object):
         for i in range(diagonal_matrix.shape[1]):
             if all(np.isnan(diagonal_matrix[..., i])):  # this occurs when not all elements are not NAN
                 continue
-            self.__add_rfd(diagonal_matrix[..., i], dist)
+            self.__add_rfd(diagonal_matrix[..., i])
 
     cdef void __any_rfds(self, row: pnd.Series, double dist, old_pool: dict):
         """
@@ -233,16 +230,17 @@ cdef class RFDDiscovery(object):
         if self.__check_dominance_nan(compl_row, old_pool):  # compl_row dominantes at least one row: case 6
             return
         elif self.__check_dominance_single(compl_row, old_pool, dist):  # check on single attributes
-            self.__add_rfd(compl_row, dist)
+            self.__add_rfd(compl_row)
 
-    cdef void __add_rfd(self, rfd, double dist):
+    cdef void __add_rfd(self, np.ndarray rfd):
         """
         Add a specific RFD into the data frame containing them using the required format.
         :param rfd: a discovered RFD
         :param dist: the distance where RFD is located
         """
-        rfds_to_add = [dist] + list(rfd)
-        self.rfds.loc[self.rfds.shape[0]] = rfds_to_add  # add rfd to RFD's data frame
+        rfd_l = rfd.tolist()
+        l_rfd = tuple(i if not np.isnan(i) else NAN_PH for i in rfd_l)
+        self.rfd_to_add.add(l_rfd)
 
     cdef np.ndarray __complement_nans(self, row: pnd.Series):
         """
@@ -250,7 +248,7 @@ cdef class RFDDiscovery(object):
         :param row: array to complementary
         :return: the complementary array
         """
-        coll_row = np.array([self.distance_matrix.loc[row.name][i+1]  # TODO check if it works
+        coll_row = np.array([self.distance_matrix.loc[row.name][i+1]
                              if np.isnan(row[i])
                              else np.nan
                              for i in range(len(row))])
@@ -260,10 +258,10 @@ cdef class RFDDiscovery(object):
         """
         Initialize variables. (just for readability)
         """
-        self.on_minimum_df = pnd.DataFrame(columns=cols)
+        self.on_minimum_df = pnd.DataFrame(columns=cols, dtype=float)
         self.min_vector = np.zeros(len(lhs))
         self.min_vector.fill(np.inf)
-        self.rfds = pnd.DataFrame(columns=cols)
+        self.rfds = pnd.DataFrame(columns=cols, dtype=float)
 
 cpdef clean_pool(rows_to_add: dict):
     """
