@@ -5,18 +5,25 @@ from loader.distance_mtr import DiffMatrix
 from dominance.dominance_tools import RFDDiscovery
 
 
-usage = 'use python3 main.py -c <csv-file> -r [rhs_index] -l [lhs_indexes] -s [sep] -h [header] (-w)'
+usage = 'use python3 main.py -c <csv-file> -r [rhs_index] -l [lhs_indexes] -s [sep] -h [header] -i [index col] (-w)'
 
 
 def main(args):
-    c_sep, csv_file, has_header, semantic = extract_args(args)
+    c_sep, csv_file, has_header, semantic, has_dt, missing, index_col = extract_args(args)
+    check_correctness(has_header, has_dt, index_col, hss)
 
     if hss is None:
         print(usage)
     if isinstance(hss, list):
         with ut.timeit_context("Whole time"):
             with ut.timeit_context("Distance time"):
-                diff_mtx = DiffMatrix(csv_file, sep=c_sep, first_col_header=has_header, semantic=semantic)
+                diff_mtx = DiffMatrix(csv_file,
+                                      sep=c_sep,
+                                      first_col_header=has_header,
+                                      semantic=semantic,
+                                      index_col=index_col,
+                                      missing=missing,
+                                      datetime=has_dt)
             for combination in hss:
                 comb_dist_mtx = diff_mtx.split_sides(combination)
                 with ut.timeit_context("RFD Discover time for {}".format(str(combination))):
@@ -27,8 +34,13 @@ def main(args):
 def extract_args(args):
     # extraction
     try:
-        csv_file, lhs, rhs, c_sep, has_header, semantic = '', [], [], '', None, False
-        opts, args = getopt.getopt(args, "c:r:l:s:h:wm:d")
+        # Default values
+        c_sep, has_header, semantic, has_dt, missing, ic = '', None, False, False, None, False
+        csv_file = ''
+        lhs = []
+        rhs = []
+
+        opts, args = getopt.getopt(args, "c:r:l:s:h:wm:d:i:")
         for opt, arg in opts:
             if opt == '-c':
                 csv_file = arg
@@ -46,11 +58,11 @@ def extract_args(args):
             elif opt == '-w':
                 semantic = True
             elif opt == '-m':
-                raise NotImplementedError("To implement")
-                # TODO
+                missing = arg
             elif opt == '-d':
-                raise NotImplementedError("To implement")
-                # TODO
+                has_dt = [int(_) for _ in arg.split(',')]
+            elif opt == '-i':
+                ic = int(arg)
     except TypeError as t_err:
         print("Error while trying to convert a string to numeric: {}".format(str(t_err)))
         sys.exit(-1)
@@ -66,7 +78,7 @@ def extract_args(args):
     except Exception as ex:
         print("Error while trying to understand arguments: {}".format(str(ex)))
         sys.exit(-1)
-    return c_sep, csv_file, has_header, semantic
+    return c_sep, csv_file, has_header, semantic, has_dt, missing, ic
 
 
 def extract_hss(cols_count, lhs, rhs):
@@ -83,8 +95,6 @@ def extract_hss(cols_count, lhs, rhs):
             sys.exit(-1)
         hss = list()
         hss.append({'rhs': rhs, 'lhs': cols_index[:rhs[0]] + cols_index[rhs[0] + 1:]})
-        #hss['rhs'] = rhs
-        #hss['lhs'] = cols_index[:rhs[0]] + cols_index[rhs[0] + 1:]
     else:
         hss = list()
         hss.append({'rhs': rhs, 'lhs': lhs})
@@ -99,6 +109,9 @@ def extract_sep_n_header(c_sep, csv_file, has_header):
     elif c_sep == '' and has_header is not None:
         c_sep = ut.check_sep_n_header(csv_file)[0]
     return c_sep, has_header
+
+def check_correctness(has_header, has_dt, index_col, hss):
+    pass
 
 
 if __name__ == "__main__":
