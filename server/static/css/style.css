@@ -63,6 +63,26 @@ h1 {
 .pad {
     padding: 100px 0;
 }
+.nav-wrapper .right{
+    line-height: 1;
+}
+.columnselection_wrapper .btn, .infobtn{
+    height: 25px;
+    line-height: 25px;
+    padding: 0 7px;
+    margin-right: 3px;
+    font-size: 13px;
+}
 
-.lhs { background: red}
-.rhs { background: green}
+.columnselection_wrapper .btn.unchecked, .infobtn {
+  background-color: #DFDFDF !important;
+  box-shadow: none;
+  color: #9F9F9F !important;
+}
+
+.lhs,.rhs{
+    padding: 2px 10px;
+    display: inline-block;
+    background-color: #26a69a;
+    color: white;
+}

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+    <title>rdf discovery</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+    <link href="static/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+</head>
+<body>
+
+<nav class="white" role="navigation">
+    <div class="nav-wrapper container">
+        <a id="logo-container" href="#" class="brand-logo">RDF Discovery</a>
+        <ul class="right hide-on-med-and-down">
+            <li><a href="http://www.di.unisa.it/"><img src="static/images/di_logo.png"/></a></li>
+        </ul>
+        <ul id="nav-mobile" class="side-nav">
+            <li><a href="http://www.di.unisa.it/"><img src="static/images/di_logo.png"/></a></li>
+        </ul>
+        <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+    </div>
+</nav>
+<div id="index-banner" class="parallax-container">
+    <div class="section no-pad-bot">
+        <div class="container">
+            <br>
+            <h1 class="header center white-text"><img src="static/images/pythonlogo.png"/> <br> Relaxed Functional
+                Dependencies Discovery</h1>
+            <div class="row center">
+                <h5 class="header col s12 white-text"></h5>
+            </div>
+            <br>
+        </div>
+    </div>
+    <div class="parallax"><img src="static/images/neural.png" alt="neural network"></div>
+</div>
+<div class="container pad">
+
+    <form action="#" id="file-form" enctype="multipart/form-data">
+        <div class="section" id="step1">
+            <div class="row">
+                <div class="col s12">
+
+                    <div class="file-field input-field">
+                        <div class="btn">
+                            <span>Select CSV</span>
+                            <input type="file" id="jfileupload" name="file" data-url="/api/upload">
+                        </div>
+                        <div class="file-path-wrapper">
+                            <input id="file-path" class="file-path validate" type="text">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="section preview" id="step2" style="display: none;">
+            <div class="card-panel">
+                <div class="row">
+                    <div class="col s12">
+                        <h5>Details</h5>
+                        <div id="details"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-panel">
+                <div class="row">
+                    <div class="col s12">
+                        <h5>Options</h5>
+                    </div>
+                    <div class="col s6">
+                        <input type="checkbox" id="semantic" value="true"/>
+                        <label for="semantic">Semantic</label>
+                    </div>
+                    <div class="col s6">
+                        <input type="checkbox" id="header" checked="true"/>
+                        <label for="header">Header</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class=" col s6">
+                        <div class="input-field">
+                            <select id="separator">
+                                <option value="" disabled selected>Select</option>
+                                <option value=";" selected> ;</option>
+                                <option value=","> ,</option>
+                            </select>
+                            <label>Separator</label>
+                        </div>
+                    </div>
+                    <div class="input-field col s6">
+                        <input id="missing" type="text" value="?">
+                        <label for="missing">Missing value placeholder</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <p>
+                        <input name="selectcol" type="radio" id="test1" value="0" checked/>
+                        <label for="test1">Select RHS only</label>
+                    </p>
+                    <p>
+                        <input name="selectcol" type="radio" id="test2" value="1"/>
+                        <label for="test2">Custom selection</label>
+                    </p>
+                    <p>
+                        <input name="selectcol" type="radio" id="test3" value="2"/>
+                        <label for="test3">All combinations</label>
+                    </p>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <select multiple id="dateSelect">
+                        </select>
+                        <label>Datetime field</label>
+                    </div>
+                </div>
+            </div>
+            <h5>Preview</h5>
+            <h6 id="selectcolinfo">Set the LHS/RHS attributes using the <a class="btn infobtn disabled">grey
+                buttons</a></h6>
+            <br>
+            <div id="table">contents</div>
+
+            <br>
+            <div class="center">
+                <a class="waves-effect waves-light btn-large center" id="run"><i class="material-icons right">send</i>
+                    Run</a>
+            </div>
+            <div id="error" style="display: none;">
+                <div class="card-panel red lighten-1 white-text">
+                    <div class="row">
+                        <div class="col s12" id="message">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="progressbox" class="progress" style="display: none;">
+                <div class="determinate" id="progressbar"></div>
+            </div>
+            <div id="progressvalue"></div>
+        </div>
+    </form>
+    <div class="section result" id="step3" style="">
+        <div id="result"></div>
+    </div>
+</div>
+
+<footer class="page-footer teal">
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <h5 class="white-text">Contacts</h5>
+                <div class="grey-text text-lighten-4">
+                <ul>
+                    <li><a class="white-text" href="https://www.linkedin.com/in/antonio-altamura-26ab85136/en">Altamura
+                        Antonio</a></li>
+                    <li><a class="white-text" href="https://it.linkedin.com/in/dario-di-pasquale">Di Pasquale Dario</a>
+                    </li>
+                    <li><a class="white-text" href="https://www.linkedin.com/in/mattia-tomeo-b71aa6130/en">Tomeo
+                        Mattia</a></li>
+                </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-copyright">
+        <div class="container">
+        </div>
+    </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="static/js/materialize.js"></script>
+<script src="static/js/init.js"></script>
+<script src="static/js/jquery.ui.widget.js"></script>
+<script src="static/js/jquery.iframe-transport.js"></script>
+<script src="static/js/jquery.fileupload.js"></script>
+<script src="static/js/jquery.csv.js"></script>
+<script src="static/js/html5LineReader.js"></script>
+<script src="static/js/line-navigator/file-wrapper.min.js"></script>
+<script src="static/js/line-navigator/line-navigator.min.js"></script>
+
+<script type=text/javascript>
+    var _csv = {
+        data: null,
+        semantic: false,
+        separator: ';',
+        header: true,
+        delimiter: '"',
+        missing: '?',
+        selection: 0, //0:rhs-only 1:custom 2:all
+        sides: {
+            lhs: [],
+            rhs: null
+        }
+    };
+    $(document).ready(function () {
+        Core.attachHandlers();
+
+        $('input[type=radio][name=selectcol]').change(function () {
+            var $ths = $('#table thead th');
+            _csv.selection = this.value;
+            switch (this.value) {
+                case '0':
+                    $.each($ths, function (i, v) {
+                        var _id = $(this).data('id');
+                        $('.columnselection_wrapper', $(this)).html(addRHS(_id))
+                        $('#selectcolinfo').show()
+                    });
+                    break;
+                case '1':
+                    $.each($ths, function (i, v) {
+                        var _id = $(this).data('id')
+                        $('.columnselection_wrapper', $(this)).html(addRHS(_id) + addLHS(_id))
+                        $('#selectcolinfo').show()
+                    });
+                    break;
+                default:
+                    $.each($ths, function (i, v) {
+                        $('.columnselection_wrapper', $(this)).html('')
+                        $('#selectcolinfo').hide()
+                    })
+            }
+            _csv.sides.lhs = [];
+            _csv.sides.rhs = [];
+            console.log(_csv.sides)
+            Core.attachTableHandlers()
+
+        });
+        $('#jfileupload').bind('change', handleFileSelect);
+        function handleFileSelect(evt) {
+            var files = evt.target.files; // FileList object
+            var file = files[0];
+            _csv.data = file;
+            //file metadata
+            var output = ''
+                + ' FileType: ' + (file.type || 'n/a') + '<br />\n'
+                + ' FileSize: ' + file.size + ' bytes<br />\n'
+                + ' LastModified: ' + (file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() : 'n/a') + '<br />\n';
+            printTable();
+            $('#details').html(output);
+        }
+
+        function printTable() {
+            var navigator = new LineNavigator(_csv.data);
+            $('#dateSelect').html('<option value="" disabled selected>Choose your options</option>');
+            navigator.readLines(0, 10, function (err, index, lines, isEof, progress) {
+                var html = '<table class="striped">';
+                if (_csv.header) {
+                    var h = lines[0].split(_csv.separator);
+                    html += ("<thead><tr>" + $.map(h, function (c, i) {
+                        return "<th data-id='" + i + "'>" + c + "<div class='columnselection_wrapper'>" + addRHS(i) + "</div>"
+                    }).join("") + "</tr></thead>");
+                    //fill the dateSelect
+                    $.each(h, function (k, v) {
+                        $('#dateSelect')
+                            .append($("<option></option>")
+                                .attr("value", k)
+                                .text(v));
+                    });
+
+                    lines.shift()
+                }
+                else {
+                    var l = lines[0].split(_csv.separator).length;
+
+                    html += ("<thead><tr>");
+                    for (var i = 0; i < l; i++) {
+                        html += ("<th data-id='" + i + "'>" + i + "<div class='columnselection_wrapper'>" + addRHS(i) + "</div></th>")
+
+                        //fill the dateSelect
+                        $('#dateSelect')
+                            .append($("<option></option>")
+                                .attr("value", i)
+                                .text(i));
+                    }
+                    html += ("<thead><tr>");
+                }
+                if (lines && lines.length > 0) {
+                    html += '<tbody>';
+                    lines.forEach(function (line) {
+                        html += ("<tr>" + $.map(line.split(_csv.separator), function (c) {
+                            return "<td class=" + (c == _csv.separator ? 'missing' : '') + ">" + c + "</td>";
+                        }).join("") + "</tr>\r\n");
+                    });
+                    html += '</tbody>';
+                }
+                html += '</table>';
+                $('#table').html(html);
+                _csv.sides.lhs = [];
+                _csv.sides.rhs = [];
+                Core.attachTableHandlers()
+                $('select').material_select();
+            });
+        }
+
+        function addLHS(id) {
+            return "<a class='waves-effect waves-light btn lhs unchecked'data-id='" + id + "' data-side='lhs'>lhs</a>"
+        }
+
+        function addRHS(id) {
+            return "<a class='waves-effect waves-light btn rhs unchecked'data-id='" + id + "' data-side='rhs'>rhs</a>"
+        }
+
+        $('#jfileupload').fileupload({
+            //dataType: 'json',
+            autoUpload: false,
+            add: function (e, data) {
+                data.context = $('#run')
+                    .click(function () {
+                        // $('#run').after("loading")
+                        if (Core.validate()) {
+                            $('#progressbox').show();
+                            data.submit();
+                        }
+                    });
+            },
+            done: function (e, data) {
+                Core.printResult(data.result,'#result');
+            },
+            progressall: function (e, data) {
+                var progress = parseInt(data.loaded / data.total * 100, 10);
+                $('#progressbar').css('width', progress + '%');
+                $('#progressvalue').html(progress + '%');
+            }
+        }).on('fileuploadadd', function (e, data) {
+            $('#file-path').val(data.files[0].name)
+            $('#step2').fadeIn()
+            scrollTo('#step2')
+        }).on('fileuploadsubmit', function (e, data) {
+            //data.formData = _csv
+            data.formData = {
+                semantic: _csv.semantic,
+                separator: _csv.separator,
+                datetime: $('#dateSelect').val(),
+                header: _csv.header,
+                delimiter: _csv.delimiter,
+                missing: _csv.missing,
+                lhs: _csv.sides.lhs,
+                rhs: _csv.sides.rhs
+            }
+        }).on('fileuploadprocessalways', function (e, data) {
+            var file = data.files[0];
+            if (file.error) {
+                console.error("error", file.error)
+            }
+        });
+        $("#run").on("click", function () {
+            $('#file-form').submit(function (e) {
+                e.preventDefault();
+            });
+        });
+    });
+
+
+    function scrollTo(el) {
+        $('html, body').animate({
+            scrollTop: $(el).offset().top
+        }, 1000);
+    }
+    if (!Array.prototype.remove) {
+        Array.prototype.remove = function (val) {
+            var i = this.indexOf(val);
+            return i > -1 ? this.splice(i, 1) : [];
+        };
+    }
+</script>
+
+
+</body>
+</html>
