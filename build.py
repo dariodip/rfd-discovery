@@ -7,8 +7,12 @@ import sys
 compiler_args_unix = ["-O3", "-ffast-math", "-march=native", "-openmp"]
 compiler_args_vcpp = ["/O2", "/fp:fast", "/GL", "/openmp"]
 
-if sys.platform.startswith('win'):
+platform = sys.platform
+
+if platform.startswith('win'):
     compiler_args = compiler_args_vcpp
+elif platform.startswith('darwin'):
+    compiler_args = []
 else:
     compiler_args = compiler_args_unix
 
