@@ -27,11 +27,19 @@ def plot():
     test_df = pd.read_csv(file_path, sep=sep, decimal=',')
     grouped_df = test_df.groupby(['ds_name']).mean()
     print(grouped_df)
-    grouped_df['ds_file_size_B'].plot(y='time_elapsed')
-    grouped_df['ds_len'].plot(y='time_elapsed')
-    grouped_df.plot(x='ds_len', y='time_elapsed', kind='scatter', s=grouped_df['ds_attr_size']*1000)
-    # TODO nomi dei ds
+    grouped_df = grouped_df.sort_values(by=['ds_file_size_B'])
+    plot1 = grouped_df.plot(x='ds_file_size_B', y="time_elapsed", marker='.', markersize=10, title="Time elapsed respect dataset's file size")
+    plot1.set(xlabel="dataset's file size", ylabel='time elapsed')
+    plot2 = grouped_df.plot(x='ds_len', y='time_elapsed', kind='scatter', s=grouped_df['ds_attr_size']*100, title="Time elapsed respect row's number")
+    plot2.set(xlabel="dataset row's number", ylabel='time elapsed')
+
+    coords = []
+    for _, row in grouped_df.iterrows():
+        coords.append((row['ds_len'], row['time_elapsed'], row.name))
+
+    for x, y, name in coords:
+        plot2.text(x, y, name[:-4]) # remove the .csv format from the name
     plt.show()
 
-plot()
-
+if __name__ == "__main__":
+    plot()

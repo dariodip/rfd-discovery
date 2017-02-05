@@ -119,6 +119,7 @@ cdef class DiffMatrix:
                     print(iex)
                 k += 1
         # assign row names for the data frame
+        self.distance_df = self.distance_df.drop_duplicates()
         return self.distance_df
 
     cdef void __insert_in_df(self, unsigned int k, object row):
@@ -187,7 +188,7 @@ cdef class DiffMatrix:
         else:
             raise Exception("Unrecognized dtype")
 
-    cdef float semantic_diff(self, str a, str b):
+    cpdef float semantic_diff(self, str a, str b):
         """
         Computes the semantic difference as (1 - path_similarity) and store the result in semantic_diff_dic
         :param a: first term
