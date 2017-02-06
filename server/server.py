@@ -2,6 +2,8 @@ import flask
 from flask import Flask,request,render_template,jsonify
 import os
 import run as run
+import sys
+
 app = Flask(__name__, static_url_path='/static')
 app.config['UPLOAD_FOLDER'] = os.path.join('resources','upload')
 
@@ -26,4 +28,9 @@ def upload():
         return render_template('index.html', error=error,meth="GET")
 
 if __name__ == "__main__":
-     app.run(debug=True)
+    if len(sys.argv) < 2:
+        port = 5000
+    else:
+        port = int(sys.argv[1])
+    app.run(debug=True, port=port)
+

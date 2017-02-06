@@ -66,8 +66,6 @@ def extract_hss(cols_count, lhs, rhs):
             sys.exit(-1)
         hss = list()
         hss.append({'rhs': rhs, 'lhs': cols_index[:rhs[0]] + cols_index[rhs[0] + 1:]})
-        #hss['rhs'] = rhs
-        #hss['lhs'] = cols_index[:rhs[0]] + cols_index[rhs[0] + 1:]
     else:
         hss = list()
         hss.append({'rhs': rhs, 'lhs': lhs})
