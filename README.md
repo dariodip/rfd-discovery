@@ -99,8 +99,9 @@ where:
  calculate as distance. **NOTE: index column should contains unique values**;
  - *`-d datetime columns`*(optional): a list of columns which values are in datetime format. Specifying this, rfd-discovery
  can depict distance between two date in time format (e.g. ms, sec, min);
- - *`--semantic`*(optional): use semantic distance on Wordnet for string. 
+ - *`--semantic`*(optional): use semantic distance on Wordnet for string;
  For more info [here.](http://www.cs.toronto.edu/pub/gh/Budanitsky+Hirst-2001.pdf)   
+ - *`--help`*: show help.
  
  
  ##### Valid Examples:
