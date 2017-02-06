@@ -22,6 +22,8 @@ cdef class RFDDiscovery(object):
     cdef cython.bint compiled
     cdef object rfd_to_add
     cdef unsigned int rfd_count
+    np.seterr(all='ignore')
+
 
     def __init__(self, dist_matrix: pnd.DataFrame, print_res=False):
         self.compiled = cython.compiled

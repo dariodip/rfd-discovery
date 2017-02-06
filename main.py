@@ -146,7 +146,6 @@ def check_correctness(has_header, has_dt, hss):
         raise AssertionError("Repeated index error")
 
 
-
 def usage():
     print(usage_str.format(sys.argv[0]))
 

@@ -7,13 +7,17 @@ import time
 import json
 
 
-def main(csv_file,params):
-    diff_mtx = DiffMatrix(csv_file, sep=params['separator'], first_col_header=params['header'], semantic=params['semantic'], missing=params['missing'],datetime=params['datetime'])
+def main(csv_file, params):
+    diff_mtx = DiffMatrix(csv_file,
+                          sep=params['separator'],
+                          first_col_header=params['header'],
+                          semantic=params['semantic'],
+                          missing=params['missing'],
+                          datetime=params['datetime'])
     cols_count = ut.get_cols_count(csv_file, params['separator'])
-    hss = extract_hss(cols_count,params['lhs'],params['rhs'])
+    hss = extract_hss(cols_count, params['lhs'], params['rhs'])
     result = {}
     for combination in hss:
-        #print(combination)
         comb_dist_mtx = diff_mtx.split_sides(combination)
         nd = RFDDiscovery(comb_dist_mtx)
         result[json.dumps(combination)] = nd.get_rfds(nd.standard_algorithm, combination).to_csv(sep=params['separator'])

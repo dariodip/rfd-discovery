@@ -18,10 +18,9 @@ def upload():
         file = request.files['file']
         if file:
             params = run.param_to_dict(request.form)
-            print(params)
             csv_file = os.path.join('..',app.config['UPLOAD_FOLDER'], file.filename)
             fd = file.save(csv_file)
-            return flask.jsonify(run.main(csv_file,params))
+            return flask.jsonify(run.main(csv_file, params))
     else:
         error = 'Invalid data'
         return render_template('index.html', error=error,meth="GET")
