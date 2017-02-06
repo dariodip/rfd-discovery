@@ -5,16 +5,25 @@ from loader.distance_mtr import DiffMatrix
 from dominance.dominance_tools import RFDDiscovery
 
 
-usage = 'use python3 main.py -c <csv-file> -r [rhs_index] -l [lhs_indexes] -s [sep]' \
+usage_str = 'use python {} -c <csv-file> -r [rhs_index] -l [lhs_indexes] -s [sep]' \
         ' -h [header] -i [index col] -d [datetime columns] (-w)'
 
 
 def main(args):
     c_sep, csv_file, has_header, semantic, has_dt, missing, index_col = extract_args(args)
-    check_correctness(has_header, has_dt, index_col, hss)
+    try:
+        check_correctness(has_header, has_dt, hss)
+    except getopt.GetoptError as gex:
+        usage()
+        print(str(gex))
+        sys.exit(1)
+    except AssertionError as aex:
+        usage()
+        print(str(aex))
+        sys.exit(1)
 
     if hss is None:
-        print(usage)
+        usage()
     if isinstance(hss, list):
         with ut.timeit_context("Whole time"):
             with ut.timeit_context("Distance time"):
@@ -40,9 +49,7 @@ def extract_args(args):
         csv_file = ''
         lhs = []
         rhs = []
-
-        opts, args = getopt.getopt(args, "c:r:l:s:h:m:d:i:", ["semantic"])
-        print(opts)
+        opts, args = getopt.getopt(args, "c:r:l:s:h:m:d:i:", ["semantic", "help"])
         for opt, arg in opts:
             if opt == '-c':
                 csv_file = arg
@@ -65,6 +72,15 @@ def extract_args(args):
                 has_dt = [int(_) for _ in arg.split(',')]
             elif opt == '--indexc':
                 ic = int(arg)
+            elif opt == '--help':
+                usage()
+                sys.exit(0)
+            else:
+                assert False, "unhandled option"
+    except getopt.GetoptError as getopt_err:
+        print(getopt_err)
+        usage()
+        sys.exit(2)
     except TypeError as t_err:
         print("Error while trying to convert a string to numeric: {}".format(str(t_err)))
         sys.exit(-1)
@@ -112,8 +128,26 @@ def extract_sep_n_header(c_sep, csv_file, has_header):
         c_sep = ut.check_sep_n_header(csv_file)[0]
     return c_sep, has_header
 
-def check_correctness(has_header, has_dt, index_col, hss):
-    pass
+
+def check_correctness(has_header, has_dt, hss):
+    max_index = max(hss[0]['rhs'] + hss[0]['lhs'])
+    unique_index_count = sum([1 for i in set(hss[0]['rhs'] + hss[0]['lhs'])])
+    # check has header
+    if has_header is not None:
+        if has_header > max_index and len(hss[0]['lhs']) >= 1:
+            raise getopt.GetoptError("Header index is out of bound")
+    # check date
+    if has_dt is not False:
+        if max(has_dt) > max_index and len(hss[0]['lhs']) >= 1:
+            raise getopt.GetoptError("Datetime index is out of bound")
+    # check non repeated index
+    index_count = sum([1 for i in hss[0]['rhs'] + hss[0]['lhs']])
+    if index_count != unique_index_count:
+        raise AssertionError("Repeated index error")
+
+
+def usage():
+    print(usage_str.format(sys.argv[0]))
 
 
 if __name__ == "__main__":

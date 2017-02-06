@@ -22,6 +22,8 @@ cdef class RFDDiscovery(object):
     cdef cython.bint compiled
     cdef object rfd_to_add
     cdef unsigned int rfd_count
+    np.seterr(all='ignore')
+
 
     def __init__(self, dist_matrix: pnd.DataFrame, print_res=False):
         self.compiled = cython.compiled
@@ -153,6 +155,8 @@ cdef class RFDDiscovery(object):
             return True
         for x in list(self.pool.keys()):    # for each array in pool
             diff = np.array(self.pool[x]) - np.array(y) # compute difference
+            if any(np.isnan(diff)):
+                np.place(diff, np.isnan(diff), np.inf)
             if all(diff <= 0):  # Y dominates X
                 return False
             elif all(diff >= 0):  # X dominates Y

@@ -94,8 +94,7 @@ cdef class DiffMatrix:
             Returns:
                 pandas.DataFrame: a DataFrame containing, for each pair of rows, the distance on each attribute sorted
                 according to RHS' distance value
-            Todo:
-                * algorithm for an efficient build of the difference matrix"""
+        """
         cdef unsigned int n_row = self.df.shape[0]
         cdef unsigned int max_couples = int(n_row * (n_row - 1) / 2)
         cdef unsigned int k = 0
@@ -147,7 +146,6 @@ cdef class DiffMatrix:
         :param col_label: column name
         :param col: Dataframe
         :returns: subtraction function
-        TODO: maybe handle unicode strings (dtype:basestring)
         """
         numeric = {np.dtype('int'), np.dtype('int32'), np.dtype('int64'), np.dtype('float'), np.dtype('float64')}
         string = {np.dtype('string_'), np.dtype('object')}
