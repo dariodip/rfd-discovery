@@ -4,5 +4,5 @@ cat;male;21;2001/03/02
 cat;female;45;2001/04/02
 cat;female;48;2001/06/02
 dog;male;29;2001/08/02
-dog;female;30;2001/09/02
-dog;male;?;2001/04/02
+dog;male;30;2001/09/02
+dog;female;?;?

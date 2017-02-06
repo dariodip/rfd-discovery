@@ -14,7 +14,7 @@
     <div class="nav-wrapper container">
         <a id="logo-container" href="#" class="brand-logo">RDF Discovery</a>
         <ul class="right hide-on-med-and-down">
-            <li><a href="http://www.di.unisa.it/"><img src="static/images/di_logo.png"/></a></li>
+            <li><a id="di_logo" href="http://www.di.unisa.it/"><img src="static/images/di_logo.png"/></a></li>
         </ul>
         <ul id="nav-mobile" class="side-nav">
             <li><a href="http://www.di.unisa.it/"><img src="static/images/di_logo.png"/></a></li>
@@ -96,16 +96,16 @@
                 </div>
                 <div class="row">
                     <p>
-                        <input name="selectcol" type="radio" id="test1" value="0" checked/>
-                        <label for="test1">Select RHS only</label>
+                        <input name="selectcol" type="radio" id="opt1" value="0" checked/>
+                        <label for="opt1">Select RHS only</label>
                     </p>
                     <p>
-                        <input name="selectcol" type="radio" id="test2" value="1"/>
-                        <label for="test2">Custom selection</label>
+                        <input name="selectcol" type="radio" id="opt2" value="1"/>
+                        <label for="opt2">Custom selection</label>
                     </p>
                     <p>
-                        <input name="selectcol" type="radio" id="test3" value="2"/>
-                        <label for="test3">All combinations</label>
+                        <input name="selectcol" type="radio" id="opt3" value="2"/>
+                        <label for="opt3">All combinations</label>
                     </p>
                 </div>
                 <div class="row">
@@ -198,39 +198,10 @@
     $(document).ready(function () {
         Core.attachHandlers();
 
-        $('input[type=radio][name=selectcol]').change(function () {
-            var $ths = $('#table thead th');
-            _csv.selection = this.value;
-            switch (this.value) {
-                case '0':
-                    $.each($ths, function (i, v) {
-                        var _id = $(this).data('id');
-                        $('.columnselection_wrapper', $(this)).html(addRHS(_id))
-                        $('#selectcolinfo').show()
-                    });
-                    break;
-                case '1':
-                    $.each($ths, function (i, v) {
-                        var _id = $(this).data('id')
-                        $('.columnselection_wrapper', $(this)).html(addRHS(_id) + addLHS(_id))
-                        $('#selectcolinfo').show()
-                    });
-                    break;
-                default:
-                    $.each($ths, function (i, v) {
-                        $('.columnselection_wrapper', $(this)).html('')
-                        $('#selectcolinfo').hide()
-                    })
-            }
-            _csv.sides.lhs = [];
-            _csv.sides.rhs = [];
-            console.log(_csv.sides)
-            Core.attachTableHandlers()
 
-        });
-        $('#jfileupload').bind('change', handleFileSelect);
-        function handleFileSelect(evt) {
-            var files = evt.target.files; // FileList object
+        $('#jfileupload').bind('change', getDetails);
+        function getDetails(e) {
+            var files = e.target.files; // FileList object
             var file = files[0];
             _csv.data = file;
             //file metadata
@@ -238,7 +209,6 @@
                 + ' FileType: ' + (file.type || 'n/a') + '<br />\n'
                 + ' FileSize: ' + file.size + ' bytes<br />\n'
                 + ' LastModified: ' + (file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() : 'n/a') + '<br />\n';
-            printTable();
             $('#details').html(output);
         }
 
@@ -250,7 +220,7 @@
                 if (_csv.header) {
                     var h = lines[0].split(_csv.separator);
                     html += ("<thead><tr>" + $.map(h, function (c, i) {
-                        return "<th data-id='" + i + "'>" + c + "<div class='columnselection_wrapper'>" + addRHS(i) + "</div>"
+                        return "<th data-id='" + i + "'>" + c + "<div class='columnselection_wrapper'>" + Core.addRHS(i) + "</div>"
                     }).join("") + "</tr></thead>");
                     //fill the dateSelect
                     $.each(h, function (k, v) {
@@ -267,7 +237,7 @@
 
                     html += ("<thead><tr>");
                     for (var i = 0; i < l; i++) {
-                        html += ("<th data-id='" + i + "'>" + i + "<div class='columnselection_wrapper'>" + addRHS(i) + "</div></th>")
+                        html += ("<th data-id='" + i + "'>" + i + "<div class='columnselection_wrapper'>" + Core.addRHS(i) + "</div></th>")
 
                         //fill the dateSelect
                         $('#dateSelect')
@@ -295,21 +265,12 @@
             });
         }
 
-        function addLHS(id) {
-            return "<a class='waves-effect waves-light btn lhs unchecked'data-id='" + id + "' data-side='lhs'>lhs</a>"
-        }
-
-        function addRHS(id) {
-            return "<a class='waves-effect waves-light btn rhs unchecked'data-id='" + id + "' data-side='rhs'>rhs</a>"
-        }
-
         $('#jfileupload').fileupload({
             //dataType: 'json',
             autoUpload: false,
             add: function (e, data) {
                 data.context = $('#run')
                     .click(function () {
-                        // $('#run').after("loading")
                         if (Core.validate()) {
                             $('#progressbox').show();
                             data.submit();
@@ -327,6 +288,10 @@
         }).on('fileuploadadd', function (e, data) {
             $('#file-path').val(data.files[0].name)
             $('#step2').fadeIn()
+            _csv.sides.lhs = [];
+            _csv.sides.rhs = [];
+            printTable();
+            $("#opt1").click();
             scrollTo('#step2')
         }).on('fileuploadsubmit', function (e, data) {
             //data.formData = _csv
@@ -352,19 +317,6 @@
             });
         });
     });
-
-
-    function scrollTo(el) {
-        $('html, body').animate({
-            scrollTop: $(el).offset().top
-        }, 1000);
-    }
-    if (!Array.prototype.remove) {
-        Array.prototype.remove = function (val) {
-            var i = this.indexOf(val);
-            return i > -1 ? this.splice(i, 1) : [];
-        };
-    }
 </script>
 
 

@@ -6,6 +6,7 @@
 })(jQuery);
 
 var Core = {
+
     attachHandlers: function () {
         $('#semantic').change(function () {
             console.log($(this).is(":checked"))
@@ -22,6 +23,35 @@ var Core = {
         $('#header').click(function () {
             _csv.header = $(this).is(":checked")
             printTable()
+        });
+        $('input[type=radio][name=selectcol]').change(function () {
+            var $ths = $('#table thead th');
+            _csv.selection = this.value;
+            switch (this.value) {
+                case '0':
+                    $.each($ths, function (i, v) {
+                        var _id = $(this).data('id');
+                        $('.columnselection_wrapper', $(this)).html(Core.addRHS(_id))
+                        $('#selectcolinfo').show()
+                    });
+                    break;
+                case '1':
+                    $.each($ths, function (i, v) {
+                        var _id = $(this).data('id')
+                        $('.columnselection_wrapper', $(this)).html(Core.addRHS(_id) + Core.addLHS(_id))
+                        $('#selectcolinfo').show()
+                    });
+                    break;
+                default:
+                    $.each($ths, function (i, v) {
+                        $('.columnselection_wrapper', $(this)).html('')
+                        $('#selectcolinfo').hide()
+                    })
+            }
+            _csv.sides.lhs = [];
+            _csv.sides.rhs = [];
+            Core.attachTableHandlers()
+
         });
     },
     attachTableHandlers: function () {
@@ -79,7 +109,7 @@ var Core = {
         });
         $(el).html(res);
     },
-    validate: function validate() {
+    validate: function() {
         if (_csv.selection == 0 && _csv.sides.rhs.length == 0) {
             $('#message', '#error').html('Please select a valid RHS')
             $('#error').fadeIn()
@@ -92,6 +122,23 @@ var Core = {
         }
         $('#error').hide();
         return true;
-    }
+    },
+    addLHS: function (id) {
+            return "<a class='waves-effect waves-light btn lhs unchecked'data-id='" + id + "' data-side='lhs'>lhs</a>"
+        },
+    addRHS: function(id) {
+            return "<a class='waves-effect waves-light btn rhs unchecked'data-id='" + id + "' data-side='rhs'>rhs</a>"
+        }
 };
 
+    function scrollTo(el) {
+        $('html, body').animate({
+            scrollTop: $(el).offset().top
+        }, 1000);
+    }
+    if (!Array.prototype.remove) {
+        Array.prototype.remove = function (val) {
+            var i = this.indexOf(val);
+            return i > -1 ? this.splice(i, 1) : [];
+        };
+    }
