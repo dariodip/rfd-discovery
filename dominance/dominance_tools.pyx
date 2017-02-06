@@ -153,6 +153,8 @@ cdef class RFDDiscovery(object):
             return True
         for x in list(self.pool.keys()):    # for each array in pool
             diff = np.array(self.pool[x]) - np.array(y) # compute difference
+            if any(np.isnan(diff)):
+                np.place(diff, np.isnan(diff), np.inf)
             if all(diff <= 0):  # Y dominates X
                 return False
             elif all(diff >= 0):  # X dominates Y
