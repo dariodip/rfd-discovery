@@ -5,6 +5,14 @@
 
 int levenshtein(char *, char *, unsigned int *);
 
+/*
+ * Compute the edit distance between two string s1 and s2 given as parameters.
+ * param:
+ *     s1 (char *): first string
+ *     s2 (char *): second string
+ * return:
+ *     distance (int): value of edit distance between s1 and s2
+ */
 int levenshtein(char *s1, char *s2, unsigned int * column) {
     unsigned int s1len, s2len, x, y, lastdiag, olddiag;
     s1len = strlen(s1);
