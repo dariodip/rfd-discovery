@@ -168,17 +168,16 @@ cdef class DiffMatrix:
         :returns: a list containing one distance function for each data frame's column
         :rtype: list
         """
-        cdef unsigned int i
         if self.semantic:
             # iterate over columns
-            types = np.array([self.__semantic_diff_criteria__(col_label, col)
-                               for i, (col_label, col) in enumerate(self.df.iteritems())])
+            types = np.array([self.__semantic_diff_criteria__(col)
+                               for col_label, col in self.df.iteritems()])
         else:
-            types = np.array([self.__diff_criteria__(col_label, col)
-                                for i, (col_label, col) in enumerate(self.df.iteritems())])
+            types = np.array([self.__diff_criteria__(col)
+                                for col_label, col in self.df.iteritems()])
         return types.tolist()
 
-    cdef object __diff_criteria__(self, str col_label, object col):
+    cdef object __diff_criteria__(self, object col):
         """
         Given an attribute's column, check its type and return the appropriate distance function.
         The difference between __semantic_diff_criteria__ and this method is that this method will use the
@@ -204,15 +203,13 @@ cdef class DiffMatrix:
         else:
             raise Exception("Unrecognized dtype")
 
-    cdef object __semantic_diff_criteria__(self, str col_label, object col):
+    cdef object __semantic_diff_criteria__(self, object col):
         """
         Given an attribute's column, check its type and return the appropriate distance function.
         The difference between __diff_criteria__ and this method is that this method will use the
-        semantic difference for strings.
+        semantic difference for strings and the edit distance as fallback when the Wordnet lookup fails.
         If the type of a function is an object, it will use the semantic difference for this attribute.
         If the type of an attribute is not valid, the method will raise an exception.
-        :param col_label: the column's label
-        :type col_label: str
         :param col: the attribute's values
         :type col: pandas.core.series.Series
         :return: a distance function
