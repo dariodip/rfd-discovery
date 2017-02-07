@@ -5,7 +5,7 @@ from Cython.Build import cythonize, build_ext
 import sys
 
 compiler_args_unix = ["-O3", "-ffast-math", "-march=native"]
-compiler_args_vcpp = ["/O2", "/fp:fast", "/GL", "/openmp"]
+compiler_args_vcpp = ["/O2", "/fp:fast", "/GL"]
 
 platform = sys.platform
 
