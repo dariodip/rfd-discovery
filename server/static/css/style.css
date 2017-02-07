@@ -8,65 +8,71 @@
 
 nav ul a,
 nav .brand-logo {
-  color: #444;
+    color: #444;
 }
 
 p {
-  line-height: 2rem;
+    line-height: 2rem;
 }
 
 .button-collapse {
-  color: #26a69a;
+    color: #26a69a;
 }
 
 .parallax-container {
-  min-height: 380px;
-  line-height: 0;
-  height: auto;
-  color: rgba(255,255,255,.9);
+    min-height: 380px;
+    line-height: 0;
+    height: auto;
+    color: rgba(255, 255, 255, .9);
 }
-  .parallax-container .section {
+
+.parallax-container .section {
     width: 100%;
-  }
-
-@media only screen and (max-width : 992px) {
-  .parallax-container .section {
-    position: absolute;
-    top: 40%;
-  }
-  #index-banner .section {
-    top: 10%;
-  }
 }
 
-@media only screen and (max-width : 600px) {
-  #index-banner .section {
-    top: 0;
-  }
+@media only screen and (max-width: 992px) {
+    .parallax-container .section {
+        position: absolute;
+        top: 40%;
+    }
+
+    #index-banner .section {
+        top: 10%;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    #index-banner .section {
+        top: 0;
+    }
 }
 
 .icon-block {
-  padding: 0 15px;
+    padding: 0 15px;
 }
+
 .icon-block .material-icons {
-  font-size: inherit;
+    font-size: inherit;
 }
 
 footer.page-footer {
-  margin: 0;
+    margin: 0;
 }
 
 h1 {
     font-weight: bold;
     font-size: 45px;
 }
+
 .pad {
     padding: 100px 0;
 }
-.nav-wrapper .right{
+
+.nav-wrapper .right {
     line-height: 1;
 }
-.columnselection_wrapper .btn, .infobtn{
+
+.columnselection_wrapper .btn, .infobtn {
     height: 25px;
     line-height: 25px;
     padding: 0 7px;
@@ -75,17 +81,23 @@ h1 {
 }
 
 .columnselection_wrapper .btn.unchecked, .infobtn {
-  background-color: #DFDFDF !important;
-  box-shadow: none;
-  color: #9F9F9F !important;
+    background-color: #DFDFDF !important;
+    box-shadow: none;
+    color: #9F9F9F !important;
 }
 
-.lhs,.rhs{
+.lhs, .rhs {
     padding: 2px 10px;
     display: inline-block;
     background-color: #26a69a;
     color: white;
 }
-#di_logo:hover{
+
+#di_logo:hover {
     background: transparent;
 }
+
+.errormessage i.material-icons {
+    vertical-align: middle;
+}
+#loader {text-align: center;}

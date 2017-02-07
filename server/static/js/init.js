@@ -14,15 +14,15 @@ var Core = {
         });
         $('#separator').change(function () {
             _csv.separator = $(this).val()
-            printTable()
+            Core.printTable()
         });
         $('#delimiter').bind("propertychange change click keyup input paste", function () {
             _csv.delimiter = $(this).val() || '"'
-            printTable()
+            Core.printTable()
         });
         $('#header').click(function () {
             _csv.header = $(this).is(":checked")
-            printTable()
+            Core.printTable()
         });
         $('input[type=radio][name=selectcol]').change(function () {
             var $ths = $('#table thead th');
@@ -91,7 +91,59 @@ var Core = {
         });
 
     },
-    printResult: function(data,el) {
+    printTable: function () {
+        var navigator = new LineNavigator(_csv.data);
+        $('#dateSelect').html('<option value="" disabled selected>Choose your options</option>');
+        navigator.readLines(0, 10, function (err, index, lines, isEof, progress) {
+            var html = '<table class="striped">';
+            if (_csv.header) {
+                var h = lines[0].split(_csv.separator);
+                html += ("<thead><tr>" + $.map(h, function (c, i) {
+                    return "<th data-id='" + i + "'>" + c + "<div class='columnselection_wrapper'>" + Core.addRHS(i) + "</div>"
+                }).join("") + "</tr></thead>");
+                //fill the dateSelect
+                $.each(h, function (k, v) {
+                    $('#dateSelect')
+                        .append($("<option></option>")
+                            .attr("value", k)
+                            .text(v));
+                });
+
+                lines.shift()
+            }
+            else {
+                var l = lines[0].split(_csv.separator).length;
+
+                html += ("<thead><tr>");
+                for (var i = 0; i < l; i++) {
+                    html += ("<th data-id='" + i + "'>" + i + "<div class='columnselection_wrapper'>" + Core.addRHS(i) + "</div></th>")
+
+                    //fill the dateSelect
+                    $('#dateSelect')
+                        .append($("<option></option>")
+                            .attr("value", i)
+                            .text(i));
+                }
+                html += ("<thead><tr>");
+            }
+            if (lines && lines.length > 0) {
+                html += '<tbody>';
+                lines.forEach(function (line) {
+                    html += ("<tr>" + $.map(line.split(_csv.separator), function (c) {
+                        return "<td class=" + (c == _csv.separator ? 'missing' : '') + ">" + c + "</td>";
+                    }).join("") + "</tr>\r\n");
+                });
+                html += '</tbody>';
+            }
+            html += '</table>';
+            $('#table').html(html);
+            _csv.sides.lhs = [];
+            _csv.sides.rhs = [];
+            Core.attachTableHandlers()
+            $('select').material_select();
+        });
+    },
+    printResult: function (data, el) {
         var res = '';
         $.each(data, function (c, csv) {
             var lines = csv.split('\n');
@@ -109,36 +161,45 @@ var Core = {
         });
         $(el).html(res);
     },
-    validate: function() {
+    raiseError: function(msg, el){
+        $(el).html( '<div class="card-panel red lighten-1 white-text"><div class="row"><div class="col s12 errormessage" id="message"><i class="material-icons">warning</i> '+msg+'</div></div></div>')
+    },
+    validate: function () {
         if (_csv.selection == 0 && _csv.sides.rhs.length == 0) {
-            $('#message', '#error').html('Please select a valid RHS')
+            Core.raiseError('Please select a valid RHS',"#result");
             $('#error').fadeIn()
             return false;
         }
         if (_csv.selection == 1 && (_csv.sides.rhs.length == 0 || _csv.sides.lhs.length == 0)) {
-            $('#message', '#error').html('Please select valids RHS and LHS')
-            $('#error').fadeIn();
+            Core.raiseError('Please select valids RHS and LHS',"#result");
+            $('#error').fadeIn()
             return false;
         }
         $('#error').hide();
         return true;
     },
     addLHS: function (id) {
-            return "<a class='waves-effect waves-light btn lhs unchecked'data-id='" + id + "' data-side='lhs'>lhs</a>"
-        },
-    addRHS: function(id) {
-            return "<a class='waves-effect waves-light btn rhs unchecked'data-id='" + id + "' data-side='rhs'>rhs</a>"
-        }
+        return "<a class='waves-effect waves-light btn lhs unchecked'data-id='" + id + "' data-side='lhs'>lhs</a>"
+    },
+    addRHS: function (id) {
+        return "<a class='waves-effect waves-light btn rhs unchecked'data-id='" + id + "' data-side='rhs'>rhs</a>"
+    },
+    loader: function(el){
+        console.log('loading')
+        console.log(el)
+
+        $(el).html('    <div class="preloader-wrapper big active"><div class="spinner-layer spinner-red"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div></div>')
+    }
 };
 
-    function scrollTo(el) {
-        $('html, body').animate({
-            scrollTop: $(el).offset().top
-        }, 1000);
-    }
-    if (!Array.prototype.remove) {
-        Array.prototype.remove = function (val) {
-            var i = this.indexOf(val);
-            return i > -1 ? this.splice(i, 1) : [];
-        };
-    }
+function scrollTo(el) {
+    $('html, body').animate({
+        scrollTop: $(el).offset().top
+    }, 1000);
+}
+if (!Array.prototype.remove) {
+    Array.prototype.remove = function (val) {
+        var i = this.indexOf(val);
+        return i > -1 ? this.splice(i, 1) : [];
+    };
+}

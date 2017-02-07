@@ -142,7 +142,8 @@
         </div>
     </form>
     <div class="section result" id="step3" style="">
-        <div id="result"></div>
+        <div id="loader"></div>
+         <div id="result"></div>
     </div>
 </div>
 
@@ -152,14 +153,15 @@
             <div class="col s12">
                 <h5 class="white-text">Contacts</h5>
                 <div class="grey-text text-lighten-4">
-                <ul>
-                    <li><a class="white-text" href="https://www.linkedin.com/in/antonio-altamura-26ab85136/en">Altamura
-                        Antonio</a></li>
-                    <li><a class="white-text" href="https://it.linkedin.com/in/dario-di-pasquale">Di Pasquale Dario</a>
-                    </li>
-                    <li><a class="white-text" href="https://www.linkedin.com/in/mattia-tomeo-b71aa6130/en">Tomeo
-                        Mattia</a></li>
-                </ul>
+                    <ul>
+                        <li><a class="white-text" href="https://www.linkedin.com/in/antonio-altamura-26ab85136/en">Altamura
+                            Antonio</a></li>
+                        <li><a class="white-text" href="https://it.linkedin.com/in/dario-di-pasquale">Di Pasquale
+                            Dario</a>
+                        </li>
+                        <li><a class="white-text" href="https://www.linkedin.com/in/mattia-tomeo-b71aa6130/en">Tomeo
+                            Mattia</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -172,7 +174,6 @@
 
 <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <script src="static/js/materialize.js"></script>
-<script src="static/js/init.js"></script>
 <script src="static/js/jquery.ui.widget.js"></script>
 <script src="static/js/jquery.iframe-transport.js"></script>
 <script src="static/js/jquery.fileupload.js"></script>
@@ -199,9 +200,8 @@
         Core.attachHandlers();
 
 
-        $('#jfileupload').bind('change', getDetails);
-        function getDetails(e) {
-            var files = e.target.files; // FileList object
+        $('#jfileupload').bind('change', function (e) {
+            var files = e.target.files;
             var file = files[0];
             _csv.data = file;
             //file metadata
@@ -210,60 +210,7 @@
                 + ' FileSize: ' + file.size + ' bytes<br />\n'
                 + ' LastModified: ' + (file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() : 'n/a') + '<br />\n';
             $('#details').html(output);
-        }
-
-        function printTable() {
-            var navigator = new LineNavigator(_csv.data);
-            $('#dateSelect').html('<option value="" disabled selected>Choose your options</option>');
-            navigator.readLines(0, 10, function (err, index, lines, isEof, progress) {
-                var html = '<table class="striped">';
-                if (_csv.header) {
-                    var h = lines[0].split(_csv.separator);
-                    html += ("<thead><tr>" + $.map(h, function (c, i) {
-                        return "<th data-id='" + i + "'>" + c + "<div class='columnselection_wrapper'>" + Core.addRHS(i) + "</div>"
-                    }).join("") + "</tr></thead>");
-                    //fill the dateSelect
-                    $.each(h, function (k, v) {
-                        $('#dateSelect')
-                            .append($("<option></option>")
-                                .attr("value", k)
-                                .text(v));
-                    });
-
-                    lines.shift()
-                }
-                else {
-                    var l = lines[0].split(_csv.separator).length;
-
-                    html += ("<thead><tr>");
-                    for (var i = 0; i < l; i++) {
-                        html += ("<th data-id='" + i + "'>" + i + "<div class='columnselection_wrapper'>" + Core.addRHS(i) + "</div></th>")
-
-                        //fill the dateSelect
-                        $('#dateSelect')
-                            .append($("<option></option>")
-                                .attr("value", i)
-                                .text(i));
-                    }
-                    html += ("<thead><tr>");
-                }
-                if (lines && lines.length > 0) {
-                    html += '<tbody>';
-                    lines.forEach(function (line) {
-                        html += ("<tr>" + $.map(line.split(_csv.separator), function (c) {
-                            return "<td class=" + (c == _csv.separator ? 'missing' : '') + ">" + c + "</td>";
-                        }).join("") + "</tr>\r\n");
-                    });
-                    html += '</tbody>';
-                }
-                html += '</table>';
-                $('#table').html(html);
-                _csv.sides.lhs = [];
-                _csv.sides.rhs = [];
-                Core.attachTableHandlers()
-                $('select').material_select();
-            });
-        }
+        });
 
         $('#jfileupload').fileupload({
             //dataType: 'json',
@@ -278,19 +225,24 @@
                     });
             },
             done: function (e, data) {
-                Core.printResult(data.result,'#result');
+                $('#loader').hide()
+                if (data.result.error)
+                    Core.raiseError(data.result.error, '#result');
+                else
+                    Core.printResult(data.result, '#result');
             },
             progressall: function (e, data) {
                 var progress = parseInt(data.loaded / data.total * 100, 10);
                 $('#progressbar').css('width', progress + '%');
-                $('#progressvalue').html(progress + '%');
+                var progress_str = progress+'% ' + ((progress<100) ? 'Loading file': '');
+                $('#progressvalue').html(progress_str);
             }
         }).on('fileuploadadd', function (e, data) {
             $('#file-path').val(data.files[0].name)
             $('#step2').fadeIn()
             _csv.sides.lhs = [];
             _csv.sides.rhs = [];
-            printTable();
+            Core.printTable();
             $("#opt1").click();
             scrollTo('#step2')
         }).on('fileuploadsubmit', function (e, data) {
@@ -312,12 +264,14 @@
             }
         });
         $("#run").on("click", function () {
+            Core.loader('#loader');
             $('#file-form').submit(function (e) {
                 e.preventDefault();
             });
         });
     });
 </script>
+<script src="static/js/init.js"></script>
 
 
 </body>

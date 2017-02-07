@@ -5,15 +5,24 @@ from dominance.dominance_tools import RFDDiscovery
 from contextlib import contextmanager
 import time
 import json
+import traceback
 
 
-def main(csv_file, params):
-    diff_mtx = DiffMatrix(csv_file,
-                          sep=params['separator'],
-                          first_col_header=params['header'],
-                          semantic=params['semantic'],
-                          missing=params['missing'],
-                          datetime=params['datetime'])
+def main(csv_file, post_metadata):
+    params = param_to_dict(post_metadata)
+    args = {'sep': params['separator'],
+            'semantic': params['semantic'],
+            'missing': params['missing'],
+            'datetime': params['datetime']
+            }
+    if 'header' in params:
+        args['first_col_header'] = params['header']
+    try:
+        diff_mtx = DiffMatrix(csv_file, **args)
+    except Exception as e:
+        return {"error":str(e.__doc__)}
+        #return {"error":str(traceback.format_exc())}
+
     cols_count = ut.get_cols_count(csv_file, params['separator'])
     hss = extract_hss(cols_count, params['lhs'], params['rhs'])
     result = {}
@@ -40,9 +49,7 @@ def param_to_dict(p):
         elif k == 'header':
             if p.get(k) == 'true':
                 dic[k] = 0
-            else:
-                dic[k] = False
-        elif k == 'semantic' :
+        elif k == 'semantic':
             if not p.get(k) or p.get(k) == 'false':
                 dic[k] = False
             else:
