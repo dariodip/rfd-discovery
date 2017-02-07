@@ -46,7 +46,6 @@ rfd-discovery is developed using [Python 3.5](http://www.python.it/) and [Cython
     *[tornado](http://www.tornadoweb.org/en/stable/)* <br>
     *[Cython](http://cython.org/)* <br>
     *[nltk](http://www.nltk.org/)* <br>
-    *[python-dateutil](https://dateutil.readthedocs.io/en/stable/)* <br>
     *[flask](http://flask.pocoo.org/)* <br>
     
    You can install these one by one, or following the [Setup Section](#setup).
@@ -80,26 +79,27 @@ If building phase ends without errors, you should have some *.c* and *.pyd* (or 
 
 Using rdf-discovery is easy enough. Just run the following command:
 
-`python3 main.py -c <csv-file> -r [rhs_index] -l [lhs_indexes] -s [sep] -h [header] -i [index col] 
--d [datetime columns] (--semantic)`
+`python3 main.py -c <csv-file> [options]`
 
-where:
  - *`-c <your-csv>`*: is the path of the dataset on which you want to discover RFDs;
- - *`-s sep`*(optional): is the separation char used in your CSV file. If you don't provide this, rfd-discovery tries to infer
+
+
+Options:
+ - *`-v`* : display version number;
+ - *`-s <sep>`*: the separation char used in your CSV file. If you don't provide this, rfd-discovery tries to infer
  it for you;
- - *`-h head`*(optional): is the line in which the header of your CSV file is. -1 if your CSV has no header. If you don't 
- provide this, rdf-discovery tries to infer it for you.
- - *`-r rhs_index`*(optional): is the column number of the RHS attribute. It must be a valid integer. You can avoid to 
+ - *`-h`*: Indicate that CSV file has the header row. If you don't provide this, rdf-discovery tries to infer it for you.
+ - *`-r <rhs_index>`*: is the column number of the RHS attribute. It must be a valid integer. You can avoid to 
  specify it only if you don't specify LHS attributes (we'll find RFDs using each attribute as RHS and the remaining as LHS);
- - *`-l lhs_indexes`*(optional): column index of LHS' attributes indexes separated by commas (e.g. *1,2,3*). You can avoid to 
- specify them: <br> 
+ - *`-l <lhs_index_1, lhs_index_2, ...,lhs_index_k>`*: column index of LHS' attributes indexes separated by commas 
+ (e.g. *1,2,3*). You can avoid to  specify them: <br> 
   if you don't specify RHS' attribute index we'll find RFDs using each attribute as RHS and the remaining as LHS; <br>
   if you specify a valid RHS index we'll assume your LHS as the remaining attributes;
- - *`-i index col`*(optional): the column which contains the primary key of the dataset. Specifying it, this will not 
+ - *`-i <index_col>`*: the column which contains the primary key of the dataset. Specifying it, this will not 
  calculate as distance. **NOTE: index column should contains unique values**;
- - *`-d datetime columns`*(optional): a list of columns which values are in datetime format. Specifying this, rfd-discovery
- can depict distance between two date in time format (e.g. ms, sec, min);
- - *`--semantic`*(optional): use semantic distance on Wordnet for string;
+ - *`-d <datetime columns>`*: a list of columns, separated by commas, which values are in datetime format.
+  Specifying this, rfd-discovery can depict distance between two date in time format (e.g. ms, sec, min);
+ - *`--semantic`*: use semantic distance on Wordnet for string;
  For more info [here.](http://www.cs.toronto.edu/pub/gh/Budanitsky+Hirst-2001.pdf)   
  - *`--help`*: show help.
  
