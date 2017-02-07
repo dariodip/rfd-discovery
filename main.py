@@ -5,14 +5,10 @@ from loader.distance_mtr import DiffMatrix
 from dominance.dominance_tools import RFDDiscovery
 
 
-usage_str = 'use python {} -c <csv-file> -r [rhs_index] -l [lhs_indexes] -s [sep]' \
-        ' -h [header] -i [index col] -d [datetime columns] (-w)'
-
-
 def main(args):
     c_sep, csv_file, has_header, semantic, has_dt, missing, index_col = extract_args(args)
     try:
-        check_correctness(has_header, has_dt, hss)
+        check_correctness(has_header, has_dt, hss, index_col)
     except getopt.GetoptError as gex:
         usage()
         print(str(gex))
@@ -27,7 +23,15 @@ def main(args):
     if isinstance(hss, list):
         with ut.timeit_context("Whole time"):
             with ut.timeit_context("Distance time"):
-                diff_mtx = DiffMatrix(csv_file,
+                if isinstance(has_header, int) and not has_header:
+                    diff_mtx = DiffMatrix(csv_file,
+                                          sep=c_sep,
+                                          index_col=index_col,
+                                          semantic=semantic,
+                                          missing=missing,
+                                          datetime=has_dt)
+                else:
+                    diff_mtx = DiffMatrix(csv_file,
                                       sep=c_sep,
                                       first_col_header=has_header,
                                       semantic=semantic,
@@ -49,8 +53,11 @@ def extract_args(args):
         csv_file = ''
         lhs = []
         rhs = []
-        opts, args = getopt.getopt(args, "c:r:l:s:h:m:d:i:", ["semantic", "help"])
+        opts, args = getopt.getopt(args, "c:r:l:s:hm:d:vi:", ["semantic", "help"])
         for opt, arg in opts:
+            if opt == '-v':
+                print("rdf-discovery version 0.0.1")
+                sys.exit(0)
             if opt == '-c':
                 csv_file = arg
             elif opt == '-r':
@@ -63,14 +70,14 @@ def extract_args(args):
             elif opt == '-s':
                 c_sep = arg
             elif opt == '-h':
-                has_header = int(arg)
+                has_header = 0
             elif opt == '--semantic':
                 semantic = True
             elif opt == '-m':
                 missing = arg
             elif opt == '-d':
                 has_dt = [int(_) for _ in arg.split(',')]
-            elif opt == '--indexc':
+            elif opt == '-i':
                 ic = int(arg)
             elif opt == '--help':
                 usage()
@@ -89,7 +96,11 @@ def extract_args(args):
         sys.exit(-1)
     # understanding
     try:
-        c_sep, has_header = extract_sep_n_header(c_sep, csv_file, has_header)
+        c_sep_ , has_header_ = extract_sep_n_header(c_sep, csv_file, has_header)
+        if c_sep == '':
+            c_sep = c_sep_
+        if has_header is None:
+            has_header = has_header_
         cols_count = ut.get_cols_count(csv_file, c_sep)
         global hss
         hss = extract_hss(cols_count, lhs, rhs)
@@ -129,13 +140,15 @@ def extract_sep_n_header(c_sep, csv_file, has_header):
     return c_sep, has_header
 
 
-def check_correctness(has_header, has_dt, hss):
+def check_correctness(has_header, has_dt, hss, index_col):
     max_index = max(hss[0]['rhs'] + hss[0]['lhs'])
     unique_index_count = sum([1 for i in set(hss[0]['rhs'] + hss[0]['lhs'])])
     # check has header
-    if has_header is not None:
-        if has_header > max_index and len(hss[0]['lhs']) >= 1:
-            raise getopt.GetoptError("Header index is out of bound")
+    if index_col:
+        if index_col < 0:
+            raise AssertionError("Index of a column cannot be less than 0")
+        if index_col > max_index and len(hss[0]['lhs']) >= 1:
+            raise getopt.GetoptError("Index col is out of bound")
     # check date
     if has_dt is not False:
         if max(has_dt) > max_index and len(hss[0]['lhs']) >= 1:
@@ -147,6 +160,27 @@ def check_correctness(has_header, has_dt, hss):
 
 
 def usage():
+    usage_str = """
+    python {} -c <csv-file> [options]
+
+    -c <your-csv>: is the path of the dataset on which you want to discover RFDs;
+    Options:
+
+    -v : display version number;
+    -s <sep>: the separation char used in your CSV file. If you don't provide this, rfd-discovery tries to infer it for you;
+    -h: Indicate that CSV file has the header row. If you don't provide this, rdf-discovery tries to infer it for you.
+    -r <rhs_index>: is the column number of the RHS attribute. It must be a valid integer.
+            You can avoid to specify it only if you don't specify LHS attributes (we'll find RFDs using each attribute as RHS and the remaining as LHS);
+    -l <lhs_index_1, lhs_index_2, ...,lhs_index_k>: column index of LHS' attributes indexes separated by commas (e.g. 1,2,3). You can avoid to specify them:
+            if you don't specify RHS' attribute index we'll find RFDs using each attribute as RHS and the remaining as LHS;
+            if you specify a valid RHS index we'll assume your LHS as the remaining attributes;
+    -i <index_col>: the column which contains the primary key of the dataset.
+            Specifying it, this will not calculate as distance. NOTE: index column should contains unique values;
+    -d <datetime columns>: a list of columns, separated by commas, which values are in datetime format.
+            Specifying this, rfd-discovery can depict distance between two date in time format (e.g. ms, sec, min);
+    --semantic: use semantic distance on Wordnet for string; For more info here.
+    --help: show help. \n
+    """
     print(usage_str.format(sys.argv[0]))
 
 

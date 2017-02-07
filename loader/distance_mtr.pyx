@@ -186,7 +186,7 @@ cdef class DiffMatrix:
         else:
             raise Exception("Unrecognized dtype")
 
-    cpdef float semantic_diff(self, str a, str b):
+    cpdef float semantic_diff(self, object a, object b):
         """
         Computes the semantic difference as (1 - path_similarity) and store the result in semantic_diff_dic
         :param a: first term
@@ -225,7 +225,7 @@ cdef float __date_diff__(a: pnd.tslib.Timestamp, b: pnd.tslib.Timestamp):
     return int(delta / np.timedelta64(1, 'D'))
 
 
-cdef float __edit_dist__(str a, str b):
+cdef float __edit_dist__(object a, object b):
     """
     Computes the Levenshtein distance between two terms
     :param a: first term
