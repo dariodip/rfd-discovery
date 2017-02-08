@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module utils.utils</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="utils.html"><font color="#ffffff">utils</font></a>.utils</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/mattia/PycharmProjects/rfd-discovery/utils/utils.py">/home/mattia/PycharmProjects/rfd-discovery/utils/utils.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="csv.html">csv</a><br>
+</td><td width="25%" valign=top><a href="time.html">time</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-check_sep_n_header"><strong>check_sep_n_header</strong></a>(csv_file)</dt><dd><tt>Given&nbsp;a&nbsp;valid&nbsp;path&nbsp;to&nbsp;a&nbsp;CSV&nbsp;file,&nbsp;it&nbsp;deduce&nbsp;the&nbsp;separator&nbsp;and&nbsp;the&nbsp;presence&nbsp;or&nbsp;not&nbsp;of&nbsp;the&nbsp;header<br>
+:param&nbsp;csv_file:&nbsp;a&nbsp;valid&nbsp;path&nbsp;to&nbsp;a&nbsp;CSV&nbsp;file<br>
+:type&nbsp;csv_file:&nbsp;str<br>
+:return:&nbsp;a&nbsp;tuple&nbsp;with&nbsp;the&nbsp;CSV&nbsp;delimiter&nbsp;and&nbsp;0&nbsp;if&nbsp;the&nbsp;CSV&nbsp;file&nbsp;has&nbsp;an&nbsp;header,&nbsp;None&nbsp;otherwise<br>
+:rtype:&nbsp;tuple</tt></dd></dl>
+ <dl><dt><a name="-deprecated"><strong>deprecated</strong></a>(func)</dt><dd><tt>This&nbsp;is&nbsp;a&nbsp;decorator&nbsp;used&nbsp;to&nbsp;mark&nbsp;functions&nbsp;as&nbsp;deprecated.&nbsp;When&nbsp;the&nbsp;decorated&nbsp;function&nbsp;is&nbsp;called,&nbsp;it&nbsp;will&nbsp;launch&nbsp;a<br>
+warning.<br>
+:param&nbsp;func:&nbsp;the&nbsp;decorated&nbsp;function<br>
+:type&nbsp;func:&nbsp;function</tt></dd></dl>
+ <dl><dt><a name="-get_cols_count"><strong>get_cols_count</strong></a>(csv_file, c_sep=';')</dt><dd><tt>Given&nbsp;a&nbsp;valid&nbsp;CSV&nbsp;file's&nbsp;path&nbsp;and&nbsp;the&nbsp;relative&nbsp;separator,&nbsp;it&nbsp;return&nbsp;the&nbsp;columns'&nbsp;number&nbsp;of&nbsp;the&nbsp;CSV&nbsp;file.<br>
+:param&nbsp;csv_file:&nbsp;valid&nbsp;path&nbsp;to&nbsp;a&nbsp;CSV&nbsp;file<br>
+:type&nbsp;csv_file:&nbsp;str<br>
+:param&nbsp;c_sep:&nbsp;separator&nbsp;used&nbsp;to&nbsp;separated&nbsp;the&nbsp;values&nbsp;in&nbsp;the&nbsp;CSV.&nbsp;Default&nbsp;behavior&nbsp;is&nbsp;as&nbsp;if&nbsp;set&nbsp;to&nbsp;False&nbsp;if&nbsp;no&nbsp;values&nbsp;is&nbsp;passed.<br>
+:return:&nbsp;the&nbsp;CSV&nbsp;column's&nbsp;number<br>
+:rtype:&nbsp;int</tt></dd></dl>
+ <dl><dt><a name="-get_hs_combination"><strong>get_hs_combination</strong></a>(col_len:int) -&gt; list</dt><dd><tt>Given&nbsp;a&nbsp;number&nbsp;of&nbsp;column,&nbsp;it&nbsp;generate&nbsp;all&nbsp;the&nbsp;combination&nbsp;of&nbsp;lhs&nbsp;and&nbsp;rhs<br>
+:param&nbsp;col_len:&nbsp;column's&nbsp;number<br>
+:type&nbsp;col_len:&nbsp;int<br>
+:return:&nbsp;list&nbsp;of&nbsp;dict&nbsp;where&nbsp;each&nbsp;element&nbsp;containing&nbsp;a&nbsp;combination<br>
+:rtype:&nbsp;list</tt></dd></dl>
+ <dl><dt><a name="-timeit_context"><strong>timeit_context</strong></a>(name)</dt><dd><tt>Return&nbsp;the&nbsp;time&nbsp;of&nbsp;a&nbsp;block&nbsp;of&nbsp;code&nbsp;included&nbsp;into&nbsp;a&nbsp;with&nbsp;statement<br>
+:param&nbsp;name:&nbsp;name&nbsp;of&nbsp;the&nbsp;block&nbsp;of&nbsp;code<br>
+:type&nbsp;name:&nbsp;str<br>
+:return:&nbsp;the&nbsp;time&nbsp;elapset<br>
+:rtype:&nbsp;str</tt></dd></dl>
+ <dl><dt><a name="-warn"><strong>warn</strong></a>(...)</dt><dd><tt>Issue&nbsp;a&nbsp;warning,&nbsp;or&nbsp;maybe&nbsp;ignore&nbsp;it&nbsp;or&nbsp;raise&nbsp;an&nbsp;exception.</tt></dd></dl>
+</td></tr></table>
+</body></html>

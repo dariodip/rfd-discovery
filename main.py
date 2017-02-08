@@ -18,7 +18,7 @@ def main(args):
     """
     c_sep, csv_file, has_header, semantic, has_dt, missing, index_col = extract_args(args)
     try:
-        check_correctness(has_header, has_dt, hss, index_col)
+        check_correctness(has_dt, hss, index_col)
     except getopt.GetoptError as gex:
         usage()
         print(str(gex))

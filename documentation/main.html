@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module main</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>main</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/mattia/PycharmProjects/rfd-discovery/main.py">/home/mattia/PycharmProjects/rfd-discovery/main.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="getopt.html">getopt</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top><a href="utils.utils.html">utils.utils</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-check_correctness"><strong>check_correctness</strong></a>(has_dt, hss, index_col)</dt><dd><tt>Verify&nbsp;the&nbsp;correctness&nbsp;of&nbsp;the&nbsp;columns'&nbsp;indexes&nbsp;given&nbsp;for&nbsp;the&nbsp;division&nbsp;in<br>
+rhs&nbsp;and&nbsp;lhs&nbsp;and&nbsp;of&nbsp;the&nbsp;index&nbsp;indicating&nbsp;the&nbsp;key's&nbsp;column.<br>
+If&nbsp;some&nbsp;index&nbsp;is&nbsp;out&nbsp;of&nbsp;bound,&nbsp;the&nbsp;function&nbsp;will&nbsp;raise&nbsp;an&nbsp;getopt.GetoptError.<br>
+If&nbsp;there&nbsp;are&nbsp;some&nbsp;indexes&nbsp;repeated,&nbsp;the&nbsp;program&nbsp;will&nbsp;raise&nbsp;an&nbsp;AssertionError.<br>
+:param&nbsp;has_dt:&nbsp;value&nbsp;containing&nbsp;indexes&nbsp;of&nbsp;columns&nbsp;containing&nbsp;date,&nbsp;False&nbsp;otherwise<br>
+:type&nbsp;has_dt:&nbsp;list&nbsp;or&nbsp;bool<br>
+:param&nbsp;hss:&nbsp;dict&nbsp;containing&nbsp;the&nbsp;division&nbsp;in&nbsp;rhs&nbsp;and&nbsp;lhs<br>
+:type&nbsp;hss:&nbsp;dict<br>
+:param&nbsp;index_col:&nbsp;index&nbsp;of&nbsp;the&nbsp;column&nbsp;containing&nbsp;the&nbsp;dataset's&nbsp;primary&nbsp;key<br>
+:type&nbsp;index_col:&nbsp;int<br>
+:raises&nbsp;getopt.GetoptError,&nbsp;AssertionError</tt></dd></dl>
+ <dl><dt><a name="-extract_args"><strong>extract_args</strong></a>(args)</dt><dd><tt>Given&nbsp;the&nbsp;list&nbsp;of&nbsp;command&nbsp;line&nbsp;parameters,&nbsp;it&nbsp;extracts&nbsp;the&nbsp;parameters&nbsp;given&nbsp;according&nbsp;to&nbsp;the&nbsp;format<br>
+described&nbsp;in&nbsp;the&nbsp;Usage&nbsp;section&nbsp;of&nbsp;the&nbsp;README.<br>
+If&nbsp;some&nbsp;parameter&nbsp;cannot&nbsp;be&nbsp;interpreted,&nbsp;then&nbsp;the&nbsp;function&nbsp;will&nbsp;raise&nbsp;an&nbsp;AssertionError.<br>
+If&nbsp;the&nbsp;path&nbsp;of&nbsp;the&nbsp;CSV&nbsp;is&nbsp;missing&nbsp;or&nbsp;is&nbsp;not&nbsp;valid,&nbsp;the&nbsp;programm&nbsp;will&nbsp;print&nbsp;an&nbsp;error&nbsp;message&nbsp;and&nbsp;it&nbsp;will&nbsp;end.<br>
+With&nbsp;the&nbsp;help&nbsp;option,&nbsp;it&nbsp;will&nbsp;print&nbsp;on&nbsp;the&nbsp;standard&nbsp;output&nbsp;the&nbsp;help&nbsp;about&nbsp;the&nbsp;execution&nbsp;of&nbsp;this&nbsp;program.<br>
+:param&nbsp;args:&nbsp;list&nbsp;of&nbsp;command&nbsp;line&nbsp;argument&nbsp;given&nbsp;at&nbsp;the&nbsp;startup<br>
+:type&nbsp;args:&nbsp;list<br>
+:return:&nbsp;list&nbsp;of&nbsp;parameters&nbsp;extracted<br>
+:rtype:&nbsp;tuple<br>
+:raise:&nbsp;AssertionError</tt></dd></dl>
+ <dl><dt><a name="-extract_hss"><strong>extract_hss</strong></a>(cols_count, lhs, rhs)</dt><dd><tt>Given&nbsp;the&nbsp;lhs&nbsp;and&nbsp;rhs&nbsp;from&nbsp;the&nbsp;command&nbsp;line&nbsp;parameters,&nbsp;and&nbsp;the&nbsp;column's&nbsp;number&nbsp;of&nbsp;the&nbsp;dataset,<br>
+it&nbsp;creates&nbsp;various&nbsp;combinations&nbsp;of&nbsp;rhs&nbsp;and&nbsp;lhs&nbsp;according&nbsp;to&nbsp;the&nbsp;format&nbsp;of&nbsp;this&nbsp;two&nbsp;parameters.<br>
+If&nbsp;the&nbsp;format&nbsp;of&nbsp;this&nbsp;two&nbsp;parameters&nbsp;is&nbsp;not&nbsp;accordant&nbsp;with&nbsp;the&nbsp;possible&nbsp;combination&nbsp;on&nbsp;rhs&nbsp;and&nbsp;lhs&nbsp;in&nbsp;the<br>
+command&nbsp;line&nbsp;arguments&nbsp;described&nbsp;by&nbsp;the&nbsp;README,&nbsp;the&nbsp;program&nbsp;will&nbsp;print&nbsp;an&nbsp;error&nbsp;message&nbsp;and&nbsp;it&nbsp;will&nbsp;end.<br>
+The&nbsp;program&nbsp;return&nbsp;a&nbsp;list&nbsp;of&nbsp;dict,&nbsp;where&nbsp;each&nbsp;dict&nbsp;contains&nbsp;the&nbsp;indexes&nbsp;of&nbsp;the&nbsp;attributes&nbsp;on&nbsp;the&nbsp;lhs&nbsp;with&nbsp;the&nbsp;key<br>
+'lhs'&nbsp;and&nbsp;the&nbsp;index&nbsp;of&nbsp;the&nbsp;attribute&nbsp;on&nbsp;the&nbsp;rhs&nbsp;with&nbsp;the&nbsp;key&nbsp;'rhs'.<br>
+:param&nbsp;cols_count:&nbsp;the&nbsp;column's&nbsp;number<br>
+:type&nbsp;cols_count:&nbsp;int<br>
+:param&nbsp;lhs:&nbsp;list&nbsp;of&nbsp;a&nbsp;valid&nbsp;columns'&nbsp;indexes&nbsp;containing&nbsp;the&nbsp;dataset's&nbsp;attributes&nbsp;positioned&nbsp;in&nbsp;the&nbsp;lhs<br>
+:type&nbsp;lhs:&nbsp;list<br>
+:param&nbsp;rhs:&nbsp;list&nbsp;of&nbsp;a&nbsp;valid&nbsp;column's&nbsp;index&nbsp;containing&nbsp;the&nbsp;dataset's&nbsp;attribute&nbsp;positioned&nbsp;in&nbsp;the&nbsp;rhs<br>
+:type&nbsp;rhs:&nbsp;list<br>
+:return:&nbsp;one&nbsp;or&nbsp;more&nbsp;combination&nbsp;of&nbsp;attribute&nbsp;in&nbsp;the&nbsp;rhs&nbsp;and&nbsp;lhs<br>
+:rtype:&nbsp;list</tt></dd></dl>
+ <dl><dt><a name="-extract_sep_n_header"><strong>extract_sep_n_header</strong></a>(c_sep, csv_file, has_header)</dt><dd><tt>Given&nbsp;a&nbsp;correct&nbsp;path&nbsp;to&nbsp;a&nbsp;CSV&nbsp;file&nbsp;containing&nbsp;the&nbsp;dataset,&nbsp;the&nbsp;separator&nbsp;and&nbsp;the&nbsp;presence&nbsp;or&nbsp;not&nbsp;of&nbsp;the&nbsp;header<br>
+given&nbsp;by&nbsp;the&nbsp;command&nbsp;line&nbsp;arguments,&nbsp;this&nbsp;function&nbsp;will&nbsp;try&nbsp;to&nbsp;infer&nbsp;the&nbsp;separator&nbsp;and/or&nbsp;the&nbsp;presence<br>
+of&nbsp;the&nbsp;header&nbsp;in&nbsp;the&nbsp;dataset&nbsp;if&nbsp;they&nbsp;was&nbsp;not&nbsp;specified&nbsp;in&nbsp;the&nbsp;command&nbsp;line&nbsp;arguments.<br>
+:param&nbsp;c_sep:&nbsp;the&nbsp;separator&nbsp;extracted&nbsp;from&nbsp;the&nbsp;command&nbsp;line&nbsp;argument<br>
+:type&nbsp;c_sep:&nbsp;str<br>
+:param&nbsp;csv_file:&nbsp;a&nbsp;correct&nbsp;path&nbsp;to&nbsp;a&nbsp;CSV&nbsp;file&nbsp;containing&nbsp;a&nbsp;valid&nbsp;dataset<br>
+:type&nbsp;csv_file:&nbsp;str<br>
+:param&nbsp;has_header:&nbsp;indicate&nbsp;the&nbsp;presence&nbsp;or&nbsp;not&nbsp;of&nbsp;a&nbsp;column&nbsp;header&nbsp;in&nbsp;the&nbsp;CSV<br>
+:type&nbsp;has_header:&nbsp;int<br>
+:return:&nbsp;the&nbsp;separator&nbsp;used&nbsp;in&nbsp;the&nbsp;CSV&nbsp;and&nbsp;the&nbsp;value&nbsp;0&nbsp;if&nbsp;the&nbsp;CSV&nbsp;has&nbsp;an&nbsp;header,&nbsp;None&nbsp;otherwise<br>
+:rtype:&nbsp;tuple</tt></dd></dl>
+ <dl><dt><a name="-main"><strong>main</strong></a>(args)</dt><dd><tt>This&nbsp;method&nbsp;start&nbsp;the&nbsp;rfd-discovery&nbsp;algorithm.&nbsp;It&nbsp;takes&nbsp;various&nbsp;command&nbsp;line&nbsp;parameters&nbsp;like&nbsp;a&nbsp;valid&nbsp;dataset's<br>
+path,&nbsp;the&nbsp;division&nbsp;on&nbsp;rhs&nbsp;and&nbsp;lhs&nbsp;needed&nbsp;and&nbsp;more.&nbsp;See&nbsp;the&nbsp;section&nbsp;Usage&nbsp;of&nbsp;the&nbsp;README&nbsp;for<br>
+more&nbsp;information&nbsp;about&nbsp;the&nbsp;available&nbsp;parameters.&nbsp;If&nbsp;the&nbsp;user&nbsp;does&nbsp;not&nbsp;give&nbsp;a&nbsp;valid&nbsp;sequence&nbsp;of<br>
+parameters,&nbsp;the&nbsp;program&nbsp;will&nbsp;end&nbsp;and&nbsp;print&nbsp;on&nbsp;the&nbsp;standard&nbsp;output&nbsp;a&nbsp;message&nbsp;with&nbsp;the&nbsp;required<br>
+format&nbsp;to&nbsp;run&nbsp;the&nbsp;program.<br>
+:param&nbsp;args:&nbsp;list&nbsp;of&nbsp;parameters&nbsp;given&nbsp;as&nbsp;input<br>
+:type&nbsp;args:&nbsp;list</tt></dd></dl>
+ <dl><dt><a name="-usage"><strong>usage</strong></a>()</dt><dd><tt>Print&nbsp;the&nbsp;usage&nbsp;message,&nbsp;describing&nbsp;the&nbsp;correct&nbsp;format&nbsp;for&nbsp;a&nbsp;correct&nbsp;program&nbsp;execution.&nbsp;For&nbsp;each<br>
+argument&nbsp;in&nbsp;the&nbsp;command&nbsp;line&nbsp;arguments,&nbsp;the&nbsp;message&nbsp;will&nbsp;show&nbsp;a&nbsp;short&nbsp;description&nbsp;of&nbsp;it.</tt></dd></dl>
+</td></tr></table>
+</body></html>

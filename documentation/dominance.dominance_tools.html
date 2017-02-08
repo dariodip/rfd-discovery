@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module dominance.dominance_tools</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="dominance.html"><font color="#ffffff">dominance</font></a>.dominance_tools</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/mattia/PycharmProjects/rfd-discovery/dominance/dominance_tools.cpython-35m-x86_64-linux-gnu.so">/home/mattia/PycharmProjects/rfd-discovery/dominance/dominance_tools.cpython-35m-x86_64-linux-gnu.so</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="builtins.html">builtins</a><br>
+</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="pandas.html">pandas</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="dominance.dominance_tools.html#RFDDiscovery">RFDDiscovery</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="RFDDiscovery">class <strong>RFDDiscovery</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Class&nbsp;used&nbsp;to&nbsp;find&nbsp;the&nbsp;Relaxed&nbsp;Functional&nbsp;Dependencies&nbsp;RFDs&nbsp;of&nbsp;a&nbsp;given&nbsp;distance&nbsp;matrix.&nbsp;It&nbsp;allow&nbsp;to&nbsp;use&nbsp;different&nbsp;algorithm.<br>
+It&nbsp;take&nbsp;a&nbsp;pandas'&nbsp;data&nbsp;frame&nbsp;containing&nbsp;a&nbsp;distance&nbsp;matrix&nbsp;obtained&nbsp;from&nbsp;other&nbsp;sources,&nbsp;like&nbsp;the&nbsp;class&nbsp;DiffMatrix&nbsp;in&nbsp;the&nbsp;module&nbsp;loader.<br>
+Currently&nbsp;it&nbsp;contain&nbsp;an&nbsp;approximated&nbsp;version&nbsp;of&nbsp;the&nbsp;algorithm,&nbsp;called&nbsp;standard_algorithm,&nbsp;used&nbsp;to&nbsp;find&nbsp;the&nbsp;RFDs&nbsp;that&nbsp;besides&nbsp;return&nbsp;the&nbsp;found&nbsp;RFDs,<br>
+it&nbsp;allow&nbsp;to&nbsp;print&nbsp;the&nbsp;results&nbsp;on&nbsp;the&nbsp;standard&nbsp;output.&nbsp;It&nbsp;work&nbsp;on&nbsp;the&nbsp;distance&nbsp;matrix&nbsp;by&nbsp;dividing&nbsp;it&nbsp;in&nbsp;range,&nbsp;where&nbsp;the&nbsp;range&nbsp;i<br>
+contain&nbsp;all&nbsp;the&nbsp;row&nbsp;with&nbsp;value&nbsp;on&nbsp;the&nbsp;RHS&nbsp;equals&nbsp;to&nbsp;i.&nbsp;Another&nbsp;important&nbsp;structure&nbsp;is&nbsp;the&nbsp;pool.&nbsp;Each&nbsp;range&nbsp;i&nbsp;contain&nbsp;a&nbsp;pool,<br>
+with&nbsp;an&nbsp;important&nbsp;property:&nbsp;each&nbsp;row&nbsp;in&nbsp;the&nbsp;pool&nbsp;does&nbsp;not&nbsp;dominate&nbsp;any&nbsp;row&nbsp;with&nbsp;distance&nbsp;on&nbsp;the&nbsp;RHS&nbsp;major&nbsp;or&nbsp;equal&nbsp;to&nbsp;i.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="RFDDiscovery-__init__"><strong>__init__</strong></a>(...)</dt><dd><tt>Initialize&nbsp;the&nbsp;parameters&nbsp;necessary&nbsp;to&nbsp;execute&nbsp;the&nbsp;algorithm.&nbsp;It&nbsp;takes&nbsp;a&nbsp;distance&nbsp;matrix&nbsp;as&nbsp;input&nbsp;and&nbsp;a&nbsp;boolean<br>
+value&nbsp;that&nbsp;allow&nbsp;to&nbsp;print&nbsp;the&nbsp;results&nbsp;or&nbsp;not.<br>
+:param&nbsp;dist_matrix:&nbsp;distance&nbsp;matrix&nbsp;from&nbsp;where&nbsp;we&nbsp;want&nbsp;to&nbsp;find&nbsp;the&nbsp;RFDs.<br>
+:type&nbsp;dist_matrix:&nbsp;pandas.core.frame.DataFrame<br>
+:param&nbsp;print_res:&nbsp;boolean&nbsp;value,&nbsp;True&nbsp;if&nbsp;we&nbsp;want&nbsp;to&nbsp;print&nbsp;the&nbsp;result&nbsp;in&nbsp;the&nbsp;standard&nbsp;output,&nbsp;False&nbsp;otherwise.&nbsp;Default&nbsp;behavior&nbsp;is&nbsp;as&nbsp;if&nbsp;set&nbsp;to&nbsp;False&nbsp;if&nbsp;no&nbsp;values&nbsp;is&nbsp;passed.<br>
+:type&nbsp;print_res:&nbsp;bool</tt></dd></dl>
+
+<dl><dt><a name="RFDDiscovery-__initialize_var__"><strong>__initialize_var__</strong></a>(...)</dt><dd><tt>Initialize&nbsp;the&nbsp;instance&nbsp;variables&nbsp;on_minimun_df,&nbsp;min_vector&nbsp;and&nbsp;rfds&nbsp;using&nbsp;the<br>
+columns'&nbsp;name&nbsp;and&nbsp;the&nbsp;division&nbsp;on&nbsp;rhs&nbsp;and&nbsp;lhs&nbsp;given&nbsp;as&nbsp;input<br>
+:param&nbsp;rhs:&nbsp;integer&nbsp;index&nbsp;of&nbsp;the&nbsp;column&nbsp;positioned&nbsp;on&nbsp;the&nbsp;rhs&nbsp;of&nbsp;the&nbsp;distance&nbsp;matrix<br>
+:type&nbsp;rhs:&nbsp;list<br>
+:param&nbsp;lhs:&nbsp;integers&nbsp;indexes&nbsp;of&nbsp;the&nbsp;columns&nbsp;positioned&nbsp;on&nbsp;the&nbsp;lhs&nbsp;of&nbsp;the&nbsp;distance&nbsp;matrix<br>
+:type&nbsp;lhs:&nbsp;list<br>
+:param&nbsp;cols:&nbsp;columns'&nbsp;header&nbsp;for&nbsp;on_minimun_df&nbsp;and&nbsp;rfds&nbsp;data&nbsp;frames<br>
+:type&nbsp;cols:&nbsp;list</tt></dd></dl>
+
+<dl><dt><a name="RFDDiscovery-__new__"><strong>__new__</strong></a>(*args, **kwargs)<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt><dd><tt>Create&nbsp;and&nbsp;return&nbsp;a&nbsp;new&nbsp;<a href="builtins.html#object">object</a>.&nbsp;&nbsp;See&nbsp;help(type)&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="RFDDiscovery-get_rfds"><strong>get_rfds</strong></a>(...)</dt><dd><tt>This&nbsp;method&nbsp;called&nbsp;the&nbsp;dominance&nbsp;function&nbsp;given&nbsp;as&nbsp;parameter&nbsp;on&nbsp;the&nbsp;given&nbsp;division&nbsp;on&nbsp;rhs&nbsp;and&nbsp;lhs.<br>
+:param&nbsp;dominance_funct:&nbsp;dominance&nbsp;function&nbsp;used&nbsp;to&nbsp;find&nbsp;the&nbsp;RFDs&nbsp;on&nbsp;the&nbsp;distance&nbsp;matrix<br>
+:type&nbsp;dominance_funct:&nbsp;function<br>
+:param&nbsp;hss:&nbsp;dictionary&nbsp;containing&nbsp;the&nbsp;division&nbsp;on&nbsp;rhs&nbsp;and&nbsp;lhs&nbsp;of&nbsp;the&nbsp;attribute.&nbsp;It&nbsp;contain&nbsp;two&nbsp;key&nbsp;'lhs'&nbsp;and&nbsp;'rhs',&nbsp;where&nbsp;'lhs'&nbsp;contains&nbsp;valid&nbsp;columns&nbsp;indexes&nbsp;of&nbsp;attribute&nbsp;to&nbsp;put&nbsp;on&nbsp;the&nbsp;lhs&nbsp;and<br>
+'rhs'&nbsp;contain&nbsp;a&nbsp;valid&nbsp;index&nbsp;of&nbsp;an&nbsp;attribute&nbsp;to&nbsp;put&nbsp;on&nbsp;the&nbsp;rhs.<br>
+:type&nbsp;hss:&nbsp;dict<br>
+:return:&nbsp;the&nbsp;found&nbsp;RFDs<br>
+:rtype:&nbsp;pandas.core.frame.DataFrame</tt></dd></dl>
+
+<dl><dt><a name="RFDDiscovery-is_compiled"><strong>is_compiled</strong></a>(...)</dt><dd><tt>Return&nbsp;the&nbsp;value&nbsp;of&nbsp;the&nbsp;instance&nbsp;variable&nbsp;compiled.<br>
+:return:&nbsp;True&nbsp;if&nbsp;the&nbsp;code&nbsp;is&nbsp;compiled,&nbsp;False&nbsp;if&nbsp;it&nbsp;was&nbsp;interpreted<br>
+:rtype:&nbsp;bool</tt></dd></dl>
+
+<dl><dt><a name="RFDDiscovery-standard_algorithm"><strong>standard_algorithm</strong></a>(...)</dt><dd><tt>This&nbsp;method&nbsp;execute&nbsp;the&nbsp;approximated&nbsp;algorithm&nbsp;on&nbsp;the&nbsp;given&nbsp;distance&nbsp;matrix.&nbsp;It&nbsp;use&nbsp;an&nbsp;iterative&nbsp;method&nbsp;where<br>
+for&nbsp;each&nbsp;iteration&nbsp;it&nbsp;work&nbsp;on&nbsp;a&nbsp;particular&nbsp;range&nbsp;i.&nbsp;During&nbsp;one&nbsp;iteration,&nbsp;it&nbsp;update&nbsp;the&nbsp;pool,&nbsp;refine&nbsp;the&nbsp;range&nbsp;i&nbsp;and<br>
+find&nbsp;the&nbsp;RFDs&nbsp;on&nbsp;the&nbsp;current&nbsp;range.&nbsp;If&nbsp;the&nbsp;value&nbsp;of&nbsp;the&nbsp;instance&nbsp;attribute&nbsp;print_res&nbsp;is&nbsp;True,&nbsp;at&nbsp;the&nbsp;end&nbsp;of&nbsp;the&nbsp;algorithm<br>
+it&nbsp;will&nbsp;print&nbsp;on&nbsp;the&nbsp;standard&nbsp;output&nbsp;the&nbsp;data&nbsp;frame&nbsp;containing&nbsp;the&nbsp;RFDs,&nbsp;the&nbsp;pool&nbsp;of&nbsp;the&nbsp;range&nbsp;0&nbsp;containing&nbsp;only&nbsp;rows&nbsp;that<br>
+does&nbsp;not&nbsp;dominate&nbsp;any&nbsp;other&nbsp;rows&nbsp;in&nbsp;the&nbsp;distance&nbsp;matrix&nbsp;and&nbsp;the&nbsp;distance&nbsp;matrix's&nbsp;rows&nbsp;that&nbsp;during&nbsp;an&nbsp;iteration&nbsp;on&nbsp;the<br>
+relative&nbsp;range,&nbsp;they&nbsp;were&nbsp;selected&nbsp;to&nbsp;be&nbsp;inserted&nbsp;in&nbsp;the&nbsp;pool.<br>
+It&nbsp;is&nbsp;important&nbsp;to&nbsp;put&nbsp;on&nbsp;lhs&nbsp;and&nbsp;rhs&nbsp;the&nbsp;valid&nbsp;attributes'&nbsp;indexes&nbsp;used&nbsp;on&nbsp;the&nbsp;lhs&nbsp;and&nbsp;rhs&nbsp;on&nbsp;the&nbsp;distance&nbsp;matrix,&nbsp;because&nbsp;they&nbsp;are&nbsp;used&nbsp;to<br>
+initialize&nbsp;correctly&nbsp;the&nbsp;instance&nbsp;variables&nbsp;min_vector&nbsp;and&nbsp;on_minimun_df.<br>
+:param&nbsp;d_mtx:&nbsp;the&nbsp;distance&nbsp;matrix&nbsp;from&nbsp;where&nbsp;the&nbsp;RFDs&nbsp;must&nbsp;be&nbsp;found<br>
+:type&nbsp;d_mtx:&nbsp;pandas.core.frame.DataFrame<br>
+:param&nbsp;lhs:&nbsp;list&nbsp;of&nbsp;valid&nbsp;columns&nbsp;indexes&nbsp;of&nbsp;attributes&nbsp;positioned&nbsp;on&nbsp;the&nbsp;lhs&nbsp;of&nbsp;the&nbsp;distance&nbsp;matrix<br>
+:type&nbsp;lhs:&nbsp;list<br>
+:param&nbsp;rhs:&nbsp;list&nbsp;of&nbsp;valid&nbsp;column&nbsp;index&nbsp;of&nbsp;an&nbsp;attribute&nbsp;positioned&nbsp;on&nbsp;the&nbsp;rhs&nbsp;of&nbsp;the&nbsp;distance&nbsp;matrix<br>
+:type&nbsp;rhs:&nbsp;list<br>
+:return:&nbsp;the&nbsp;data&nbsp;frame&nbsp;containing&nbsp;the&nbsp;found&nbsp;RFDs<br>
+:rtype:&nbsp;pandas.core.frame.DataFrame</tt></dd></dl>
+
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>__pyx_vtable__</strong> = &lt;capsule object NULL&gt;</dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-clean_pool"><strong>clean_pool</strong></a>(...)</dt><dd><tt>Give&nbsp;a&nbsp;dictionary&nbsp;of&nbsp;rows&nbsp;to&nbsp;add&nbsp;into&nbsp;the&nbsp;pool,&nbsp;clean&nbsp;that&nbsp;dictionary&nbsp;by&nbsp;removing&nbsp;rows&nbsp;that&nbsp;dominate&nbsp;other<br>
+rows&nbsp;into&nbsp;the&nbsp;dict<br>
+:param&nbsp;rows_to_add:&nbsp;a&nbsp;dict&nbsp;containing&nbsp;rows&nbsp;to&nbsp;add&nbsp;into&nbsp;the&nbsp;pool<br>
+:type&nbsp;rows_to_add:&nbsp;dict<br>
+:return:&nbsp;a&nbsp;clean&nbsp;subset&nbsp;of&nbsp;rows_to_add,&nbsp;where&nbsp;each&nbsp;row&nbsp;does&nbsp;not&nbsp;dominate&nbsp;any&nbsp;other&nbsp;rows&nbsp;into&nbsp;the&nbsp;dict<br>
+:rtype:&nbsp;dict</tt></dd></dl>
+ <dl><dt><a name="-extract_diagonal"><strong>extract_diagonal</strong></a>(...)</dt><dd><tt>Create&nbsp;a&nbsp;diagonal&nbsp;matrix&nbsp;having&nbsp;row's&nbsp;value&nbsp;into&nbsp;its&nbsp;diagonal.<br>
+This&nbsp;is&nbsp;used&nbsp;to&nbsp;fast&nbsp;insert&nbsp;RFDs&nbsp;into&nbsp;the&nbsp;data&nbsp;frame.<br>
+:param&nbsp;row:&nbsp;matrix's&nbsp;diagonal<br>
+:type&nbsp;row:&nbsp;numpy.ndarray[double]<br>
+:return:&nbsp;a&nbsp;diagonal&nbsp;matrix&nbsp;having&nbsp;row's&nbsp;value&nbsp;into&nbsp;the&nbsp;diagonal<br>
+:rtype:&nbsp;numpy.ndarray</tt></dd></dl>
+ <dl><dt><a name="-gt_or_nan"><strong>gt_or_nan</strong></a>(...)</dt><dd><tt>Check&nbsp;for&nbsp;each&nbsp;value&nbsp;in&nbsp;to_check&nbsp;if&nbsp;it&nbsp;is&nbsp;greater&nbsp;or&nbsp;equal&nbsp;to&nbsp;zero&nbsp;or&nbsp;NaN.<br>
+:param&nbsp;to_check:&nbsp;the&nbsp;row&nbsp;to&nbsp;check<br>
+:type&nbsp;to_check:&nbsp;numpy.ndarray[double]<br>
+:return:&nbsp;True&nbsp;if&nbsp;each&nbsp;value&nbsp;is&nbsp;greater&nbsp;o&nbsp;equal&nbsp;than&nbsp;zero&nbsp;or&nbsp;NaN,&nbsp;False&nbsp;otherwise<br>
+:rtype:&nbsp;cython.bint</tt></dd></dl>
+ <dl><dt><a name="-gte_or_nan"><strong>gte_or_nan</strong></a>(...)</dt><dd><tt>Check&nbsp;for&nbsp;each&nbsp;value&nbsp;in&nbsp;to_check&nbsp;if&nbsp;it&nbsp;is&nbsp;greater&nbsp;to&nbsp;zero&nbsp;or&nbsp;NaN.<br>
+:param&nbsp;to_check:&nbsp;the&nbsp;row&nbsp;to&nbsp;check<br>
+:type&nbsp;to_check:&nbsp;numpy.ndarray[double]<br>
+:return:&nbsp;True&nbsp;if&nbsp;each&nbsp;value&nbsp;is&nbsp;greater&nbsp;than&nbsp;zero&nbsp;or&nbsp;NaN,&nbsp;False&nbsp;otherwise<br>
+:rtype:&nbsp;cython.bint</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>NAN_PH</strong> = 'nan'<br>
+<strong>__test__</strong> = {}</td></tr></table>
+</body></html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module server.run</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="server.html"><font color="#ffffff">server</font></a>.run</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/mattia/PycharmProjects/rfd-discovery/server/run.py">/home/mattia/PycharmProjects/rfd-discovery/server/run.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="json.html">json</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top><a href="time.html">time</a><br>
+</td><td width="25%" valign=top><a href="utils.utils.html">utils.utils</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-extract_hss"><strong>extract_hss</strong></a>(cols_count, lhs, rhs)</dt><dd><tt>Given&nbsp;the&nbsp;lhs&nbsp;and&nbsp;rhs&nbsp;from&nbsp;the&nbsp;command&nbsp;line&nbsp;parameters,&nbsp;and&nbsp;the&nbsp;column's&nbsp;number&nbsp;of&nbsp;the&nbsp;dataset,<br>
+it&nbsp;creates&nbsp;various&nbsp;combinations&nbsp;of&nbsp;rhs&nbsp;and&nbsp;lhs&nbsp;according&nbsp;to&nbsp;the&nbsp;format&nbsp;of&nbsp;this&nbsp;two&nbsp;parameters.<br>
+If&nbsp;the&nbsp;format&nbsp;of&nbsp;this&nbsp;two&nbsp;parameters&nbsp;is&nbsp;not&nbsp;accordant&nbsp;with&nbsp;the&nbsp;possible&nbsp;combination&nbsp;on&nbsp;rhs&nbsp;and&nbsp;lhs&nbsp;in&nbsp;the<br>
+command&nbsp;line&nbsp;arguments&nbsp;described&nbsp;by&nbsp;the&nbsp;README,&nbsp;the&nbsp;program&nbsp;will&nbsp;print&nbsp;an&nbsp;error&nbsp;message&nbsp;and&nbsp;it&nbsp;will&nbsp;end.<br>
+The&nbsp;program&nbsp;return&nbsp;a&nbsp;list&nbsp;of&nbsp;dict,&nbsp;where&nbsp;each&nbsp;dict&nbsp;contains&nbsp;the&nbsp;indexes&nbsp;of&nbsp;the&nbsp;attributes&nbsp;on&nbsp;the&nbsp;lhs&nbsp;with&nbsp;the&nbsp;key<br>
+'lhs'&nbsp;and&nbsp;the&nbsp;index&nbsp;of&nbsp;the&nbsp;attribute&nbsp;on&nbsp;the&nbsp;rhs&nbsp;with&nbsp;the&nbsp;key&nbsp;'rhs'.<br>
+:param&nbsp;cols_count:&nbsp;the&nbsp;column's&nbsp;number<br>
+:type&nbsp;cols_count:&nbsp;int<br>
+:param&nbsp;lhs:&nbsp;list&nbsp;of&nbsp;a&nbsp;valid&nbsp;columns'&nbsp;indexes&nbsp;containing&nbsp;the&nbsp;dataset's&nbsp;attributes&nbsp;positioned&nbsp;in&nbsp;the&nbsp;lhs<br>
+:type&nbsp;lhs:&nbsp;list<br>
+:param&nbsp;rhs:&nbsp;list&nbsp;of&nbsp;a&nbsp;valid&nbsp;column's&nbsp;index&nbsp;containing&nbsp;the&nbsp;dataset's&nbsp;attribute&nbsp;positioned&nbsp;in&nbsp;the&nbsp;rhs<br>
+:type&nbsp;rhs:&nbsp;list<br>
+:return:&nbsp;one&nbsp;or&nbsp;more&nbsp;combination&nbsp;of&nbsp;attribute&nbsp;in&nbsp;the&nbsp;rhs&nbsp;and&nbsp;lhs<br>
+:rtype:&nbsp;list</tt></dd></dl>
+ <dl><dt><a name="-main"><strong>main</strong></a>(csv_file, post_metadata)</dt><dd><tt>Given&nbsp;a&nbsp;valid&nbsp;CSV&nbsp;file's&nbsp;path&nbsp;and&nbsp;a&nbsp;series&nbsp;of&nbsp;parameters&nbsp;given&nbsp;by&nbsp;the&nbsp;user&nbsp;via&nbsp;the&nbsp;web&nbsp;gui,&nbsp;execute&nbsp;the&nbsp;algorithm&nbsp;on<br>
+the&nbsp;given&nbsp;input.&nbsp;If&nbsp;some&nbsp;of&nbsp;the&nbsp;parameters&nbsp;are&nbsp;not&nbsp;valid,&nbsp;the&nbsp;method&nbsp;return&nbsp;an&nbsp;error&nbsp;string&nbsp;message.<br>
+Return&nbsp;the&nbsp;output&nbsp;of&nbsp;the&nbsp;standard_algorithm&nbsp;in&nbsp;a&nbsp;dict&nbsp;where&nbsp;each&nbsp;element&nbsp;is&nbsp;the&nbsp;output&nbsp;of&nbsp;the&nbsp;algorithm<br>
+for&nbsp;each&nbsp;combination&nbsp;given&nbsp;as&nbsp;input&nbsp;and&nbsp;with&nbsp;the&nbsp;combination&nbsp;itself&nbsp;as&nbsp;a&nbsp;key&nbsp;in&nbsp;JSON&nbsp;format.<br>
+:param&nbsp;csv_file:&nbsp;valid&nbsp;path&nbsp;to&nbsp;a&nbsp;CSV&nbsp;file<br>
+:type&nbsp;csv_file:&nbsp;str<br>
+:param&nbsp;post_metadata:&nbsp;dict&nbsp;containing&nbsp;the&nbsp;user's&nbsp;parameters<br>
+:type&nbsp;post_metadata:&nbsp;werkzeug.datastructures.ImmutableMultiDict<br>
+:return:&nbsp;a&nbsp;dict&nbsp;containing&nbsp;the&nbsp;output&nbsp;of&nbsp;each&nbsp;combination&nbsp;or&nbsp;with&nbsp;an&nbsp;error&nbsp;message<br>
+:rtype:&nbsp;dict</tt></dd></dl>
+ <dl><dt><a name="-param_to_dict"><strong>param_to_dict</strong></a>(p)</dt><dd><tt>Given&nbsp;the&nbsp;user's&nbsp;parameters&nbsp;in&nbsp;a&nbsp;flask&nbsp;ImmutableMultiDict,&nbsp;covert&nbsp;it&nbsp;in&nbsp;a&nbsp;simple&nbsp;dict<br>
+:param&nbsp;p:&nbsp;ImmutableMultiDict&nbsp;containing&nbsp;the&nbsp;user's&nbsp;parameter<br>
+:type&nbsp;p:&nbsp;werkzeug.datastructures.ImmutableMultiDict<br>
+:return:&nbsp;dictionary&nbsp;containing&nbsp;the&nbsp;user's&nbsp;parameter<br>
+:rtype:&nbsp;dict</tt></dd></dl>
+ <dl><dt><a name="-timeit_context"><strong>timeit_context</strong></a>(name)</dt><dd><tt>Return&nbsp;the&nbsp;time&nbsp;of&nbsp;a&nbsp;block&nbsp;of&nbsp;code&nbsp;included&nbsp;into&nbsp;a&nbsp;with&nbsp;statement<br>
+:param&nbsp;name:&nbsp;name&nbsp;of&nbsp;the&nbsp;block&nbsp;of&nbsp;code<br>
+:type&nbsp;name:&nbsp;str<br>
+:return:&nbsp;the&nbsp;time&nbsp;elapset<br>
+:rtype:&nbsp;str</tt></dd></dl>
+</td></tr></table>
+</body></html>
