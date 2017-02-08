@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module loader.distance_mtr</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="loader.html"><font color="#ffffff">loader</font></a>.distance_mtr</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/mattia/PycharmProjects/rfd-discovery/loader/distance_mtr.cpython-35m-x86_64-linux-gnu.so">/home/mattia/PycharmProjects/rfd-discovery/loader/distance_mtr.cpython-35m-x86_64-linux-gnu.so</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="builtins.html">builtins</a><br>
+</td><td width="25%" valign=top><a href="loader.levenshtein_wrapper.html">loader.levenshtein_wrapper</a><br>
+</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="pandas.html">pandas</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="loader.distance_mtr.html#DiffMatrix">DiffMatrix</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="DiffMatrix">class <strong>DiffMatrix</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Class&nbsp;used&nbsp;to&nbsp;build&nbsp;the&nbsp;difference&nbsp;matrix&nbsp;used&nbsp;to&nbsp;find&nbsp;Relaxed&nbsp;Functional&nbsp;Dependencies&nbsp;RFD&nbsp;from&nbsp;a&nbsp;dataset.<br>
+It&nbsp;takes&nbsp;a&nbsp;path&nbsp;of&nbsp;a&nbsp;CSV&nbsp;file&nbsp;where&nbsp;the&nbsp;dataset&nbsp;is&nbsp;saved,&nbsp;loaded&nbsp;them&nbsp;and&nbsp;build&nbsp;a&nbsp;difference&nbsp;matrix,<br>
+a&nbsp;matrix&nbsp;where&nbsp;each&nbsp;row&nbsp;is&nbsp;the&nbsp;difference&nbsp;between&nbsp;two&nbsp;rows&nbsp;from&nbsp;the&nbsp;starting&nbsp;dataset.&nbsp;You&nbsp;can&nbsp;specify<br>
+some&nbsp;parameters&nbsp;if&nbsp;you&nbsp;want&nbsp;for&nbsp;example&nbsp;to&nbsp;specify&nbsp;some&nbsp;parameters&nbsp;about&nbsp;the&nbsp;CSV,&nbsp;like&nbsp;the&nbsp;data&nbsp;separator&nbsp;or&nbsp;the&nbsp;value&nbsp;used&nbsp;to&nbsp;notify&nbsp;a&nbsp;missing&nbsp;value,&nbsp;or<br>
+if&nbsp;you&nbsp;want&nbsp;to&nbsp;use&nbsp;the&nbsp;semantic&nbsp;difference&nbsp;or&nbsp;if&nbsp;you&nbsp;want&nbsp;some&nbsp;column&nbsp;will&nbsp;be&nbsp;interpreted&nbsp;as&nbsp;a&nbsp;date.<br>
+After&nbsp;the&nbsp;distance&nbsp;matrix&nbsp;is&nbsp;calculated,&nbsp;you&nbsp;can&nbsp;choose&nbsp;any&nbsp;splitting&nbsp;in&nbsp;lhs&nbsp;and&nbsp;rhs&nbsp;you&nbsp;want&nbsp;but&nbsp;the&nbsp;distance<br>
+matrix&nbsp;will&nbsp;be&nbsp;calculated&nbsp;only&nbsp;one&nbsp;times.<br>
+It&nbsp;use&nbsp;the&nbsp;lexical&nbsp;database&nbsp;WordNet&nbsp;to&nbsp;calculate&nbsp;the&nbsp;semantic&nbsp;difference&nbsp;between&nbsp;two&nbsp;string&nbsp;a&nbsp;and&nbsp;b.&nbsp;You&nbsp;can<br>
+disable&nbsp;this&nbsp;functionality&nbsp;by&nbsp;setting&nbsp;the&nbsp;instance&nbsp;variable&nbsp;semantic,&nbsp;in&nbsp;that&nbsp;case&nbsp;the&nbsp;class&nbsp;will&nbsp;use&nbsp;the&nbsp;edit<br>
+distance&nbsp;to&nbsp;calculate&nbsp;the&nbsp;distance&nbsp;between&nbsp;two&nbsp;string.&nbsp;When&nbsp;it&nbsp;calculate&nbsp;the&nbsp;difference&nbsp;between&nbsp;two&nbsp;attribute's<br>
+value,&nbsp;if&nbsp;at&nbsp;least&nbsp;one&nbsp;of&nbsp;them&nbsp;is&nbsp;NaN(Not&nbsp;a&nbsp;Number)&nbsp;or&nbsp;NaT(Not&nbsp;a&nbsp;Timestamp),&nbsp;the&nbsp;distance&nbsp;between&nbsp;this&nbsp;values&nbsp;will<br>
+be&nbsp;the&nbsp;value&nbsp;infinity.<br>
+After&nbsp;the&nbsp;distance&nbsp;matrix&nbsp;is&nbsp;calculated,&nbsp;the&nbsp;memory&nbsp;area&nbsp;containing&nbsp;the&nbsp;dataset&nbsp;will&nbsp;be&nbsp;freed&nbsp;in&nbsp;order&nbsp;to&nbsp;save&nbsp;memory&nbsp;space.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="DiffMatrix-__init__"><strong>__init__</strong></a>(...)</dt><dd><tt>Load&nbsp;the&nbsp;dataset&nbsp;and&nbsp;build&nbsp;the&nbsp;distance&nbsp;matrix.<br>
+For&nbsp;any&nbsp;dataset's&nbsp;column,&nbsp;it&nbsp;choose&nbsp;the&nbsp;property&nbsp;distance&nbsp;function&nbsp;according&nbsp;to&nbsp;the&nbsp;column's&nbsp;data&nbsp;type.<br>
+:param&nbsp;path:&nbsp;path&nbsp;of&nbsp;a&nbsp;CSV&nbsp;file&nbsp;where&nbsp;the&nbsp;dataset&nbsp;is&nbsp;stored.<br>
+:type&nbsp;path:&nbsp;str<br>
+:param&nbsp;semantic:&nbsp;denote&nbsp;if&nbsp;we&nbsp;want&nbsp;to&nbsp;use&nbsp;the&nbsp;semantic&nbsp;difference.&nbsp;Its&nbsp;value&nbsp;is&nbsp;True&nbsp;if&nbsp;we&nbsp;want&nbsp;to&nbsp;use&nbsp;the&nbsp;semantic&nbsp;difference.&nbsp;Default&nbsp;behavior&nbsp;is&nbsp;as&nbsp;if&nbsp;set&nbsp;to&nbsp;False&nbsp;if&nbsp;no&nbsp;values&nbsp;is&nbsp;passed.<br>
+:type&nbsp;semantic:&nbsp;bool<br>
+:param&nbsp;datetime:&nbsp;denote&nbsp;if&nbsp;we&nbsp;want&nbsp;that&nbsp;some&nbsp;column&nbsp;in&nbsp;the&nbsp;dataset&nbsp;must&nbsp;be&nbsp;interpreted&nbsp;as&nbsp;a&nbsp;date.&nbsp;To&nbsp;indicate&nbsp;that&nbsp;columns,&nbsp;whe&nbsp;use&nbsp;a&nbsp;list&nbsp;of&nbsp;integers&nbsp;indexes,&nbsp;where&nbsp;each&nbsp;index&nbsp;represent&nbsp;a&nbsp;column&nbsp;of&nbsp;the&nbsp;dataset&nbsp;containing&nbsp;the&nbsp;dates.&nbsp;False&nbsp;value&nbsp;indicate&nbsp;that&nbsp;we&nbsp;do&nbsp;not&nbsp;have&nbsp;any&nbsp;column&nbsp;with&nbsp;date.&nbsp;&nbsp;Default&nbsp;behavior&nbsp;is&nbsp;as&nbsp;if&nbsp;set&nbsp;to&nbsp;False&nbsp;if&nbsp;no&nbsp;value&nbsp;is&nbsp;passed.<br>
+:type&nbsp;datetime:&nbsp;bool&nbsp;or&nbsp;list&nbsp;of&nbsp;int<br>
+:param&nbsp;sep:&nbsp;the&nbsp;separator&nbsp;used&nbsp;to&nbsp;separate&nbsp;the&nbsp;values&nbsp;in&nbsp;the&nbsp;CSV&nbsp;file.&nbsp;Default&nbsp;behavior&nbsp;is&nbsp;as&nbsp;if&nbsp;set&nbsp;to&nbsp;';'&nbsp;if&nbsp;no&nbsp;value&nbsp;is&nbsp;passed.<br>
+:type&nbsp;sep:&nbsp;str<br>
+:param&nbsp;missing:&nbsp;the&nbsp;character&nbsp;used&nbsp;to&nbsp;notify&nbsp;a&nbsp;missing&nbsp;value.&nbsp;Default&nbsp;behavior&nbsp;is&nbsp;as&nbsp;if&nbsp;set&nbsp;to&nbsp;'?'&nbsp;if&nbsp;no&nbsp;value&nbsp;is&nbsp;passed.<br>
+:type&nbsp;missing:&nbsp;str<br>
+:param&nbsp;first_col_header:&nbsp;row&nbsp;number(s)&nbsp;to&nbsp;use&nbsp;as&nbsp;column&nbsp;names,&nbsp;and&nbsp;the&nbsp;start&nbsp;of&nbsp;the&nbsp;data.&nbsp;Default&nbsp;behavior&nbsp;is&nbsp;as&nbsp;if&nbsp;set&nbsp;to&nbsp;0&nbsp;if&nbsp;no&nbsp;value&nbsp;is&nbsp;passed.<br>
+:type&nbsp;first_col_header:&nbsp;int&nbsp;or&nbsp;list&nbsp;of&nbsp;int<br>
+:param&nbsp;index_col:&nbsp;the&nbsp;column&nbsp;which&nbsp;contains&nbsp;the&nbsp;primary&nbsp;key&nbsp;of&nbsp;the&nbsp;dataset.&nbsp;Specifying&nbsp;it,&nbsp;this&nbsp;will&nbsp;not&nbsp;calculate&nbsp;as&nbsp;distance.<br>
+:type&nbsp;index_col:&nbsp;int</tt></dd></dl>
+
+<dl><dt><a name="DiffMatrix-__new__"><strong>__new__</strong></a>(*args, **kwargs)<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt><dd><tt>Create&nbsp;and&nbsp;return&nbsp;a&nbsp;new&nbsp;<a href="builtins.html#object">object</a>.&nbsp;&nbsp;See&nbsp;help(type)&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="DiffMatrix-semantic_diff"><strong>semantic_diff</strong></a>(...)</dt><dd><tt>Computes&nbsp;the&nbsp;semantic&nbsp;difference,&nbsp;as&nbsp;1&nbsp;-&nbsp;path&nbsp;similarity,&nbsp;between&nbsp;two&nbsp;string.<br>
+After&nbsp;calculated,&nbsp;the&nbsp;semantic&nbsp;difference&nbsp;will&nbsp;be&nbsp;stored&nbsp;in&nbsp;the&nbsp;dictionary&nbsp;semantic_diff_dic&nbsp;so&nbsp;when&nbsp;this&nbsp;distance&nbsp;is&nbsp;again&nbsp;requested&nbsp;it&nbsp;will<br>
+not&nbsp;be&nbsp;calculated&nbsp;a&nbsp;second&nbsp;time.<br>
+The&nbsp;path&nbsp;similarity&nbsp;is&nbsp;calculated&nbsp;by&nbsp;using&nbsp;WordNet.<br>
+If&nbsp;at&nbsp;least&nbsp;one&nbsp;of&nbsp;the&nbsp;two&nbsp;parameter&nbsp;is&nbsp;NaN,&nbsp;the&nbsp;distance&nbsp;returned&nbsp;will&nbsp;be&nbsp;infinity.<br>
+:param&nbsp;a:&nbsp;first&nbsp;term<br>
+:type&nbsp;a:&nbsp;str&nbsp;or&nbsp;float&nbsp;for&nbsp;NaN&nbsp;value<br>
+:param&nbsp;b:&nbsp;second&nbsp;term<br>
+:type&nbsp;b:&nbsp;str&nbsp;or&nbsp;float&nbsp;for&nbsp;NaN&nbsp;value<br>
+:return:&nbsp;the&nbsp;semantic&nbsp;difference&nbsp;between&nbsp;a&nbsp;and&nbsp;b<br>
+:rtype&nbsp;float</tt></dd></dl>
+
+<dl><dt><a name="DiffMatrix-split_sides"><strong>split_sides</strong></a>(...)</dt><dd><tt>Split&nbsp;the&nbsp;distance&nbsp;matrix&nbsp;according&nbsp;to&nbsp;the&nbsp;given&nbsp;RHS&nbsp;and&nbsp;LHS&nbsp;division.&nbsp;The&nbsp;lhs&nbsp;is&nbsp;represented&nbsp;with&nbsp;an&nbsp;integers&nbsp;indexes<br>
+where&nbsp;each&nbsp;integer&nbsp;represent&nbsp;a&nbsp;valid&nbsp;column&nbsp;of&nbsp;the&nbsp;data&nbsp;frame.&nbsp;The&nbsp;rhs&nbsp;must&nbsp;be&nbsp;instead&nbsp;represented&nbsp;with&nbsp;an&nbsp;only&nbsp;one&nbsp;integer&nbsp;index.<br>
+It&nbsp;returns&nbsp;a&nbsp;data&nbsp;frame&nbsp;containing&nbsp;only&nbsp;the&nbsp;column&nbsp;in&nbsp;the&nbsp;lhs&nbsp;and&nbsp;rhs,&nbsp;with&nbsp;the&nbsp;rhs'&nbsp;column&nbsp;renamed&nbsp;with&nbsp;the&nbsp;name&nbsp;'RHS'<br>
+:param&nbsp;hss:&nbsp;the&nbsp;given&nbsp;division&nbsp;lhs&nbsp;-&gt;&nbsp;rhs<br>
+:type&nbsp;hss:&nbsp;dict<br>
+:return:&nbsp;the&nbsp;data&nbsp;frame&nbsp;containing&nbsp;the&nbsp;given&nbsp;division<br>
+:rtype:&nbsp;pandas.core.frame.DataFrame</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>df</strong></dt>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>__pyx_vtable__</strong> = &lt;capsule object NULL&gt;</dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>__test__</strong> = {}<br>
+<strong>wn</strong> = &lt;WordNetCorpusReader in '.../corpora/wordnet' (not loaded yet)&gt;</td></tr></table>
+</body></html>

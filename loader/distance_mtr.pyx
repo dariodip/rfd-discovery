@@ -11,6 +11,7 @@ import loader.levenshtein_wrapper as lw
 
 pnd.set_option('display.width', 320)
 
+"""Module containing the code used to create and manage the distance matrix"""
 
 cdef class DiffMatrix:
     """
@@ -245,7 +246,7 @@ cdef class DiffMatrix:
         If at least one of the two parameter is NaN, the distance returned will be infinity.
         :param a: first term
         :type a: str or float for NaN value
-        :param b: comparation term
+        :param b: second term
         :type b: str or float for NaN value
         :return: the semantic difference between a and b
         :rtype float
@@ -273,7 +274,7 @@ cdef float __date_diff__(a: pnd.tslib.Timestamp, b: pnd.tslib.Timestamp):
     If at least one of the two parameter is NaT, the distance returned will be infinity.
     :param a: first date
     :type a: pandas.tslib.Timestamp or float for NaN value
-    :param b: comparation date
+    :param b: comparison date
     :type b: pandas.tslib.Timestamp or float for NaN value
     :return: difference in days
     :rtype float
@@ -292,7 +293,7 @@ cdef float __edit_dist__(object a, object b):
     If at least one of the two parameter is NaN, the distance returned will be infinity.
     :param a: first term
     :type a: str or float for NaN value
-    :param b: comparation term
+    :param b: second term
     :type b: str or float for NaN value
     :return: the edit distance between a and b
     :rtype float
@@ -312,7 +313,7 @@ cdef float __subnum__(float a, float b):
     If at least one of the two parameter is NaN, the distance returned will be infinity.
     :param a: first term
     :type a: float
-    :param b: comparation term
+    :param b: second term
     :type b: float
     :return: difference in float
     :rtype float

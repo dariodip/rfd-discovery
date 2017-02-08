@@ -2,6 +2,8 @@ from setuptools import setup
 from pip.req import parse_requirements
 import nltk
 
+"""Install the required packages and the lexical database WordNet"""
+
 install_reqs = parse_requirements("requirements.txt", session='hack')
 reqs = [str(ir.req) for ir in install_reqs]
 

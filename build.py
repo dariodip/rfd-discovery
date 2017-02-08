@@ -3,7 +3,10 @@ from distutils.extension import Extension
 import numpy as np
 from Cython.Build import cythonize, build_ext
 import sys
-
+"""
+This module compile the Python code in format .pyx using Cython. It checks the platform used and uses
+an appropriate compilation parameters.
+"""
 compiler_args_unix = ["-O3", "-ffast-math", "-march=native"]
 compiler_args_vcpp = ["/O2", "/fp:fast", "/GL"]
 

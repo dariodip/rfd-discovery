@@ -4,8 +4,18 @@ import os
 from utils.utils import check_sep_n_header
 plt.style.use('ggplot')
 
+"""This modules contain code used to create graphics plot showing the running time of the algorithm"""
+
 
 def getfiles(dirpath):
+    """
+    Given a valid path of a directory, it return a list with all the CSV files' names contained in the directory ordered
+    by last modification time.
+    :param dirpath: valid path to a directory
+    :type dirpath: str
+    :return: list of all the CSV files in dirpath
+    :rtype: list
+    """
     a = [s for s in os.listdir(dirpath)
          if os.path.isfile(os.path.join(dirpath, s)) and s.endswith(".csv")]
     a.sort(key=lambda s: os.path.getmtime(os.path.join(dirpath, s)))
@@ -14,6 +24,11 @@ def getfiles(dirpath):
 
 
 def plot():
+    """
+    Given a set of CSV files produced by the module time_counting_test in the directory resources/test, it use the content of
+    the most recent file to produce two plot showing the running time of the algorithm respect the dataset size and the
+    dataset's file size for each dataset used.
+    """
     dirpath = os.path.abspath("../resources/test")
     files = getfiles(dirpath)
     file_path = os.path.join(dirpath, files[0])
