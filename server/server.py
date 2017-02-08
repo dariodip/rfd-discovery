@@ -14,7 +14,6 @@ def index():
 
 @app.route('/api/upload', methods=['POST', 'GET'])
 def upload():
-    error = None
     if request.method == 'POST':
         file = request.files['file']
         if file:
