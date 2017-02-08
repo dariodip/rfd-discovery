@@ -10,6 +10,8 @@ from libc.math cimport isnan
 
 NAN_PH = str(np.nan)
 
+"""Module with the class implementing the algorithm used to find the Relaxed Functionals Dependencies"""
+
 cdef class RFDDiscovery(object):
     """
     Class used to find the Relaxed Functional Dependencies RFDs of a given distance matrix. It allow to use different algorithm.

@@ -11,6 +11,7 @@ import loader.levenshtein_wrapper as lw
 
 pnd.set_option('display.width', 320)
 
+"""Module containing the code used to create and manage the distance matrix"""
 
 cdef class DiffMatrix:
     """

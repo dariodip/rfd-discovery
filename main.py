@@ -4,6 +4,7 @@ import utils.utils as ut
 from loader.distance_mtr import DiffMatrix
 from dominance.dominance_tools import RFDDiscovery
 
+"""Main module used to execute the algorithm in the command line"""
 
 def main(args):
     """
@@ -198,6 +199,7 @@ def check_correctness(has_dt, hss, index_col):
     :param has_dt: value containing indexes of columns containing date, False otherwise
     :type has_dt: list or bool
     :param hss: dict containing the division in rhs and lhs
+    :type hss: dict
     :param index_col: index of the column containing the dataset's primary key
     :type index_col: int
     :raises getopt.GetoptError, AssertionError
