@@ -358,7 +358,7 @@ cdef class RFDDiscovery(object):
     cpdef void __initialize_var__(self, rhs, lhs, cols):
         """
         Initialize the instance variables on_minimun_df, min_vector and rfds using the
-        columns' name and the division on rhs and lhs given by input
+        columns' name and the division on rhs and lhs given as input
         :param rhs: integer index of the column positioned on the rhs of the distance matrix
         :type rhs: list
         :param lhs: integers indexes of the columns positioned on the lhs of the distance matrix

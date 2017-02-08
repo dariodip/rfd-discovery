@@ -6,6 +6,15 @@ from dominance.dominance_tools import RFDDiscovery
 
 
 def main(args):
+    """
+    This method start the rfd-discovery algorithm. It takes various command line parameters like a valid dataset's
+    path, the division on rhs and lhs needed and more. See the section Usage of the README for
+    more information about the available parameters. If the user does not give a valid sequence of
+    parameters, the program will end and print on the standard output a message with the required
+    format to run the program.
+    :param args: list of parameters given as input
+    :type args: list
+    """
     c_sep, csv_file, has_header, semantic, has_dt, missing, index_col = extract_args(args)
     try:
         check_correctness(has_header, has_dt, hss, index_col)
@@ -46,7 +55,18 @@ def main(args):
 
 
 def extract_args(args):
-    # extraction
+    """
+    Given the list of command line parameters, it extracts the parameters given according to the format
+    described in the Usage section of the README.
+    If some parameter cannot be interpreted, then the function will raise an AssertionError.
+    If the path of the CSV is missing or is not valid, the programm will print an error message and it will end.
+    With the help option, it will print on the standard output the help about the execution of this program.
+    :param args: list of command line argument given at the startup
+    :type args: list
+    :return: list of parameters extracted
+    :rtype: tuple
+    :raise: AssertionError
+    """
     try:
         # Default values
         c_sep, has_header, semantic, has_dt, missing, ic = '', None, False, False, None, False
@@ -112,6 +132,22 @@ def extract_args(args):
 
 def extract_hss(cols_count, lhs, rhs):
     # You cannot have len(rhs) > 1, don't check it
+    """
+    Given the lhs and rhs from the command line parameters, and the column's number of the dataset,
+    it creates various combinations of rhs and lhs according to the format of this two parameters.
+    If the format of this two parameters is not accordant with the possible combination on rhs and lhs in the
+    command line arguments described by the README, the program will print an error message and it will end.
+    The program return a list of dict, where each dict contains the indexes of the attributes on the lhs with the key
+    'lhs' and the index of the attribute on the rhs with the key 'rhs'.
+    :param cols_count: the column's number
+    :type cols_count: int
+    :param lhs: list of a valid columns' indexes containing the dataset's attributes positioned in the lhs
+    :type lhs: list
+    :param rhs: list of a valid column's index containing the dataset's attribute positioned in the rhs
+    :type rhs: list
+    :return: one or more combination of attribute in the rhs and lhs
+    :rtype: list
+    """
     if rhs == [] and lhs == []:  # each combination case
         hss = ut.get_hs_combination(cols_count)
     elif rhs == [] and not lhs == []:  # error case
@@ -131,6 +167,19 @@ def extract_hss(cols_count, lhs, rhs):
 
 
 def extract_sep_n_header(c_sep, csv_file, has_header):
+    """
+    Given a correct path to a CSV file containing the dataset, the separator and the presence or not of the header
+    given by the command line arguments, this function will try to infer the separator and/or the presence
+    of the header in the dataset if they was not specified in the command line arguments.
+    :param c_sep: the separator extracted from the command line argument
+    :type c_sep: str
+    :param csv_file: a correct path to a CSV file containing a valid dataset
+    :type csv_file: str
+    :param has_header: indicate the presence or not of a column header in the CSV
+    :type has_header: int
+    :return: the separator used in the CSV and the value 0 if the CSV has an header, None otherwise
+    :rtype: tuple
+    """
     if c_sep == '' and has_header is None:
         c_sep, has_header = ut.check_sep_n_header(csv_file)
     elif c_sep != '' and has_header is None:
@@ -140,7 +189,19 @@ def extract_sep_n_header(c_sep, csv_file, has_header):
     return c_sep, has_header
 
 
-def check_correctness(has_header, has_dt, hss, index_col):
+def check_correctness(has_dt, hss, index_col):
+    """
+    Verify the correctness of the columns' indexes given for the division in
+    rhs and lhs and of the index indicating the key's column.
+    If some index is out of bound, the function will raise an getopt.GetoptError.
+    If there are some indexes repeated, the program will raise an AssertionError.
+    :param has_dt: value containing indexes of columns containing date, False otherwise
+    :type has_dt: list or bool
+    :param hss: dict containing the division in rhs and lhs
+    :param index_col: index of the column containing the dataset's primary key
+    :type index_col: int
+    :raises getopt.GetoptError, AssertionError
+    """
     max_index = max(hss[0]['rhs'] + hss[0]['lhs'])
     unique_index_count = sum([1 for i in set(hss[0]['rhs'] + hss[0]['lhs'])])
     # check has header
@@ -160,6 +221,10 @@ def check_correctness(has_header, has_dt, hss, index_col):
 
 
 def usage():
+    """
+    Print the usage message, describing the correct format for a correct program execution. For each
+    argument in the command line arguments, the message will show a short description of it.
+    """
     usage_str = """
     python {} -c <csv-file> [options]
 
