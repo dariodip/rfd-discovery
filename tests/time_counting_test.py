@@ -58,7 +58,6 @@ class MyTestCase(unittest.TestCase):
             for combination in lhs_vs_rhs:
                 logging.info("Testing on combination: {}".format(str(combination)))
                 dist_mtx = diff_matrix.split_sides(combination)
-                diff_mtx = None  # for free unused memory
                 for i in range(ITERATION_TIME):                         # repeat test X times
                     logging.info("Test no.{}".format(i))
                     start_time = time.time()                            # get t0
@@ -76,6 +75,7 @@ class MyTestCase(unittest.TestCase):
                                          round(elapsed_time_dist*1000,3), rfd_count, str(combination), result_df)
                     test_count += 1
                     elapsed_time_dist = 0
+            diff_mtx = None  # for free unused memory
         logging.info("Saving file")
         abs_path = os.path.abspath("../resources/test/{}-results-{}.csv"
                                    .format(time.strftime("%Y-%m-%d_%H-%M-%S"), "c" if compiled else "p"))
@@ -168,5 +168,5 @@ class MyTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    myTest = MyTestCase('test')
-    myTest.test_something(format='csv')
+    myTest = MyTestCase()
+    myTest.test_something()

@@ -243,7 +243,8 @@ cdef class DiffMatrix:
         After calculated, the semantic difference will be stored in the dictionary semantic_diff_dic so when this distance is again requested it will
         not be calculated a second time.
         The path similarity is calculated by using WordNet.
-        If at least one of the two parameter is NaN, the distance returned will be infinity.
+        If one of the two parameter is NaN, the distance returned will be infinity.
+        If both are NaN, the distance returned will be 0.
         :param a: first term
         :type a: str or float for NaN value
         :param b: second term
@@ -251,6 +252,8 @@ cdef class DiffMatrix:
         :return: the semantic difference between a and b
         :rtype float
         """
+        if (isinstance(a, float) and np.isnan(a)) and (isinstance(b, float) and np.isnan(b)):
+            return 0
         if isinstance(a, float) and np.isnan(a):
             return np.inf
         if isinstance(b, float) and np.isnan(b):
@@ -271,7 +274,8 @@ cdef class DiffMatrix:
 cdef float __date_diff__(a: pnd.tslib.Timestamp, b: pnd.tslib.Timestamp):
     """
     Computes the aritmetic difference on given dates a and b.
-    If at least one of the two parameter is NaT, the distance returned will be infinity.
+    If one of the two parameter is NaT, the distance returned will be infinity.
+    If both are NaT, the distance returned will be 0.
     :param a: first date
     :type a: pandas.tslib.Timestamp or float for NaN value
     :param b: comparison date
@@ -279,6 +283,8 @@ cdef float __date_diff__(a: pnd.tslib.Timestamp, b: pnd.tslib.Timestamp):
     :return: difference in days
     :rtype float
     """
+    if (a is pnd.NaT) and (b is pnd.NaT):
+        return 0
     if a is pnd.NaT:
         return np.inf
     if b is pnd.NaT:
@@ -290,7 +296,8 @@ cdef float __date_diff__(a: pnd.tslib.Timestamp, b: pnd.tslib.Timestamp):
 cdef float __edit_dist__(object a, object b):
     """
     Computes the Levenshtein distance between two strings a and b.
-    If at least one of the two parameter is NaN, the distance returned will be infinity.
+    If one of the two parameter is NaN, the distance returned will be infinity.
+    If both are NaN, the distance returned will be 0.
     :param a: first term
     :type a: str or float for NaN value
     :param b: second term
@@ -298,6 +305,8 @@ cdef float __edit_dist__(object a, object b):
     :return: the edit distance between a and b
     :rtype float
     """
+    if (isinstance(a, float) and np.isnan(a)) and (isinstance(b, float) and np.isnan(b)):
+        return 0
     if isinstance(a, float) and np.isnan(a):
         return np.inf
     if isinstance(b, float) and np.isnan(b):
@@ -310,7 +319,8 @@ cdef float __edit_dist__(object a, object b):
 cdef float __subnum__(float a, float b):
     """
     Computes the aritmetic difference on given floats a and b.
-    If at least one of the two parameter is NaN, the distance returned will be infinity.
+    If one of the two parameter is NaN, the distance returned will be infinity.
+    If both are NaN, the distance returned will be 0.
     :param a: first term
     :type a: float
     :param b: second term
@@ -318,6 +328,8 @@ cdef float __subnum__(float a, float b):
     :return: difference in float
     :rtype float
     """
+    if (isinstance(a, float) and np.isnan(a)) and (isinstance(b, float) and np.isnan(b)):
+        return 0
     if isinstance(a, float) and np.isnan(a):
         return np.inf
     if isinstance(b, float) and np.isnan(b):
