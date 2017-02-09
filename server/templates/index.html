@@ -5,11 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
     <title>rdf discovery</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+    <link href="static/css/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection"/>
     <link href="static/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
-</head>
-<body>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="static/js/lib/materialize.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-materialize/0.2.2/angular-materialize.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.6.2/angular-sanitize.min.js"></script>
+    <script src="static/js/lib/ng-file-upload.js"></script>
+    <script src="static/js/lib/ng-file-upload-shim.js"></script>
+    <script src="static/js/lib/file-wrapper.min.js"></script>
+    <script src="static/js/lib/line-navigator.min.js"></script>
+    <script type="text/javascript" src="static/js/app/app.js"></script>
+    <script type="text/javascript" src="static/js/app/app.directive.js"></script>
+    <script type="text/javascript" src="static/js/app/app.controller.js"></script>
 
+</head>
+<body ng-app="rfdApp" ng-strict-di ng-controller="appController">
 <nav class="white" role="navigation">
     <div class="nav-wrapper container">
         <a id="logo-container" href="#" class="brand-logo">RDF Discovery</a>
@@ -22,7 +34,7 @@
         <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
     </div>
 </nav>
-<div id="index-banner" class="parallax-container">
+<div class="parallax-container">
     <div class="section no-pad-bot">
         <div class="container">
             <br>
@@ -34,10 +46,9 @@
             <br>
         </div>
     </div>
-    <div class="parallax"><img src="static/images/neural.png" alt="neural network"></div>
+    <div parallax><img src="static/images/neural.png" alt="neural network"></div>
 </div>
 <div class="container pad">
-
     <form action="#" id="file-form" enctype="multipart/form-data">
         <div class="section" id="step1">
             <div class="row">
@@ -46,7 +57,7 @@
                     <div class="file-field input-field">
                         <div class="btn">
                             <span>Select CSV</span>
-                            <input type="file" id="jfileupload" name="file" data-url="/api/upload">
+                            <input type="file" ng-model="file" id="fileupload" name="file" required ngf-model-invalid="errorFile" ngf-accept="text/csv" ngf-select="options=true">
                         </div>
                         <div class="file-path-wrapper">
                             <input id="file-path" class="file-path validate" type="text">
@@ -55,12 +66,13 @@
                 </div>
             </div>
         </div>
-        <div class="section preview" id="step2" style="display: none;">
+
+        <div class="section preview" id="step2" ng-show="options">
             <div class="card-panel">
                 <div class="row">
                     <div class="col s12">
                         <h5>Details</h5>
-                        <div id="details"></div>
+                        <div ng-bind-html="details"></div>
                     </div>
                 </div>
             </div>
@@ -70,80 +82,128 @@
                         <h5>Options</h5>
                     </div>
                     <div class="col s6">
-                        <input type="checkbox" id="semantic" value="true"/>
+                        <input type="checkbox" id="semantic" value="true" ng-model="model.semantic"/>
                         <label for="semantic">Semantic</label>
                     </div>
                     <div class="col s6">
-                        <input type="checkbox" id="header" checked="true"/>
+                        <input type="checkbox" id="header" ng-model="model.header" ng-change="setTableData()"/>
                         <label for="header">Header</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class=" col s6">
-                        <div class="input-field">
-                            <select id="separator">
-                                <option value="" disabled selected>Select</option>
-                                <option value=";" selected> ;</option>
-                                <option value=","> ,</option>
-                            </select>
+                        <div input-field>
+                            <input type="text" ng-model="model.separator" length="3" ng-change="setTableData()"/>
                             <label>Separator</label>
                         </div>
                     </div>
-                    <div class="input-field col s6">
-                        <input id="missing" type="text" value="?">
-                        <label for="missing">Missing value placeholder</label>
+                    <div class="col s6">
+                        <div input-field>
+                            <input type="text" ng-model="model.missing" length="3">
+                            <label>Missing value placeholder</label>
+                        </div>
                     </div>
                 </div>
                 <div class="row">
                     <p>
-                        <input name="selectcol" type="radio" id="opt1" value="0" checked/>
+                    <p>
+                        <input ng-model="model.selection" name="selection" type="radio" id="opt1" value="0" checked ng-click="resetComb()"/>
                         <label for="opt1">Select RHS only</label>
                     </p>
                     <p>
-                        <input name="selectcol" type="radio" id="opt2" value="1"/>
+                        <input ng-model="model.selection" name="selection" type="radio" id="opt2" value="1" ng-click="resetComb()"/>
                         <label for="opt2">Custom selection</label>
                     </p>
                     <p>
-                        <input name="selectcol" type="radio" id="opt3" value="2"/>
+                        <input ng-model="model.selection" name="selection" type="radio" id="opt3" value="2" ng-click="resetComb()"/>
                         <label for="opt3">All combinations</label>
                     </p>
                 </div>
                 <div class="row">
-                    <div class="input-field col s12">
-                        <select multiple id="dateSelect">
+                    <div input-field>
+                        <select class="" ng-model="model.dateSelect" material-select multiple watch>
+                            <option ng-repeat="t in preview.ths track by $index" value="[[$index]]">[[t]]</option>
                         </select>
                         <label>Datetime field</label>
                     </div>
                 </div>
             </div>
             <h5>Preview</h5>
-            <h6 id="selectcolinfo">Set the LHS/RHS attributes using the <a class="btn infobtn disabled">grey
-                buttons</a></h6>
+            <h6 ng-show="model.selection<2">Set the LHS/RHS attributes using the <a class="btn infobtn disabled">grey buttons</a></h6>
             <br>
-            <div id="table">contents</div>
-
+            <div id="table">
+                <table class='striped'>
+                    <thead>
+                    <tr>
+                        <th ng-repeat="th in preview.ths track by $index">[[th]]
+                            <p><span ng-show="parseInt(model.selection) < 2"><a class='waves-effect waves-light btn rhs '
+                                                                             ng-class="{'unchecked':  (model.sides.rhs.indexOf($index)===-1)}"
+                                                                             data-id='[[$index]]' data-side='rhs'
+                                                                             ng-click="setRhs($index)">rhs</a></span>
+                            <span ng-show="model.selection == '1'"><a class='waves-effect waves-light btn lhs '
+                                                                      ng-class="{'unchecked': (model.sides.lhs.indexOf($index)===-1)}"
+                                                                      data-id='[[$index]]' data-side='lhs'
+                                                                      ng-click="toggleLhs($index)">lhs</a></span>
+                            </p>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="tr in preview.trs">
+                        <td ng-repeat="td in tr track by $index">[[td]]</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
             <br>
             <div class="center">
-                <a class="waves-effect waves-light btn-large center" id="run"><i class="material-icons right">send</i>
-                    Run</a>
+                <a class="waves-effect waves-light btn-large center" ng-click="submit()">
+                    <i class="material-icons right">send</i> Run
+                </a>
             </div>
-            <div id="error" style="display: none;">
+            <div ng-show="file.progress >= 0">
+            <span class="progress" >
+                <div style="width:[[file.progress]] + '%'" ng-bind="file.progress + '%'"></div>
+            </span>
+            <p>Loading file [[file.progress]] %</p>
+            </div>
+
+            <div id="error" ng-show="error">
                 <div class="card-panel red lighten-1 white-text">
                     <div class="row">
-                        <div class="col s12" id="message">
+                        <div class="col s12" id="message"><i class="material-icons">warning</i> [[error]]
                         </div>
                     </div>
                 </div>
             </div>
-            <div id="progressbox" class="progress" style="display: none;">
-                <div class="determinate" id="progressbar"></div>
-            </div>
-            <div id="progressvalue"></div>
         </div>
     </form>
-    <div class="section result" id="step3" style="">
-        <div id="loader"></div>
-         <div id="result"></div>
+    <div class="center" ng-show="loading">
+        <preloader />
+    </div>
+    <div class="section result" id="step3" style="" ng-show="result">
+        <div id="result">
+
+            Difference matrix computation time: <span class="time sec">[[result.mtxtime]]s</span><br>
+            Total computation time: <span class="time sec">[[result.total]]s</span><br>
+            <div ng-repeat="(comb,table) in result.data track by $index">
+                <p ng-repeat="(k,v) in getComb(comb)">
+                    <span class="[[k]]"> [[k]] </span>
+                    <span class="combs">[[v]]</span>
+                </p>
+                <p>
+                    <span class="time"> RDF discovery time:</span> <span class="time sec">[[result.timing.get($index)]]s</span>
+                </p>
+                <table class="striped">
+                    <tbody>
+                    <tr ng-repeat="tr in table">
+                        <td ng-repeat="td in tr track by $index">[[td]]</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
     </div>
 </div>
 
@@ -171,108 +231,5 @@
         </div>
     </div>
 </footer>
-
-<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-<script src="static/js/materialize.js"></script>
-<script src="static/js/jquery.ui.widget.js"></script>
-<script src="static/js/jquery.iframe-transport.js"></script>
-<script src="static/js/jquery.fileupload.js"></script>
-<script src="static/js/jquery.csv.js"></script>
-<script src="static/js/html5LineReader.js"></script>
-<script src="static/js/line-navigator/file-wrapper.min.js"></script>
-<script src="static/js/line-navigator/line-navigator.min.js"></script>
-
-<script type=text/javascript>
-    var _csv = {
-        data: null,
-        semantic: false,
-        separator: ';',
-        header: true,
-        delimiter: '"',
-        missing: '?',
-        selection: 0, //0:rhs-only 1:custom 2:all
-        sides: {
-            lhs: [],
-            rhs: null
-        }
-    };
-    $(document).ready(function () {
-        Core.attachHandlers();
-
-
-        $('#jfileupload').bind('change', function (e) {
-            var files = e.target.files;
-            var file = files[0];
-            _csv.data = file;
-            //file metadata
-            var output = ''
-                + ' FileType: ' + (file.type || 'n/a') + '<br />\n'
-                + ' FileSize: ' + file.size + ' bytes<br />\n'
-                + ' LastModified: ' + (file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() : 'n/a') + '<br />\n';
-            $('#details').html(output);
-        });
-
-        $('#jfileupload').fileupload({
-            //dataType: 'json',
-            autoUpload: false,
-            add: function (e, data) {
-                data.context = $('#run')
-                    .click(function () {
-                        if (Core.validate()) {
-                            $('#progressbox').show();
-                            data.submit();
-                        }
-                    });
-            },
-            done: function (e, data) {
-                $('#loader').hide()
-                if (data.result.error)
-                    Core.raiseError(data.result.error, '#result');
-                else
-                    Core.printResult(data.result, '#result');
-            },
-            progressall: function (e, data) {
-                var progress = parseInt(data.loaded / data.total * 100, 10);
-                $('#progressbar').css('width', progress + '%');
-                var progress_str = progress+'% ' + ((progress<100) ? 'Loading file': '');
-                $('#progressvalue').html(progress_str);
-            }
-        }).on('fileuploadadd', function (e, data) {
-            $('#file-path').val(data.files[0].name)
-            $('#step2').fadeIn()
-            _csv.sides.lhs = [];
-            _csv.sides.rhs = [];
-            Core.printTable();
-            $("#opt1").click();
-            scrollTo('#step2')
-        }).on('fileuploadsubmit', function (e, data) {
-            //data.formData = _csv
-            data.formData = {
-                semantic: _csv.semantic,
-                separator: _csv.separator,
-                datetime: $('#dateSelect').val(),
-                header: _csv.header,
-                delimiter: _csv.delimiter,
-                missing: _csv.missing,
-                lhs: _csv.sides.lhs,
-                rhs: _csv.sides.rhs
-            }
-        }).on('fileuploadprocessalways', function (e, data) {
-            var file = data.files[0];
-            if (file.error) {
-                console.error("error", file.error)
-            }
-        });
-        $("#run").on("click", function () {
-            Core.loader('#loader');
-            $('#file-form').submit(function (e) {
-                e.preventDefault();
-            });
-        });
-    });
-</script>
-<script src="static/js/init.js"></script>
-
-
 </body>
 </html>

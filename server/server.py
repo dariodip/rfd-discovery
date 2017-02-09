@@ -30,7 +30,6 @@ def upload():
     If it can not open that file, return an error message.
     :return: a JSON with the function call that execute the algorithm or a web page with an error message
     """
-    error = None
     if request.method == 'POST':
         file = request.files['file']
         if file:

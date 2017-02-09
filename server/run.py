@@ -23,28 +23,32 @@ def main(csv_file, post_metadata):
     :return: a dict containing the output of each combination or with an error message
     :rtype: dict
     """
-    params = param_to_dict(post_metadata)
-    args = {'sep': params['separator'],
+    with Timer() as total:
+        params = param_to_dict(post_metadata)
+        args = {'sep': params['separator'],
             'semantic': params['semantic'],
             'missing': params['missing'],
             'datetime': params['datetime']
             }
-    if 'header' in params:
-        args['first_col_header'] = params['header']
-    try:
-        diff_mtx = DiffMatrix(csv_file, **args)
-    except Exception as e:
-        return {"error":str(e.__doc__)}
-        #return {"error":str(traceback.format_exc())}
-
-    cols_count = ut.get_cols_count(csv_file, params['separator'])
-    hss = extract_hss(cols_count, params['lhs'], params['rhs'])
-    result = {}
-    for combination in hss:
-        comb_dist_mtx = diff_mtx.split_sides(combination)
-        nd = RFDDiscovery(comb_dist_mtx)
-        result[json.dumps(combination)] = nd.get_rfds(nd.standard_algorithm, combination).to_csv(sep=params['separator'])
-    return result
+        if 'header' in params:
+            args['first_col_header'] = params['header']
+        with Timer() as mtxtime:
+            try:
+                diff_mtx = DiffMatrix(csv_file, **args)
+            except Exception as e:
+                return {"error":str(e.__doc__)}
+                #return {"error":str(traceback.format_exc())}
+        cols_count = ut.get_cols_count(csv_file, params['separator'])
+        hss = extract_hss(cols_count, params['lhs'], params['rhs'])
+        response = {'mtxtime': "{:.2f}".format(mtxtime.interval), 'result': {}, 'timing': []}
+        for combination in hss:
+            with Timer() as c:
+                comb_dist_mtx = diff_mtx.split_sides(combination)
+                nd = RFDDiscovery(comb_dist_mtx)
+                response['result'][json.dumps(combination)] = nd.get_rfds(nd.standard_algorithm, combination).to_csv(sep=params['separator'])
+            response['timing'].append("{:.2f}".format(c.interval))
+    response['total'] = "{:.2f}".format(total.interval)
+    return response
 
 def param_to_dict(p):
     """
@@ -115,16 +119,15 @@ def extract_hss(cols_count, lhs, rhs):
     return hss
 
 
-@contextmanager
-def timeit_context(name):
+class Timer:
     """
-    Return the time of a block of code included into a with statement
-    :param name: name of the block of code
-    :type name: str
-    :return: the time elapset
-    :rtype: str
+    Measure the time of the block of code included into a with statement
+    :return: Time object
     """
-    startTime = time.time()
-    yield
-    elapsedTime = time.time() - startTime
-    return '[{}] finished in {:.2f} ms'.format(name, elapsedTime * 1000)
+    def __enter__(self):
+        self.start = time.clock()
+        return self
+
+    def __exit__(self, *args):
+        self.end = time.clock()
+        self.interval = self.end - self.start
