@@ -23,8 +23,7 @@ cpdef int lev_distance(str a, str b):
     cdef bytes by_b = b.encode()
     cdef char* ch_a = by_a
     cdef char* ch_b = by_b
-    cdef int max_size = max(len(a), len(b)) + 1
-    cdef unsigned int * column = <unsigned int *> malloc(max_size * sizeof(unsigned int))
+    cdef unsigned int * column = <unsigned int *> malloc((len(a)+1) * sizeof(unsigned int))
     x = levenshtein(ch_a, ch_b, column)
     free(column)
     return x
