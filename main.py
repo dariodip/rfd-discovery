@@ -1,5 +1,7 @@
 import sys
 import getopt
+import pandas as pd
+import numpy as np
 import utils.utils as ut
 from loader.distance_mtr import DiffMatrix
 from dominance.dominance_tools import RFDDiscovery
@@ -16,7 +18,7 @@ def main(args):
     :param args: list of parameters given as input
     :type args: list
     """
-    c_sep, csv_file, has_header, semantic, has_dt, missing, index_col = extract_args(args)
+    c_sep, csv_file, has_header, semantic, has_dt, missing, index_col, human = extract_args(args)
     try:
         check_correctness(has_dt, hss, index_col)
     except getopt.GetoptError as gex:
@@ -52,7 +54,22 @@ def main(args):
                 comb_dist_mtx = diff_mtx.split_sides(combination)
                 with ut.timeit_context("RFD Discover time for {}".format(str(combination))):
                     nd = RFDDiscovery(comb_dist_mtx)
-                    print(nd.get_rfds(nd.standard_algorithm, combination))
+                    if human:
+                        print(combination)
+                        printHuman(nd.get_rfds(nd.standard_algorithm, combination))
+                    else:
+                        print(nd.get_rfds(nd.standard_algorithm, combination))
+
+
+def printHuman(df: pd.DataFrame):
+    string = ""
+    for index, row in df.iterrows():
+        string += "{}(<= {} ) -> ".format(df.columns[0], round(row[0], ndigits=2))
+        string += "".join(["" if np.isnan(row[i]) else "{}(<= {} ), ".format(df.columns[i], round(row[i], ndigits=2))
+                           for i in range(1, len(row))])
+        string = string[:-2]
+        string += "\n"
+    print(string)
 
 
 def extract_args(args):
@@ -70,11 +87,11 @@ def extract_args(args):
     """
     try:
         # Default values
-        c_sep, has_header, semantic, has_dt, missing, ic = '', 0, True, False, "?", False
+        c_sep, has_header, semantic, has_dt, missing, ic, human = '', 0, True, False, "?", False, False
         csv_file = ''
         lhs = []
         rhs = []
-        opts, args = getopt.getopt(args, "c:r:l:s:hm:d:vi:", ["semantic", "help"])
+        opts, args = getopt.getopt(args, "c:r:l:s:hm:d:vi:", ["semantic", "help", "human"])
         for opt, arg in opts:
             if opt == '-v':
                 print("rdf-discovery version 0.0.1")
@@ -100,6 +117,8 @@ def extract_args(args):
                 has_dt = [int(_) for _ in arg.split(',')]
             elif opt == '-i':
                 ic = int(arg)
+            elif opt == '--human':
+                human = True
             elif opt == '--help':
                 usage()
                 sys.exit(0)
@@ -128,7 +147,7 @@ def extract_args(args):
     except Exception as ex:
         print("Error while trying to understand arguments: {}".format(str(ex)))
         sys.exit(-1)
-    return c_sep, csv_file, has_header, semantic, has_dt, missing, ic
+    return c_sep, csv_file, has_header, semantic, has_dt, missing, ic, human
 
 
 def extract_hss(cols_count, lhs, rhs):
