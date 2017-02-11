@@ -31,6 +31,7 @@ cdef class RFDDiscovery(object):
     cdef cython.bint compiled
     cdef object rfd_to_add
     cdef unsigned int rfd_count
+    cdef object median_df
     np.seterr(all='ignore')
 
 
@@ -64,6 +65,8 @@ cdef class RFDDiscovery(object):
         """Buffer containing unique RFDs discovered for a given distance."""
         self.rfd_count = 0
         """Number of found RFD"""
+        self.median_df = dist_matrix.median(axis=0, numeric_only=True)
+
 
     cpdef object get_rfds(self, object dominance_funct, hss: dict):
         """
@@ -100,11 +103,27 @@ cdef class RFDDiscovery(object):
         """
         self.__initialize_var__(rhs, lhs, d_mtx.columns) # initialize variables
         selected_row = list()  # list of non-dominating tuples
-        distance_values = list(set(np.asarray(d_mtx[d_mtx.columns[0]], dtype='int').flatten()))  # all unq distances
+
+        distance_values = list(set(np.asarray(d_mtx[d_mtx['RHS'] <= self.median_df['RHS']]['RHS'], dtype='int').flatten()))  # all unq distances
         distance_values.sort(reverse=True)  # sort distances
+
+        distance_gt = d_mtx[d_mtx['RHS'] > self.median_df['RHS']]
+
         df_keys = list(self.distance_matrix.keys())
         df_keys.remove('RHS')  # extract lhs keys
         cdef double dist = 0.0
+
+        for index, row in distance_gt[df_keys].iterrows():
+            pool_rows_to_delete = set()  # rows to delete from the pool
+            pool_rows_to_add = dict()  # row to add into the pool
+            current_range_row = row.values.tolist()
+            if len(self.pool) == 0 or self.__check_dominance(current_range_row, pool_rows_to_delete):  # dom. check
+                pool_rows_to_add[index] = current_range_row  # if the row passes the test then add it in the pool
+            for pool_key in pool_rows_to_delete:  # remove dominating rows from the pool
+                del self.pool[pool_key]
+            pool_rows_to_add = clean_pool(pool_rows_to_add)  # clean pool
+            self.pool.update(pool_rows_to_add)  # add non-dominating rows into the pool
+
         for dist in distance_values:  # iterate on each different distance
             pool_rows_to_delete = set()  # rows to delete from the pool
             pool_rows_to_add = dict()  # row to add into the pool
@@ -123,11 +142,19 @@ cdef class RFDDiscovery(object):
             pool_rows_to_add = clean_pool(pool_rows_to_add)  # clean pool
             selected_row = selected_row + list(pool_rows_to_add.keys())
             self.pool.update(pool_rows_to_add)  # add non-dominating rows into the pool
+
             # filter selected rows only
             df_distance_range_filtered = df_distance_range[df_distance_range.index.isin(selected_row)]
-            self.__check_min(df_distance_range_filtered[df_keys], dist)  # create minimum on range vector
-            # find effective rfd
-            self.__find_rfd(self.on_minimum_df[self.on_minimum_df.RHS == dist][df_keys], dist, old_pool)
+            if not df_distance_range_filtered.empty:
+                df_distance_range_filtered = df_distance_range_filtered[df_keys]\
+                    .apply(self.clean_on_median, axis=1, raw=True, args=(df_keys,self.median_df))
+                for index, row in df_distance_range_filtered[df_keys].iterrows():
+                    current_range_row = row.values.tolist()
+                    if self.__check_dominance_nan(current_range_row, old_pool):  # dom. check
+                        df_distance_range_filtered[index] = None
+                self.__check_min(df_distance_range_filtered[df_keys], dist)  # create minimum on range vector
+                # find effective rfd
+                self.__find_rfd(self.on_minimum_df[self.on_minimum_df.RHS == dist][df_keys], dist, old_pool)
 
         if self.print_res:
             print("Minimum df \n", self.on_minimum_df)
@@ -135,6 +162,12 @@ cdef class RFDDiscovery(object):
             print("RFDS:\n", self.rfds)
             print("D_MTX:\n", d_mtx[d_mtx.index.isin(selected_row)])
         return self.rfds  # se una sola a nan è dip
+
+    @staticmethod
+    cdef object clean_on_median(object x, object df_keys, object median_df):
+        # diff = x - m > 0 <=> x > m => np.nan
+        diff = x - median_df[df_keys]
+        return np.array([np.nan if diff[i] > 0 else x[i] for i in range(len(x))])
 
     cpdef is_compiled(self):
         """

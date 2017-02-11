@@ -70,7 +70,7 @@ def extract_args(args):
     """
     try:
         # Default values
-        c_sep, has_header, semantic, has_dt, missing, ic = ';', 0, True, False, "?", False
+        c_sep, has_header, semantic, has_dt, missing, ic = '', 0, True, False, "?", False
         csv_file = ''
         lhs = []
         rhs = []
