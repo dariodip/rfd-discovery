@@ -86,9 +86,10 @@ def plot():
             lgnd.legendHandles[i]._sizes = [75]
 
     _, ax = plt.subplots()
-    grouped_rfd =  test_df[test_df.ds_name == "restaurant.csv"][['rfd_count','time_elapsed']]\
-                        .sort_values(by=['rfd_count'])
-    plot = grouped_rfd.plot(x='rfd_count', y="time_elapsed", marker='.', markersize=10,
+    grouped_rfd =  test_df[test_df.ds_name == "iris.csv"][['rfd_count','time_elapsed']]\
+                        .groupby(by=['rfd_count']).mean()
+
+    plot = grouped_rfd.plot(y="time_elapsed", marker='.', markersize=10,
                     title="Tempo impiegato rispetto al numero di RFD trovate", ax=ax)
     plot.set(xlabel="RFD trovate", ylabel='Tempo impiegato in ms')
 
