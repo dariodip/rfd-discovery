@@ -97,10 +97,11 @@ Options:
   if you specify a valid RHS index we'll assume your LHS as the remaining attributes;
  - *`-i <index_col>`*: the column which contains the primary key of the dataset. Specifying it, this will not 
  calculate as distance. **NOTE: index column should contains unique values**;
- - *`-d <datetime columns>`*: a list of columns, separated by commas, which values are in datetime format.
+ - *`-d <datetime columns>`*: a list of columns, separated by commas, which values are in datetime format;
   Specifying this, rfd-discovery can depict distance between two date in time format (e.g. ms, sec, min);
  - *`--semantic`*: use semantic distance on Wordnet for string;
- For more info [here.](http://www.cs.toronto.edu/pub/gh/Budanitsky+Hirst-2001.pdf)   
+ For more info [here.](http://www.cs.toronto.edu/pub/gh/Budanitsky+Hirst-2001.pdf)
+ - *`--human`*: print the RFDs to the standard output in a human readable form;
  - *`--help`*: show help.
  
  

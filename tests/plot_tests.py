@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import pandas as pd
+import numpy as np
 import os
 from utils.utils import check_sep_n_header
 plt.style.use('ggplot')
@@ -26,8 +28,11 @@ def getfiles(dirpath):
 def plot():
     """
     Given a set of CSV files produced by the module time_counting_test in the directory resources/test, it use the content of
-    the most recent file to produce two plot showing the running time of the algorithm respect the dataset size and the
-    dataset's file size for each dataset used.
+    the most recent file to produce four plots.
+    Three plots are scatterplots that shows the relation between the elapsed times, the dataset's rows number and
+    the dataset's attributes number for each dataset. Each plot place two of this attributes on the two axis,
+    and use the third one as the point radius, where each point corresponds to a dataset.
+    The fourth graph show the increasing of the running time respect the increasing of the RFDs found.
     """
     dirpath = os.path.abspath("../resources/test")
     files = getfiles(dirpath)
@@ -42,19 +47,53 @@ def plot():
     test_df = pd.read_csv(file_path, sep=sep, decimal=',')
     grouped_df = test_df.groupby(['ds_name']).mean()
     print(grouped_df)
-    grouped_df = grouped_df.sort_values(by=['ds_file_size_B'])
-    plot1 = grouped_df.plot(x='ds_file_size_B', y="time_elapsed", marker='.', markersize=10, title="Time elapsed respect dataset's file size")
-    plot1.set(xlabel="dataset's file size", ylabel='time elapsed')
-    plot2 = grouped_df.plot(x='ds_len', y='time_elapsed', kind='scatter', s=grouped_df['ds_attr_size']*100, title="Time elapsed respect row's number")
-    plot2.set(xlabel="dataset row's number", ylabel='time elapsed')
 
-    coords = []
-    for _, row in grouped_df.iterrows():
-        coords.append((row['ds_len'], row['time_elapsed'], row.name))
 
-    for x, y, name in coords:
-        plot2.text(x, y, name[:-4]) # remove the .csv format from the name
+    attr_param = pd.DataFrame({
+        "label": ['numero di attributi', 'numero di righe', 'tempo impiegato in ms'],
+        "incr_factor" : [1000, 10, 1.5],
+        "limits": [(1, 7), (-500, 3000), (-5000, 40000)]
+    }, index=['ds_attr_size', 'ds_len', 'time_elapsed'])
+
+    ds_color = pd.DataFrame(cm.RdYlGn(np.linspace(0, 1, len(grouped_df))), index=list(grouped_df.index))
+
+    combinations = pd.DataFrame([
+                ['ds_attr_size', 'ds_len', 'time_elapsed', 'numero di righe rispetto al numero di attributi'],
+                ['ds_attr_size', 'time_elapsed', 'ds_len', 'tempo impiegato rispetto al numero di attributi'],
+                ['ds_len', 'time_elapsed', 'ds_attr_size', 'tempo impiegato rispetto al numero di righe']],
+                columns=["x", "y", "shape", "title"])
+
+    for index in range(len(attr_param.index)):
+        _, ax = plt.subplots()
+        comb = combinations.iloc[index]
+
+        plt.xlim(attr_param["limits"][comb['x']])
+        plt.xlabel(attr_param["label"][comb['x']])
+        plt.ylim(attr_param["limits"][comb['y']])
+        plt.ylabel(attr_param["label"][comb['y']])
+        plt.title(comb["title"])
+
+        grouped_df = grouped_df.sort_values(by=[comb['shape']], ascending=False)
+        for ds_name, row in grouped_df.iterrows():
+            xval = grouped_df[comb['x']][ds_name]
+            yval = grouped_df[comb['y']][ds_name]
+            sval = grouped_df[comb['shape']][ds_name] * attr_param["incr_factor"][comb['shape']]
+            ax.scatter(x=xval, y=yval, s=sval, c=ds_color.loc[ds_name],
+                       label="{}: time {} ms".format(ds_name[:-4], int(grouped_df["time_elapsed"][ds_name])))
+
+        lgnd = plt.legend(scatterpoints=1, fontsize=10)
+        for i in range(len(grouped_df)):
+            lgnd.legendHandles[i]._sizes = [75]
+
+    _, ax = plt.subplots()
+    grouped_rfd =  test_df[test_df.ds_name == "restaurant.csv"][['rfd_count','time_elapsed']]\
+                        .sort_values(by=['rfd_count'])
+    plot = grouped_rfd.plot(x='rfd_count', y="time_elapsed", marker='.', markersize=10,
+                    title="Tempo impiegato rispetto al numero di RFD trovate", ax=ax)
+    plot.set(xlabel="RFD trovate", ylabel='Tempo impiegato in ms')
+
     plt.show()
+
 
 if __name__ == "__main__":
     plot()

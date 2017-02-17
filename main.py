@@ -62,6 +62,13 @@ def main(args):
 
 
 def printHuman(df: pd.DataFrame):
+    """
+    Given a valid pandas data frame containing the found RFDs, it prints this RFDs on the standard output in a human readable
+    form using the following format:
+    RHS(<=rhs_threshold) -> attr1(<=threshold1),..., attrn(<=thresholdn)
+    :param df: data frame containing the RFDs
+    :type df: pandas.core.frame.DataFrame
+    """
     string = ""
     for index, row in df.iterrows():
         string += "{}(<= {} ) -> ".format(df.columns[0], round(row[0], ndigits=2))
@@ -264,7 +271,8 @@ def usage():
             Specifying it, this will not calculate as distance. NOTE: index column should contains unique values;
     -d <datetime columns>: a list of columns, separated by commas, which values are in datetime format.
             Specifying this, rfd-discovery can depict distance between two date in time format (e.g. ms, sec, min);
-    --semantic: use semantic distance on Wordnet for string; For more info here.
+    --semantic: use semantic distance on Wordnet for string; For more info here;
+    --human: print the RFDs to the standard output in a human readable form;
     --help: show help. \n
     """
     print(usage_str.format(sys.argv[0]))

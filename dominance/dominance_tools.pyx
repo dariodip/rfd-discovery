@@ -25,7 +25,7 @@ cdef class RFDDiscovery(object):
     cdef object on_distance_dom
     cdef object min_vector
     cdef object on_minimum_df
-    cdef object rfds
+    cdef public object rfds
     cdef cython.bint print_res
     cdef object distance_matrix
     cdef cython.bint compiled
@@ -66,6 +66,7 @@ cdef class RFDDiscovery(object):
         self.rfd_count = 0
         """Number of found RFD"""
         self.median_df = dist_matrix.median(axis=0, numeric_only=True)
+        """Attributes containing the attribute's values threshold"""
 
 
     cpdef object get_rfds(self, object dominance_funct, hss: dict):
@@ -84,7 +85,9 @@ cdef class RFDDiscovery(object):
 
     cpdef object standard_algorithm(self, d_mtx: pnd.DataFrame, lhs : list, rhs : list):
         """
-        This method execute the approximated algorithm on the given distance matrix. It use an iterative method where
+        This method execute the approximated algorithm on the given distance matrix. First of all, the algorithm takes all the rows
+        with distance on the RHS greater than the threshold and, considering them as belonging to a single range, create the initial pool.
+        After this initial step, it starts to find the RFDs from rows with distance on the RHS minor or equal to the threshold. It use an iterative method where
         for each iteration it work on a particular range i. During one iteration, it update the pool, refine the range i and
         find the RFDs on the current range. If the value of the instance attribute print_res is True, at the end of the algorithm
         it will print on the standard output the data frame containing the RFDs, the pool of the range 0 containing only rows that
