@@ -3,7 +3,10 @@ import matplotlib.cm as cm
 import pandas as pd
 import numpy as np
 import os
+
 from utils.utils import check_sep_n_header
+from matplotlib.lines import Line2D
+
 plt.style.use('ggplot')
 
 """This modules contain code used to create graphics plot showing the running time of the algorithm"""
@@ -46,6 +49,8 @@ def plot():
 
     test_df = pd.read_csv(file_path, sep=sep, decimal=',')
     grouped_df = test_df.groupby(['ds_name']).mean()
+    datasets = list(grouped_df.index)
+
     print(grouped_df)
 
 
@@ -65,6 +70,14 @@ def plot():
 
     for index in range(len(attr_param.index)):
         _, ax = plt.subplots()
+
+        ax.set_facecolor('white')
+        plt.grid(color='grey')
+        ax.spines['bottom'].set_color('grey')
+        ax.spines['top'].set_color('grey')
+        ax.spines['right'].set_color('grey')
+        ax.spines['left'].set_color('grey')
+
         comb = combinations.iloc[index]
 
         plt.xlim(attr_param["limits"][comb['x']])
@@ -85,14 +98,22 @@ def plot():
         for i in range(len(grouped_df)):
             lgnd.legendHandles[i]._sizes = [75]
 
-    _, ax = plt.subplots()
-    grouped_rfd =  test_df[test_df.ds_name == "iris.csv"][['rfd_count','time_elapsed']]\
-                        .groupby(by=['rfd_count']).mean()
+    for ds in datasets:
+        _, ax = plt.subplots()
+        grouped_rfd =  test_df[test_df.ds_name == ds][['rfd_count','time_elapsed']]\
+                            .groupby(by=['rfd_count']).mean()
 
-    plot = grouped_rfd.plot(y="time_elapsed", marker='.', markersize=10,
-                    title="Tempo impiegato rispetto al numero di RFD trovate", ax=ax)
-    plot.set(xlabel="RFD trovate", ylabel='Tempo impiegato in ms')
 
+        plot = grouped_rfd.plot(y="time_elapsed", marker='.', markersize=10,
+                        title="Tempo impiegato rispetto al numero di RFD trovate nel dataset {}".format(ds[:-4]), ax=ax, legend=False)
+
+        legend_dots = []
+        for rfd_count, row in grouped_rfd.iterrows():
+            legend_text = "{} RFD: tempo {} ms".format(int(rfd_count), row['time_elapsed'])
+            legend_dots.append(Line2D(range(1), range(1), linewidth=0, color="white", marker='o', markerfacecolor="red", label=legend_text))
+
+        plot.set(xlabel="RFD trovate", ylabel='Tempo impiegato in ms')
+        ax.legend(handles=legend_dots)
     plt.show()
 
 
