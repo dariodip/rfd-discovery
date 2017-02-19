@@ -1,17 +1,19 @@
 app.controller('appController', ["$scope", "$sce", 'Upload', '$timeout', function ($scope, $sce, Upload, $timeout) {
 
-    $scope.model = {
-        separator: ';',
-        missing: '?',
-        semantic: false,
-        header: true,
-        selection: '0',
-        datetime: '',
-        sides: {
-            lhs: [],
-            rhs: []
-        }
-    };
+    $scope.model = ($scope.initModel = function() {
+        return {
+            separator: ';',
+            missing: '?',
+            semantic: false,
+            header: true,
+            selection: '0',
+            datetime: '',
+            sides: {
+                lhs: [],
+                rhs: []
+            }
+        };
+    })();
     $scope.preview = {};
 
     $scope.upload = function (file) {
@@ -138,5 +140,6 @@ app.controller('appController', ["$scope", "$sce", 'Upload', '$timeout', functio
             $scope.setTableData();
             $scope.$apply();
         });
+        $scope.model = $scope.initModel();
     });
 }]);

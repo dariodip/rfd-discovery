@@ -66,7 +66,6 @@
                 </div>
             </div>
         </div>
-
         <div class="section preview" id="step2" ng-show="options">
             <div class="card-panel">
                 <div class="row">
@@ -122,6 +121,7 @@
                 <div class="row">
                     <div input-field>
                         <select class="" ng-model="model.dateSelect" material-select multiple watch>
+                            <option disabled="disabled">Select a field</option>
                             <option ng-repeat="t in preview.ths track by $index" value="[[$index]]">[[t]]</option>
                         </select>
                         <label>Datetime field</label>
@@ -184,8 +184,10 @@
     <div class="section result" id="step3" style="" ng-show="result">
         <div id="result">
 
-            Difference matrix computation time: <span class="time sec">[[result.mtxtime]]s</span><br>
-            Total computation time: <span class="time sec">[[result.total]]s</span><br>
+            <div class="result_total">
+                <p>Difference matrix computation time: <span class="time sec">[[result.mtxtime]]s</span></p>
+                <p>Total computation time: <span class="time sec">[[result.total]]s</span></p>
+            </div>
             <div ng-repeat="(comb,table) in result.data track by $index">
                 <p ng-repeat="(k,v) in getComb(comb)">
                     <span class="[[k]]"> [[k]] </span>
@@ -197,7 +199,7 @@
                 <table class="striped">
                     <tbody>
                     <tr ng-repeat="tr in table">
-                        <td ng-repeat="td in tr track by $index">[[td]]</td>
+                        <td class="[[($index==1)?'td_rhs':'']]"ng-repeat="td in tr track by $index"> [[td]]</td>
                     </tr>
                     </tbody>
                 </table>

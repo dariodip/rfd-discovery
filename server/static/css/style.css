@@ -104,3 +104,10 @@ h1 {
 .time.sec {
         font-family: Courier New,Courier,Lucida Sans Typewriter,Lucida Typewriter,monospace;
 }
+.result_total{
+    font-size:20px;
+}
+.td_rhs{
+    background: rgba(0, 150, 136, 0.1);
+    font-weight: 700;
+}
