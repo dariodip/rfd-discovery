@@ -2,7 +2,7 @@ import sys
 import utils.utils as ut
 from loader.distance_mtr import DiffMatrix
 from dominance.dominance_tools import RFDDiscovery
-from contextlib import contextmanager
+import pandas as pnd
 import time
 import json
 
@@ -43,9 +43,16 @@ def main(csv_file, post_metadata):
         response = {'mtxtime': "{:.2f}".format(mtxtime.interval), 'result': {}, 'timing': []}
         for combination in hss:
             with Timer() as c:
-                comb_dist_mtx = diff_mtx.split_sides(combination)
-                nd = RFDDiscovery(comb_dist_mtx)
-                response['result'][json.dumps(combination)] = nd.get_rfds(nd.standard_algorithm, combination).to_csv(sep=params['separator'])
+                try:
+                    comb_dist_mtx = diff_mtx.split_sides(combination)
+                    nd = RFDDiscovery(comb_dist_mtx)
+                    r = nd.get_rfds(nd.standard_algorithm, combination)
+                    rhs = r[[0]]
+                    lhs = r.drop([r.columns[0]], axis=1)
+                    result_df = pnd.concat([lhs, rhs], axis=1)
+                    response['result'][json.dumps(combination)] = result_df.to_csv(sep=params['separator'])
+                except Exception as e:
+                    return {"error": str(e.__doc__)}
             response['timing'].append("{:.2f}".format(c.interval))
     response['total'] = "{:.2f}".format(total.interval)
     return response

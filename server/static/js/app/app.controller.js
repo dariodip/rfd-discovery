@@ -35,8 +35,8 @@ app.controller('appController', ["$scope", "$sce", 'Upload', '$timeout', functio
                 };
                 $scope.result.data = Object.map(res.data.result, function (v, k, o) {
                     var line = v.split('\n');
-                    return line.map(function (v) {
-                        return v.split($scope.model.separator)
+                    return line.map(function (vv) {
+                        return vv.split($scope.model.separator)
                     })
                 });
             }

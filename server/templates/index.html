@@ -181,7 +181,7 @@
     <div class="center" ng-show="loading">
         <preloader />
     </div>
-    <div class="section result" id="step3" style="" ng-show="result">
+    <div class="section result" id="step3" style="" ng-show="result && !error">
         <div id="result">
 
             <div class="result_total">
@@ -199,7 +199,7 @@
                 <table class="striped">
                     <tbody>
                     <tr ng-repeat="tr in table">
-                        <td class="[[($index==1)?'td_rhs':'']]"ng-repeat="td in tr track by $index"> [[td]]</td>
+                        <td class="[[($index==tr.length-1)?'td_rhs':'']]"ng-repeat="td in tr track by $index">[[td]]</td>
                     </tr>
                     </tbody>
                 </table>
