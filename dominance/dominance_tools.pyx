@@ -126,7 +126,7 @@ cdef class RFDDiscovery(object):
                 del self.pool[pool_key]
             pool_rows_to_add = clean_pool(pool_rows_to_add)  # clean pool
             self.pool.update(pool_rows_to_add)  # add non-dominating rows into the pool
-
+        self.min_vector = np.array(pnd.DataFrame.from_dict(self.pool, orient='index').min().tolist())
         for dist in distance_values:  # iterate on each different distance
             pool_rows_to_delete = set()  # rows to delete from the pool
             pool_rows_to_add = dict()  # row to add into the pool
@@ -150,7 +150,7 @@ cdef class RFDDiscovery(object):
             df_distance_range_filtered = df_distance_range[df_distance_range.index.isin(selected_row)]
             if not df_distance_range_filtered.empty:
                 df_distance_range_filtered = df_distance_range_filtered[df_keys]\
-                    .apply(self.clean_on_median, axis=1, raw=True, args=(df_keys,self.median_df))
+                   .apply(self.clean_on_median, axis=1, raw=True, args=(df_keys,self.median_df))
                 for index, row in df_distance_range_filtered[df_keys].iterrows():
                     current_range_row = row.values.tolist()
                     if self.__check_dominance_nan(current_range_row, old_pool):  # dom. check
