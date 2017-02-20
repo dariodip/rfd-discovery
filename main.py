@@ -8,6 +8,7 @@ from dominance.dominance_tools import RFDDiscovery
 
 """Main module used to execute the algorithm in the command line"""
 
+
 def main(args):
     """
     This method start the rfd-discovery algorithm. It takes various command line parameters like a valid dataset's
@@ -44,37 +45,36 @@ def main(args):
                                           datetime=has_dt)
                 else:
                     diff_mtx = DiffMatrix(csv_file,
-                                      sep=c_sep,
-                                      first_col_header=has_header,
-                                      semantic=semantic,
-                                      index_col=index_col,
-                                      missing=missing,
-                                      datetime=has_dt)
+                                          sep=c_sep,
+                                          first_col_header=has_header,
+                                          semantic=semantic,
+                                          index_col=index_col,
+                                          missing=missing,
+                                          datetime=has_dt)
             for combination in hss:
                 comb_dist_mtx = diff_mtx.split_sides(combination)
                 with ut.timeit_context("RFD Discover time for {}".format(str(combination))):
                     nd = RFDDiscovery(comb_dist_mtx)
                     if human:
                         print(combination)
-                        printHuman(nd.get_rfds(nd.standard_algorithm, combination))
+                        print_human(nd.get_rfds(nd.standard_algorithm, combination))
                     else:
                         print(nd.get_rfds(nd.standard_algorithm, combination))
 
 
-def printHuman(df: pd.DataFrame):
+def print_human(df: pd.DataFrame):
     """
     Given a valid pandas data frame containing the found RFDs, it prints this RFDs on the standard output in a human readable
     form using the following format:
-    RHS(<=rhs_threshold) -> attr1(<=threshold1),..., attrn(<=thresholdn)
+    attr1(<=threshold1),..., attrn(<=thresholdn) -> RHS(<=rhs_threshold)
     :param df: data frame containing the RFDs
     :type df: pandas.core.frame.DataFrame
     """
     string = ""
     for index, row in df.iterrows():
-        string += "{}(<= {} ) -> ".format(df.columns[0], round(row[0], ndigits=2))
-        string += "".join(["" if np.isnan(row[i]) else "{}(<= {} ), ".format(df.columns[i], round(row[i], ndigits=2))
+        string += "".join(["" if np.isnan(row[i]) else "{}(<= {}), ".format(df.columns[i], round(row[i], ndigits=2))
                            for i in range(1, len(row))])
-        string = string[:-2]
+        string += "-> {}(<= {})".format(df.columns[0], round(row[0], ndigits=2))
         string += "\n"
     print(string)
 
@@ -143,7 +143,7 @@ def extract_args(args):
         sys.exit(-1)
     # understanding
     try:
-        c_sep_ , has_header_ = extract_sep_n_header(c_sep, csv_file, has_header)
+        c_sep_, has_header_ = extract_sep_n_header(c_sep, csv_file, has_header)
         if c_sep == '':
             c_sep = c_sep_
         if has_header is None:
