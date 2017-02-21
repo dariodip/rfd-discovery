@@ -141,17 +141,6 @@ cdef class DiffMatrix:
             df_i = self.df.iloc[i]
             for j in range(i+1, n_row):  # iterate on each pair of rows
                 df_j = self.df.iloc[j]
-
-                # print ('iloc[j]')
-                # print (df_j)
-                # print (type(df_j))
-                # print(np.array(df_i), np.array(df_j), ops)
-                # print('**')
-                # print(*[np.array(df_i), np.array(df_j), ops])
-                # print('zip')
-                # print(zip(*[np.array(df_i), np.array(df_j), ops]))
-                # print('list')
-                # print(list(zip(*[np.array(df_i), np.array(df_j), ops])))
                 row = [np.absolute(fn(a, b)) for a, b, fn in list(zip(*[np.array(df_i), np.array(df_j), ops]))]
                 try:
                     self.__insert_in_df(k, row)

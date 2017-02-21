@@ -19,7 +19,6 @@
     <script type="text/javascript" src="static/js/app/app.js"></script>
     <script type="text/javascript" src="static/js/app/app.directive.js"></script>
     <script type="text/javascript" src="static/js/app/app.controller.js"></script>
-
 </head>
 <body ng-app="rfdApp" ng-strict-di ng-controller="appController">
 <nav class="white" role="navigation">
@@ -57,7 +56,8 @@
                     <div class="file-field input-field">
                         <div class="btn">
                             <span>Select CSV</span>
-                            <input type="file" ng-model="file" id="fileupload" name="file" required ngf-model-invalid="errorFile" ngf-accept="text/csv" ngf-select="options=true">
+                            <input type="file" ng-model="file" id="fileupload" name="file" required
+                                   ngf-model-invalid="errorFile" ngf-accept="text/csv" ngf-select="options=true">
                         </div>
                         <div class="file-path-wrapper">
                             <input id="file-path" class="file-path validate" type="text">
@@ -106,15 +106,18 @@
                 <div class="row">
                     <p>
                     <p>
-                        <input ng-model="model.selection" name="selection" type="radio" id="opt1" value="0" checked ng-click="resetComb()"/>
+                        <input ng-model="model.selection" name="selection" type="radio" id="opt1" value="0" checked
+                               ng-click="resetComb()"/>
                         <label for="opt1">Select RHS only</label>
                     </p>
                     <p>
-                        <input ng-model="model.selection" name="selection" type="radio" id="opt2" value="1" ng-click="resetComb()"/>
+                        <input ng-model="model.selection" name="selection" type="radio" id="opt2" value="1"
+                               ng-click="resetComb()"/>
                         <label for="opt2">Custom selection</label>
                     </p>
                     <p>
-                        <input ng-model="model.selection" name="selection" type="radio" id="opt3" value="2" ng-click="resetComb()"/>
+                        <input ng-model="model.selection" name="selection" type="radio" id="opt3" value="2"
+                               ng-click="resetComb()"/>
                         <label for="opt3">All combinations</label>
                     </p>
                 </div>
@@ -129,21 +132,23 @@
                 </div>
             </div>
             <h5>Preview</h5>
-            <h6 ng-show="model.selection<2">Set the LHS/RHS attributes using the <a class="btn infobtn disabled">grey buttons</a></h6>
+            <h6 ng-show="model.selection<2">Set the LHS/RHS attributes using the <a class="btn infobtn disabled">grey
+                buttons</a></h6>
             <br>
             <div id="table">
                 <table class='striped'>
                     <thead>
                     <tr>
                         <th ng-repeat="th in preview.ths track by $index">[[th]]
-                            <p><span ng-show="parseInt(model.selection) < 2"><a class='waves-effect waves-light btn rhs '
-                                                                             ng-class="{'unchecked':  (model.sides.rhs.indexOf($index)===-1)}"
-                                                                             data-id='[[$index]]' data-side='rhs'
-                                                                             ng-click="setRhs($index)">rhs</a></span>
-                            <span ng-show="model.selection == '1'"><a class='waves-effect waves-light btn lhs '
-                                                                      ng-class="{'unchecked': (model.sides.lhs.indexOf($index)===-1)}"
-                                                                      data-id='[[$index]]' data-side='lhs'
-                                                                      ng-click="toggleLhs($index)">lhs</a></span>
+                            <p><span ng-show="parseInt(model.selection) < 2"><a
+                                    class='waves-effect waves-light btn rhs '
+                                    ng-class="{'unchecked':  (model.sides.rhs.indexOf($index)===-1)}"
+                                    data-id='[[$index]]' data-side='rhs'
+                                    ng-click="setRhs($index)">rhs</a></span>
+                                <span ng-show="model.selection == '1'"><a class='waves-effect waves-light btn lhs '
+                                                                          ng-class="{'unchecked': (model.sides.lhs.indexOf($index)===-1)}"
+                                                                          data-id='[[$index]]' data-side='lhs'
+                                                                          ng-click="toggleLhs($index)">lhs</a></span>
                             </p>
                         </th>
                     </tr>
@@ -162,10 +167,10 @@
                 </a>
             </div>
             <div ng-show="file.progress >= 0">
-            <span class="progress" >
+            <span class="progress">
                 <div style="width:[[file.progress]] + '%'" ng-bind="file.progress + '%'"></div>
             </span>
-            <p>Loading file [[file.progress]] %</p>
+                <p>Loading file [[file.progress]] %</p>
             </div>
 
             <div id="error" ng-show="error">
@@ -179,31 +184,40 @@
         </div>
     </form>
     <div class="center" ng-show="loading">
-        <preloader />
+        <preloader/>
     </div>
     <div class="section result" id="step3" style="" ng-show="result && !error">
         <div id="result">
-
             <div class="result_total">
                 <p>Difference matrix computation time: <span class="time sec">[[result.mtxtime]]s</span></p>
                 <p>Total computation time: <span class="time sec">[[result.total]]s</span></p>
             </div>
-            <div ng-repeat="(comb,table) in result.data track by $index">
-                <p ng-repeat="(k,v) in getComb(comb)">
-                    <span class="[[k]]"> [[k]] </span>
-                    <span class="combs">[[v]]</span>
-                </p>
-                <p>
-                    <span class="time"> RDF discovery time:</span> <span class="time sec">[[result.timing.get($index)]]s</span>
-                </p>
-                <table class="striped">
-                    <tbody>
-                    <tr ng-repeat="tr in table">
-                        <td class="[[($index==tr.length-1)?'td_rhs':'']]"ng-repeat="td in tr track by $index">[[td]]</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+            <ul class="collapsible popout" data-collapsible="expandable" watch>
+                <li ng-repeat="(comb,table) in result.data track by $index" >
+                    <div class="collapsible-header">
+                        <p ng-repeat="(k,v) in getComb(comb)" class="combs">
+                            <span class="[[k]]"> [[k]] </span>
+                            <span class="indexes">[[v]]</span>
+                        </p>
+                         <p>
+                            <span class="time"> RDF discovery time:</span> <span class="time sec">[[result.timing.get($index)]]s</span>
+                        </p>
+                        <p class="details"><i class="material-icons pull-right">list</i> Details</p>
+                    </div>
+                    <div class="collapsible-body">
+                        <table class="striped">
+                            <tbody>
+                            <tr ng-repeat="tr in table">
+                                <td ng-repeat="td in tr track by $index">
+                                    [[td]]
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </li>
+            </ul>
+
 
         </div>
     </div>
