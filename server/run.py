@@ -35,6 +35,7 @@ def main(csv_file, post_metadata):
         with Timer() as mtxtime:
             try:
                 diff_mtx = DiffMatrix(csv_file, **args)
+                labels = diff_mtx.get_labels()
             except Exception as e:
                 return {"error":str(e.__doc__)}
                 #return {"error":str(traceback.format_exc())}
@@ -50,12 +51,15 @@ def main(csv_file, post_metadata):
                     rhs = r[[0]]
                     lhs = r.drop([r.columns[0]], axis=1)
                     result_df = pnd.concat([lhs, rhs], axis=1)
-                    response['result'][json.dumps(combination)] = result_df.to_csv(sep=params['separator'])
+                    response['result'][json.dumps(name_combination(labels, combination))] = result_df.to_csv(sep=params['separator'])
                 except Exception as e:
                     return {"error": str(e.__doc__)}
             response['timing'].append("{:.2f}".format(c.interval))
     response['total'] = "{:.2f}".format(total.interval)
     return response
+
+def name_combination(names, comb):
+    return {'lhs': list(names[comb['lhs']]), 'rhs': list(names[comb['rhs']])}
 
 def param_to_dict(p):
     """

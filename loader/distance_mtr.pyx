@@ -39,6 +39,7 @@ cdef class DiffMatrix:
     cdef object sep
     cdef object missing
     cdef object first_col_header
+    cdef object labels
 
 
     def __init__(self, path, semantic=True, datetime=False, sep=';', missing='?', first_col_header=0, index_col=False):
@@ -97,6 +98,7 @@ cdef class DiffMatrix:
         """
         self.df = pnd.read_csv(self.path, sep=self.sep, header=self.first_col_header, index_col=index_col, engine='c',
                                na_values=['', self.missing], parse_dates=self.datetime)
+        self.labels = self.df.columns.values
         return self.df
 
     def split_sides(self, hss : dict) -> pnd.DataFrame:
@@ -139,9 +141,18 @@ cdef class DiffMatrix:
             df_i = self.df.iloc[i]
             for j in range(i+1, n_row):  # iterate on each pair of rows
                 df_j = self.df.iloc[j]
-                row = [np.absolute(fn(a, b))
-                       for a, b, fn
-                       in list(zip(*[np.array(df_i), np.array(df_j), ops]))]
+
+                # print ('iloc[j]')
+                # print (df_j)
+                # print (type(df_j))
+                # print(np.array(df_i), np.array(df_j), ops)
+                # print('**')
+                # print(*[np.array(df_i), np.array(df_j), ops])
+                # print('zip')
+                # print(zip(*[np.array(df_i), np.array(df_j), ops]))
+                # print('list')
+                # print(list(zip(*[np.array(df_i), np.array(df_j), ops])))
+                row = [np.absolute(fn(a, b)) for a, b, fn in list(zip(*[np.array(df_i), np.array(df_j), ops]))]
                 try:
                     self.__insert_in_df(k, row)
                 except IndexError as iex:
@@ -270,6 +281,8 @@ cdef class DiffMatrix:
             self.semantic_diff_dic[(b, a)] = 1 - t
             return 1 - t
 
+    cpdef object get_labels(self):
+        return self.labels
 
 cdef float __date_diff__(a: pnd.tslib.Timestamp, b: pnd.tslib.Timestamp):
     """
@@ -335,3 +348,5 @@ cdef float __subnum__(float a, float b):
     if isinstance(b, float) and np.isnan(b):
         return np.inf
     return a - b
+
+
