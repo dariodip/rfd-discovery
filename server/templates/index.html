@@ -1,251 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
-    <title>rdf discovery</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="static/css/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection"/>
-    <link href="static/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
-    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <script src="static/js/lib/materialize.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-materialize/0.2.2/angular-materialize.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.6.2/angular-sanitize.min.js"></script>
-    <script src="static/js/lib/ng-file-upload.js"></script>
-    <script src="static/js/lib/ng-file-upload-shim.js"></script>
-    <script src="static/js/lib/file-wrapper.min.js"></script>
-    <script src="static/js/lib/line-navigator.min.js"></script>
-    <script type="text/javascript" src="static/js/app/app.js"></script>
-    <script type="text/javascript" src="static/js/app/app.directive.js"></script>
-    <script type="text/javascript" src="static/js/app/app.controller.js"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no" />
+	<title>rdf discovery</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-materialize/0.2.2/angular-materialize.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.6.2/angular-sanitize.min.js"></script>
+	<script src="static/js/assets/app.min.js"></script>
+	<script src="static/js/assets/app.lib.min.js"></script>
+	<link href="static/css/styles.min.css" type="text/css" rel="stylesheet" media="screen,projection" />
 </head>
 <body ng-app="rfdApp" ng-strict-di ng-controller="appController">
-<nav class="white" role="navigation">
-    <div class="nav-wrapper container">
-        <a id="logo-container" href="#" class="brand-logo">RDF Discovery</a>
-        <ul class="right hide-on-med-and-down">
-            <li><a id="di_logo" href="http://www.di.unisa.it/"><img src="static/images/di_logo.png"/></a></li>
-        </ul>
-        <ul id="nav-mobile" class="side-nav">
-            <li><a href="http://www.di.unisa.it/"><img src="static/images/di_logo.png"/></a></li>
-        </ul>
-        <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
-    </div>
-</nav>
-<div class="parallax-container">
-    <div class="section no-pad-bot">
-        <div class="container">
-            <br>
-            <h1 class="header center white-text"><img src="static/images/pythonlogo.png"/> <br> Relaxed Functional
+	<nav class="white" role="navigation">
+		<div class="nav-wrapper container">
+			<a id="logo-container" href="#" class="brand-logo">RDF Discovery</a>
+			<ul class="right hide-on-med-and-down">
+				<li>
+					<a id="di_logo" href="http://www.di.unisa.it/"><img src="static/images/di_logo.png" />
+					</a>
+				</li>
+			</ul>
+			<ul id="nav-mobile" class="side-nav">
+				<li>
+					<a href="http://www.di.unisa.it/"><img src="static/images/di_logo.png" />
+					</a>
+				</li>
+			</ul>
+			<a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i>
+			</a>
+		</div>
+	</nav>
+	<div class="parallax-container">
+		<div class="section no-pad-bot">
+			<div class="container">
+				<br>
+				<h1 class="header center white-text"><img src="static/images/pythonlogo.png"/> <br> Relaxed Functional
                 Dependencies Discovery</h1>
-            <div class="row center">
-                <h5 class="header col s12 white-text"></h5>
-            </div>
-            <br>
-        </div>
-    </div>
-    <div parallax><img src="static/images/neural.png" alt="neural network"></div>
-</div>
-<div class="container pad">
-    <form action="#" id="file-form" enctype="multipart/form-data">
-        <div class="section" id="step1">
-            <div class="row">
-                <div class="col s12">
+				<div class="row center">
+					<h5 class="header col s12 white-text"></h5>
+				</div>
+				<br>
+			</div>
+		</div>
+		<div parallax><img src="static/images/neural.png" alt="neural network">
+		</div>
+	</div>
+	<div class="container pad">
+		<form action="#" id="file-form" enctype="multipart/form-data">
+			<div class="section" id="step1">
+				<div class="row">
+					<div class="col s12">
 
-                    <div class="file-field input-field">
-                        <div class="btn">
-                            <span>Select CSV</span>
-                            <input type="file" ng-model="file" id="fileupload" name="file" required
-                                   ngf-model-invalid="errorFile" ngf-accept="text/csv" ngf-select="options=true">
-                        </div>
-                        <div class="file-path-wrapper">
-                            <input id="file-path" class="file-path validate" type="text">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="section preview" id="step2" ng-show="options">
-            <div class="card-panel">
-                <div class="row">
-                    <div class="col s12">
-                        <h5>Details</h5>
-                        <div ng-bind-html="details"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="card-panel">
-                <div class="row">
-                    <div class="col s12">
-                        <h5>Options</h5>
-                    </div>
-                    <div class="col s6">
-                        <input type="checkbox" id="semantic" value="true" ng-model="model.semantic"/>
-                        <label for="semantic">Semantic</label>
-                    </div>
-                    <div class="col s6">
-                        <input type="checkbox" id="header" ng-model="model.header" ng-change="setTableData()"/>
-                        <label for="header">Header</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class=" col s6">
-                        <div input-field>
-                            <input type="text" ng-model="model.separator" length="3" ng-change="setTableData()"/>
-                            <label>Separator</label>
-                        </div>
-                    </div>
-                    <div class="col s6">
-                        <div input-field>
-                            <input type="text" ng-model="model.missing" length="3">
-                            <label>Missing value placeholder</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <p>
-                    <p>
-                        <input ng-model="model.selection" name="selection" type="radio" id="opt1" value="0" checked
-                               ng-click="resetComb()"/>
-                        <label for="opt1">Select RHS only</label>
-                    </p>
-                    <p>
-                        <input ng-model="model.selection" name="selection" type="radio" id="opt2" value="1"
-                               ng-click="resetComb()"/>
-                        <label for="opt2">Custom selection</label>
-                    </p>
-                    <p>
-                        <input ng-model="model.selection" name="selection" type="radio" id="opt3" value="2"
-                               ng-click="resetComb()"/>
-                        <label for="opt3">All combinations</label>
-                    </p>
-                </div>
-                <div class="row">
-                    <div input-field>
-                        <select class="" ng-model="model.dateSelect" material-select multiple watch>
-                            <option disabled="disabled">Select a field</option>
-                            <option ng-repeat="t in preview.ths track by $index" value="[[$index]]">[[t]]</option>
-                        </select>
-                        <label>Datetime field</label>
-                    </div>
-                </div>
-            </div>
-            <h5>Preview</h5>
-            <h6 ng-show="model.selection<2">Set the LHS/RHS attributes using the <a class="btn infobtn disabled">grey
+						<div class="file-field input-field">
+							<div class="btn">
+								<span>Select CSV</span>
+								<input type="file" ng-model="file" id="fileupload" name="file" required ngf-model-invalid="errorFile" ngf-accept="text/csv" ngf-select="options=true">
+							</div>
+							<div class="file-path-wrapper">
+								<input id="file-path" class="file-path validate" type="text">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="section preview" id="step2" ng-show="options">
+				<div class="card-panel">
+					<div class="row">
+						<div class="col s12">
+							<h5>Details</h5>
+							<div ng-bind-html="details"></div>
+						</div>
+					</div>
+				</div>
+				<div class="card-panel">
+					<div class="row">
+						<div class="col s12">
+							<h5>Options</h5>
+						</div>
+						<div class="col s6">
+							<input type="checkbox" id="semantic" value="true" ng-model="model.semantic" />
+							<label for="semantic">Semantic</label>
+						</div>
+						<div class="col s6">
+							<input type="checkbox" id="header" ng-model="model.header" ng-change="setTableData()" />
+							<label for="header">Header</label>
+						</div>
+					</div>
+					<div class="row">
+						<div class=" col s6">
+							<div input-field>
+								<input type="text" ng-model="model.separator" length="3" ng-change="setTableData()" />
+								<label>Separator</label>
+							</div>
+						</div>
+						<div class="col s6">
+							<div input-field>
+								<input type="text" ng-model="model.missing" length="3">
+								<label>Missing value placeholder</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<p>
+							<p>
+								<input ng-model="model.selection" name="selection" type="radio" id="opt1" value="0" checked ng-click="resetComb()" />
+								<label for="opt1">Select RHS only</label>
+							</p>
+							<p>
+								<input ng-model="model.selection" name="selection" type="radio" id="opt2" value="1" ng-click="resetComb()" />
+								<label for="opt2">Custom selection</label>
+							</p>
+							<p>
+								<input ng-model="model.selection" name="selection" type="radio" id="opt3" value="2" ng-click="resetComb()" />
+								<label for="opt3">All combinations</label>
+							</p>
+					</div>
+					<div class="row">
+						<div input-field>
+							<select class="" ng-model="model.dateSelect" material-select multiple watch>
+								<option disabled="disabled">Select a field</option>
+								<option ng-repeat="t in preview.ths track by $index" value="[[$index]]">[[t]]</option>
+							</select>
+							<label>Datetime field</label>
+						</div>
+					</div>
+				</div>
+				<h5>Preview</h5>
+				<h6 ng-show="model.selection<2">Set the LHS/RHS attributes using the <a class="btn infobtn disabled">grey
                 buttons</a></h6>
-            <br>
-            <div id="table">
-                <table class='striped'>
-                    <thead>
-                    <tr>
-                        <th ng-repeat="th in preview.ths track by $index">[[th]]
-                            <p><span ng-show="parseInt(model.selection) < 2"><a
+				<br>
+				<div id="table">
+					<table class='striped'>
+						<thead>
+							<tr>
+								<th ng-repeat="th in preview.ths track by $index">[[th]]
+									<p><span ng-show="parseInt(model.selection) < 2"><a
                                     class='waves-effect waves-light btn rhs '
                                     ng-class="{'unchecked':  (model.sides.rhs.indexOf($index)===-1)}"
                                     data-id='[[$index]]' data-side='rhs'
                                     ng-click="setRhs($index)">rhs</a></span>
-                                <span ng-show="model.selection == '1'"><a class='waves-effect waves-light btn lhs '
+										<span ng-show="model.selection == '1'"><a class='waves-effect waves-light btn lhs '
                                                                           ng-class="{'unchecked': (model.sides.lhs.indexOf($index)===-1)}"
                                                                           data-id='[[$index]]' data-side='lhs'
                                                                           ng-click="toggleLhs($index)">lhs</a></span>
-                            </p>
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="tr in preview.trs">
-                        <td ng-repeat="td in tr track by $index">[[td]]</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-            <br>
-            <div class="center">
-                <a class="waves-effect waves-light btn-large center" ng-click="submit()">
-                    <i class="material-icons right">send</i> Run
-                </a>
-            </div>
-            <div ng-show="file.progress >= 0">
-            <span class="progress">
+									</p>
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="tr in preview.trs">
+								<td ng-repeat="td in tr track by $index">[[td]]</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<br>
+				<div class="center">
+					<a class="waves-effect waves-light btn-large center" ng-click="submit()">
+						<i class="material-icons right">send</i> Run
+					</a>
+				</div>
+				<div ng-show="file.progress >= 0">
+					<span class="progress">
                 <div style="width:[[file.progress]] + '%'" ng-bind="file.progress + '%'"></div>
             </span>
-                <p>Loading file [[file.progress]] %</p>
-            </div>
+					<p>Loading file [[file.progress]] %</p>
+				</div>
 
-            <div id="error" ng-show="error">
-                <div class="card-panel red lighten-1 white-text">
-                    <div class="row">
-                        <div class="col s12" id="message"><i class="material-icons">warning</i> [[error]]
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form>
-    <div class="center" ng-show="loading">
-        <preloader/>
-    </div>
-    <div class="section result" id="step3" style="" ng-show="result && !error">
-        <div id="result">
-            <div class="result_total">
-                <p>Difference matrix computation time: <span class="time sec">[[result.mtxtime]]s</span></p>
-                <p>Total computation time: <span class="time sec">[[result.total]]s</span></p>
-            </div>
-            <ul class="collapsible popout" data-collapsible="expandable" watch>
-                <li ng-repeat="(comb,table) in result.data track by $index" >
-                    <div class="collapsible-header">
-                        <p ng-repeat="(k,v) in getComb(comb)" class="combs">
-                            <span class="[[k]]"> [[k]] </span>
-                            <span class="indexes">[[v]]</span>
-                        </p>
-                         <p>
-                            <span class="time"> RDF discovery time:</span> <span class="time sec">[[result.timing.get($index)]]s</span>
-                        </p>
-                        <p class="details"><i class="material-icons pull-right">list</i> Details</p>
-                    </div>
-                    <div class="collapsible-body">
-                        <table class="striped">
-                            <tbody>
-                            <tr ng-repeat="tr in table">
-                                <td ng-repeat="td in tr track by $index">
-                                    [[td]]
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </li>
-            </ul>
+				<div id="error" ng-show="error">
+					<div class="card-panel red lighten-1 white-text">
+						<div class="row">
+							<div class="col s12" id="message"><i class="material-icons">warning</i> [[error]]
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+		<div class="center" ng-show="loading">
+			<preloader/>
+		</div>
+		<div class="section result" id="step3" style="" ng-show="result && !error">
+			<div id="result">
+				<div class="result_total">
+					<p>Difference matrix computation time:
+						<span class="time sec">[[result.mtxtime]]s</span>
+					</p>
+					<p>Total computation time: <span class="time sec">[[result.total]]s</span>
+					</p>
+				</div>
+				<ul class="collapsible popout" data-collapsible="expandable" watch>
+					<li ng-repeat="(comb,table) in result.data track by $index">
+						<div class="collapsible-header">
+							<p ng-repeat="(k,v) in getComb(comb)" class="combs">
+								<span class="[[k]]"> [[k]] </span>
+								<span class="indexes">[[v]]</span>
+							</p>
+							<p>
+								<span class="time"> RDF discovery time:</span> <span class="time sec">[[result.timing.get($index)]]s</span>
+							</p>
+							<p class="details"><i class="material-icons pull-right">list</i> Details</p>
+						</div>
+						<div class="collapsible-body">
+							<table class="striped">
+								<tbody>
+									<tr ng-repeat="tr in table">
+										<td ng-repeat="td in tr track by $index">
+											[[td]]
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
 
-
-        </div>
-    </div>
-</div>
-
-<footer class="page-footer teal">
-    <div class="container">
-        <div class="row">
-            <div class="col s12">
-                <h5 class="white-text">Contacts</h5>
-                <div class="grey-text text-lighten-4">
-                    <ul>
-                        <li><a class="white-text" href="https://www.linkedin.com/in/antonio-altamura-26ab85136/en">Altamura
-                            Antonio</a></li>
-                        <li><a class="white-text" href="https://it.linkedin.com/in/dario-di-pasquale">Di Pasquale
+	<footer class="page-footer teal">
+		<div class="container">
+			<div class="row">
+				<div class="col s12">
+					<h5 class="white-text">Contacts</h5>
+					<div class="grey-text text-lighten-4">
+						<ul>
+							<li><a class="white-text" href="https://www.linkedin.com/in/antonio-altamura-26ab85136/en">Altamura
+                            Antonio</a>
+							</li>
+							<li><a class="white-text" href="https://it.linkedin.com/in/dario-di-pasquale">Di Pasquale
                             Dario</a>
-                        </li>
-                        <li><a class="white-text" href="https://www.linkedin.com/in/mattia-tomeo-b71aa6130/en">Tomeo
-                            Mattia</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="footer-copyright">
-        <div class="container">
-        </div>
-    </div>
-</footer>
+							</li>
+							<li><a class="white-text" href="https://www.linkedin.com/in/mattia-tomeo-b71aa6130/en">Tomeo
+                            Mattia</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="footer-copyright">
+			<div class="container">
+			</div>
+		</div>
+	</footer>
 </body>
 </html>
