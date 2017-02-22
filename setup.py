@@ -1,6 +1,5 @@
 from setuptools import setup
 from pip.req import parse_requirements
-import nltk
 
 """Install the required packages and the lexical database WordNet"""
 
@@ -15,4 +14,5 @@ setup(
     license="MIT",
 )
 
+import nltk
 nltk.download('wordnet')
