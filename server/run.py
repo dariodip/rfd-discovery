@@ -1,4 +1,6 @@
+import os
 import sys
+sys.path.append(os.path.abspath(".."))
 import utils.utils as ut
 from loader.distance_mtr import DiffMatrix
 from dominance.dominance_tools import RFDDiscovery
