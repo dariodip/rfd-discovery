@@ -20,4 +20,6 @@ where *[port]* is an integer representing the port which the server is listening
 
 If you don't specify port it will use the default port 5000.
 
+You need a directory called upload in the directory resources.
+
 For example, to see your web interface working on default port, visit [http://localhost:5000](http://localhost:5000).
