@@ -33,10 +33,10 @@ instead of giving a fixed threshold on input and discovery all the RDFs, this me
  - [Usage](#usage)
  
 ## Requirements
-rfd-discovery is developed using [Python 3.5](http://www.python.it/) and [Cython 0.25.2](http://cython.org/),
+rfd-discovery is developed using **[Python 3.5](http://www.python.it/)**, a C compiler ([gcc](https://gcc.gnu.org/) or [Visual Studio C++](https://www.visualstudio.com/vs/cplusplus/)) and [Cython 0.25.2](http://cython.org/),
  the latter is used to improve time and memory consuming in CPU-bound operations. 
  
- For running rdf-discovery correctly, you have to install **Python 3.5** (or high) and **Cython 0.25** (or high).
+ For running rdf-discovery correctly, you have to install **Python 3.5** and **Cython 0.25**.
  For installing correctly all the requirements you have to install **pip 9.0** (or high).
  
  rdf-discovery use the following Python's libraries:<br>
@@ -52,12 +52,34 @@ rfd-discovery is developed using [Python 3.5](http://www.python.it/) and [Cython
 
 ✛these libraries are part of [SciPy stack](https://www.scipy.org/index.html) 
 ## Setup
-In order to install rfd-discovery and all his requirements, run the following:
+In order to install rfd-discovery and all his requirements you have to create a virtual environment using [venv](https://virtualenv.pypa.io/en/stable/) on Python 3.5.
+To install *venv*, run the following:
 
-`python setup.py install`
+`[sudo] pip3 install virtualenv` on Linux/MacOS
+or
+`pip install virtualenv` using prompt as administrator on Windows.
+
+To create a virtual environment, in the main directory of the project run:
+
+`virtualenv venv`.
+
+To activate the virtual environment, in the main directory on the project run:
+
+`source venv/bin/activate` on Linux/MacOS
+or
+`venv\Scripts\activate` on Windows.
+
+You can check if the virtual environmnent is activate, checking if the command prompt has the prefix `(venv)`.
+
+To install all the requirements, run the following:
+
+`pip install -r requirements.txt`
 
 This should install, using [pip](https://pypi.python.org/pypi/pip), all the [requirements](#requirements). 
 
+To install WordNet, run:
+
+`python setup.py install`.
 
 ## Build
 
