@@ -5,8 +5,8 @@ cdef extern from "levenshtein.c":
 
 cpdef int lev_distance(str a, str b):
     """
-    Wrapper for the function levenshtein who calculate the edit distance between
-    two string a and b. It was defined to allow the execution of the C version of
+    Wrapper for the function levenshtein that calculates the edit distance between
+    two strings a and b. It was defined to allow the execution of the C version of
     levenshtein in Cython code.
     If one string is empty, the function will return the length of the second one.
     If both strings are empty, the function will return 0.

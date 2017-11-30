@@ -14,12 +14,12 @@ NAN_PH = str(np.nan)
 
 cdef class RFDDiscovery(object):
     """
-    Class used to find the Relaxed Functional Dependencies RFDs of a given distance matrix. It allow to use different algorithm.
-    It take a pandas' data frame containing a distance matrix obtained from other sources, like the class DiffMatrix in the module loader.
-    Currently it contain an approximated version of the algorithm, called standard_algorithm, used to find the RFDs that besides return the found RFDs,
-    it allow to print the results on the standard output. It work on the distance matrix by dividing it in range, where the range i
-    contain all the row with value on the RHS equals to i. Another important structure is the pool. Each range i contain a pool,
-    with an important property: each row in the pool does not dominate any row with distance on the RHS major or equal to i.
+    Class used to find the Relaxed Functional Dependencies RFDs of a given distance matrix. It allows to use different algorithms.
+    It takes a pandas' data frame containing a distance matrix obtained from other sources, like the class DiffMatrix in the module loader.
+    Currently it contains an approximated version of the algorithm, called standard_algorithm, used to find the RFDs that besides returns the found RFDs,
+    it allows to print the results on the standard output. It works on the distance matrix by dividing it in ranges, where the range i
+    contains all the rows with value on the RHS equals to i. Another important structure is the pool. Each range i contains a pool,
+    with an important property: each row in the pool does not dominate any row with distance on the RHS greater or equal to i.
     """
     cdef object pool
     cdef object on_distance_dom
@@ -45,37 +45,38 @@ cdef class RFDDiscovery(object):
         :type print_res: bool
         """
         self.compiled = cython.compiled
-        """Boolean value, True if the code was compiled with Cython, False otherwise"""
+        """Boolean value, True if the code was compiled using Cython, False otherwise"""
         self.pool = dict()
-        """Dictionary containing the row's pool"""
+        """Dictionary containing the rows' pool"""
         self.min_vector = None
-        """List containing for each attribute the global minimun value"""
+        """List containing, for each attribute ,the global minimum value"""
         self.on_minimum_df = None
         """
-        Pandas' data frame containing, for each range, the refined version where each row in the range has on its attributes the value NaN if the attribute's
-        value is not equal to the attribute's local minimun it found up to this range, the original value otherwise.
+        Pandas' data frame containing, for each range, the refined version where each row in the range has on its attributes the value NaN if the attributes'
+        value is not equal to the attribute's local minimum it found up to this range, the original value otherwise.
         """
         self.rfds = None
         """Data frame containing the found RFDs"""
         self.print_res = print_res
-        """Boolean value, True if we want to print the result in the standard output, False otherwise."""
+        """Boolean value, True if we want to print the results in the standard output, False otherwise."""
         self.distance_matrix = dist_matrix
-        """The distance matrix from where we want to find the RFDs"""
+        """The distance matrix on which we want to find the RFDs"""
         self.rfd_to_add = set()
         """Buffer containing unique RFDs discovered for a given distance."""
         self.rfd_count = 0
-        """Number of found RFD"""
+        """Number of found RFDs"""
         self.median_df = dist_matrix.median(axis=0, numeric_only=True)
-        """Attributes containing the attribute's values threshold"""
+        """Median of the Distance matrix"""
 
 
     cpdef object get_rfds(self, object dominance_funct, hss: dict):
         """
-        This method called the dominance function given as parameter on the given division on rhs and lhs.
+        This method calls the dominance function, given as a parameter, on the given partition of rhs and lhs.
         :param dominance_funct: dominance function used to find the RFDs on the distance matrix
         :type dominance_funct: function
-        :param hss: dictionary containing the division on rhs and lhs of the attribute. It contain two key 'lhs' and 'rhs', where 'lhs' contains valid columns indexes of attribute to put on the lhs and
-        'rhs' contain a valid index of an attribute to put on the rhs.
+        :param hss: dictionary containing the partition of rhs and lhs of the attributes. 
+        It contains two keys 'lhs' and 'rhs', where 'lhs' contains valid columns' indexes of the attributes to put on 
+        the lhs and 'rhs' contains a valid index of an attribute to put on the rhs.
         :type hss: dict
         :return: the found RFDs
         :rtype: pandas.core.frame.DataFrame
@@ -85,17 +86,19 @@ cdef class RFDDiscovery(object):
 
     cpdef object standard_algorithm(self, d_mtx: pnd.DataFrame, lhs : list, rhs : list):
         """
-        This method execute the approximated algorithm on the given distance matrix. First of all, the algorithm takes all the rows
-        with distance on the RHS greater than the threshold and, considering them as belonging to a single range, create the initial pool.
-        After this initial step, it starts to find the RFDs from rows with distance on the RHS minor or equal to the threshold. It use an iterative method where
-        for each iteration it work on a particular range i. During one iteration, it update the pool, refine the range i and
-        find the RFDs on the current range. If the value of the instance attribute print_res is True, at the end of the algorithm
-        it will print on the standard output the data frame containing the RFDs, the pool of the range 0 containing only rows that
+        This method executes the approximated algorithm on the given distance matrix. 
+        First of all, the algorithm takes all the rows with distance on the RHS greater than the threshold and, 
+        considering them as belonging to a single range, creates the initial pool.
+        After this initial step, it starts finding the RFDs from rows with distance on the RHS less or equal that the threshold.
+        It uses an iterative method where, for each iteration, it works on a particular range i.
+        During one iteration, it updates the pool, refines the range i and finds the RFDs on the current range. 
+        If the value of the instance attribute print_res is True, at the end of the algorithm it will print on the 
+        standard output the data frame containing the RFDs, the pool of the range 0 containing only rows that
         does not dominate any other rows in the distance matrix and the distance matrix's rows that during an iteration on the
         relative range, they were selected to be inserted in the pool.
-        It is important to put on lhs and rhs the valid attributes' indexes used on the lhs and rhs on the distance matrix, because they are used to
-        initialize correctly the instance variables min_vector and on_minimun_df.
-        :param d_mtx: the distance matrix from where the RFDs must be found
+        It is important to put on lhs and rhs the valid attributes' indexes used on the lhs and rhs on the distance matrix,
+        because they are used to initialize correctly the instance variables min_vector and on_minimun_df.
+        :param d_mtx: the distance matrix on which the RFDs must be found
         :type d_mtx: pandas.core.frame.DataFrame
         :param lhs: list of valid columns indexes of attributes positioned on the lhs of the distance matrix
         :type lhs: list
@@ -129,7 +132,7 @@ cdef class RFDDiscovery(object):
         self.min_vector = np.array(pnd.DataFrame.from_dict(self.pool, orient='index').min().tolist())
         for dist in distance_values:  # iterate on each different distance
             pool_rows_to_delete = set()  # rows to delete from the pool
-            pool_rows_to_add = dict()  # row to add into the pool
+            pool_rows_to_add = dict()  # rows to add into the pool
             # filter the DF taking all rows into a specific distance range
             df_distance_range = d_mtx[d_mtx.RHS == dist]
             if df_distance_range.empty:
@@ -174,23 +177,23 @@ cdef class RFDDiscovery(object):
 
     cpdef is_compiled(self):
         """
-        Return the value of the instance variable compiled.
-        :return: True if the code is compiled, False if it was interpreted
+        Returns the value of the instance variable compiled.
+        :return: True if the code is compiled, False if it is interpreted
         :rtype: bool
         """
         return self.compiled
 
     cdef void __check_min(self, df_act_dist: pnd.DataFrame, double dist):
         """
-        On a range dist, it calculate the refined version and add it on the data frame
-        on_minimun_df. Recalling, for each range, check whether one of its rows' values is minimum on row's pool.
-        Add that minimum in self.min_vector and in self.on_minimum_df
+        On a range dist, it calculates the refined version and adds it on the data frame on_minimun_df. 
+        Recalling, for each range, checks whether one of its rows' values is minimum on row's pool.
+        Adds that minimum in self.min_vector and in self.on_minimum_df
         :param df_act_dist: portion of the distance matrix corresponding to the distance dist
         :type df_act_dist: pandas.core.frame.DataFrame
         :param dist: current distance
         :type dist: double
         """
-        act_min = df_act_dist.min()  # range minumum
+        act_min = df_act_dist.min()  # range minimum
         compare = act_min < self.min_vector  # which components of rm are lt global mimimum?
         #update global minimum
         self.min_vector = np.array([self.min_vector[i] if not compare[i] else act_min[i] for i in range(len(act_min))])
@@ -209,8 +212,9 @@ cdef class RFDDiscovery(object):
     cdef __find_rfd(self, current_df: pnd.DataFrame, double dist, old_pool: dict):
         """
         Given the refined range for the distance dist, the pool before being upgraded with the non dominant row found on distance dist
-        and the current distance dist, it find the RFDs associated to this distance. For each row, check the number of NaN values in
-        that row, and according to this number choose one of the three path of the algorithm.
+        and the current distance dist, it finds the RFDs associated to this distance. 
+        For each row, checks the number of NaN values in that row, and according to this number chooses one of the three 
+        paths of the algorithm.
         :param current_df: portion of the data frame formed by the rows in the refined range with distance equal to dist
         :type current_df: pandas.core.frame.DataFrame
         :param dist: current distance
@@ -243,13 +247,13 @@ cdef class RFDDiscovery(object):
 
     cdef cython.bint __check_dominance(self, y: list, rows_to_delete: set):
         """
-        Given a row y, this method check if y dominate any row in the pool. When it find
-        some row x that dominate y, it will be added to the set rows_to_delete containing the
+        Given a row y, this method checks if y dominate any row in the pool. When it finds
+        some row x that dominate y, it puts that row to the set rows_to_delete containing the
         pool's rows which must be removed.
         Recalling: X dominates Y iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0
         :param y: current row to check
         :type y: list
-        :param rows_to_delete: a set containing pool's row to be removed
+        :param rows_to_delete: a set containing pool's rows to be removed
         :type rows_to_delete: set
         :return: True if Y does not dominate any row in the pool, False otherwise.
         :rtype: cython.bint
@@ -268,13 +272,13 @@ cdef class RFDDiscovery(object):
 
     cdef cython.bint __check_dominance_single(self, y: np.array, old_pool: dict, double dist):
         """
-        Check, for each single value (previously set to nan), if it dominates another value
-        in the pool old_pool. For each row x in the old pool, create a new row called new_y with
+        Checks, for each single value (previously set to nan), if it dominates another value
+        in the pool old_pool. For each row x in the old pool, creates a new row called new_y with
         value on attribute j set to NaN if y[j] > x[j], y[j] otherwise. If new_y does not dominate
-        any row in the old_pool excluding x, add new_y as RFD.
+        any row in the old_pool excluding x, adds new_y as RFD.
         :param y: row for which it checks if its values dominate some value in the pool
         :type y: numpy.array
-        :param old_pool: the pool before update
+        :param old_pool: the pool before being updated
         :param dist: current distance
         :type dist: double
         :return: True if at least one value in y dominates a row in the old pool's array
@@ -293,10 +297,10 @@ cdef class RFDDiscovery(object):
 
     cdef cython.bint __check_dominance_pool_slice(self, y: np.array, pool: dict, sliced_pool_keys: list):
         """
-        Given a row y, this method check if y dominate any row in the pool given as parameter, excluded the row used to create y.
-        When it find some row x that is dominated by y, the method return False.
+        Given a row y, this method checks if y dominate any row in the pool given as parameter, excluded the row used to create y.
+        When it finds some row x that is dominated by y, the method returns False.
         Recalling: X dominates Y (with NANs) iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0 || x - y == nan
-        Check if y dominates at least one value in the pool (including NAN values)
+        It also checks if y dominates at least one value in the pool (including NAN values)
         :param y: current row to check
         :type y: list
         :param pool: row's pool to analyze
@@ -314,10 +318,10 @@ cdef class RFDDiscovery(object):
 
     cdef cython.bint __check_dominance_nan(self, y: np.array, old_pool: dict):
         """
-        Given a row y, this method check if y dominate any row in the pool old_pool. When it find some row x
-        that is dominated by y, the method return False.
+        Given a row y, this method checks if y dominate any row in the pool old_pool. When it finds some row x
+        that is dominated by y, the method returns False.
         Recalling: X dominates Y (with NANs) iff foreach x in X, foreach y in Y, x >= y <=> x - y >= 0 || x - y == nan
-        Check if y dominates at least one value in the pool (including NAN values)
+        It also checks if y dominates at least one value in the pool (including NAN values)
         :param y: current row to check
         :type y: numpy.array
         :param old_pool: pool to analyze
@@ -333,9 +337,9 @@ cdef class RFDDiscovery(object):
 
     cdef void __all_rfds(self, row: list, double dist):
         """
-        Given a row, add for each row's value an RFD with lhs given by the row's value and as
-        rhs the distance dist. It implement the case of __find_rfd where all row's value ar not NaN.
-        Create a diagonal matrix containing the RFDs in the main diagonal, then add this into the RFDs' data frame.
+        Given a row, the method adds, for each row's value, an RFD with lhs given by the row's value and as
+        rhs the distance dist. It implements the case of __find_rfd where all row's value are not NaN.
+        Create a diagonal matrix containing the RFDs in the main diagonal, then adds this into the RFDs' data frame.
         :param row: the row containing RFDs
         :type row: list
         :param dist: the distance where RFDs is located
@@ -349,16 +353,16 @@ cdef class RFDDiscovery(object):
 
     cdef void __any_rfds(self, row: pnd.Series, double dist, old_pool: dict):
         """
-        This function implement the case two of __find_rfd, where the number of row's value set to NaN is in
-        the interval [2, number of attribute). In that case, he create a complement row compl_row where each value of this row is
+        This function implements the case two of __find_rfd, where the number of row's value set to NaN is in
+        the interval [2, number of attribute). In that case, it creates a complement row compl_row where each value of this row is
         equal to NaN if the corresponding attribute on row is not NaN, the original value in the distance matrix otherwise.
-        If compl_row dominate some value on the old_pool he does not find any RFD. If not, he check the presence
-        of RFD on the single attribute of compl_row. If it does not find any RFD in this way, he add compl_row as RFD.
-        :param row: the row that can containing RFDs
+        If compl_row dominated some value on the old_pool it does not find any RFD. If not, it checks the presence
+        of RFD on the single attribute of compl_row. If it does not find any RFD in this way, it add compl_row as RFD.
+        :param row: the row that can contain the RFDs
         :type row: pandas.core.series.Series
         :param dist: the distance where RFDs are located
         :type dist: double
-        :param old_pool: the pool before update
+        :param old_pool: the pool before being updated
         :type old_pool: dict
         """
         compl_row = self.__complement_nans(row)
@@ -369,7 +373,7 @@ cdef class RFDDiscovery(object):
 
     cdef void __add_rfd(self, np.ndarray rfd):
         """
-        Add a specific RFD rfd into the data frame rfds using the required format.
+        This method adds a specific RFD rfd into the data frame rfds using the required format.
         :param rfd: a discovered RFD
         :type rfd: np.ndarray
         """
@@ -380,8 +384,8 @@ cdef class RFDDiscovery(object):
 
     cdef np.ndarray __complement_nans(self, row: pnd.Series):
         """
-        Given an row called row, for each entry, if it is NaN, set it to its numeric value memorized in the distance matrix,
-        if it is not NaN, set it to NaN.
+        Given an row called row, for each entry, if it is NaN, the method sets it to its numeric value memorized in the 
+        distance matrix, if it is not NaN, set it to NaN.
         :param row: row to be complementary
         :type pandas.core.series.Series
         :return: the complemented row
@@ -396,7 +400,7 @@ cdef class RFDDiscovery(object):
     cpdef void __initialize_var__(self, rhs, lhs, cols):
         """
         Initialize the instance variables on_minimun_df, min_vector and rfds using the
-        columns' name and the division on rhs and lhs given as input
+        columns' name and the division on rhs and lhs given as input.
         :param rhs: integer index of the column positioned on the rhs of the distance matrix
         :type rhs: list
         :param lhs: integers indexes of the columns positioned on the lhs of the distance matrix
@@ -411,8 +415,8 @@ cdef class RFDDiscovery(object):
 
 cpdef clean_pool(rows_to_add: dict):
     """
-    Give a dictionary of rows to add into the pool, clean that dictionary by removing rows that dominate other
-    rows into the dict
+    Given a dictionary of rows to add into the pool, it cleans that dictionary by removing rows that dominate other
+    rows in the dict.
     :param rows_to_add: a dict containing rows to add into the pool
     :type rows_to_add: dict
     :return: a clean subset of rows_to_add, where each row does not dominate any other rows into the dict

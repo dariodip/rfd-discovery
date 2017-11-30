@@ -14,7 +14,7 @@ plt.style.use('ggplot')
 
 def getfiles(dirpath):
     """
-    Given a valid path of a directory, it return a list with all the CSV files' names contained in the directory ordered
+    Given a valid path of a directory, it returns a list with all the CSV files' names contained in the directory ordered
     by last modification time.
     :param dirpath: valid path to a directory
     :type dirpath: str
@@ -30,12 +30,12 @@ def getfiles(dirpath):
 
 def plot():
     """
-    Given a set of CSV files produced by the module time_counting_test in the directory resources/test, it use the content of
+    Given a set of CSV files produced by the module time_counting_test in the directory resources/test, it uses the content of
     the most recent file to produce four plots.
-    Three plots are scatterplots that shows the relation between the elapsed times, the dataset's rows number and
-    the dataset's attributes number for each dataset. Each plot place two of this attributes on the two axis,
-    and use the third one as the point radius, where each point corresponds to a dataset.
-    The fourth graph show the increasing of the running time respect the increasing of the RFDs found.
+    Three plots are scatterplots that show the relation between the elapsed times, the dataset's rows number and
+    the dataset's attributes number for each dataset. Each plot places two of this attributes on the two axis,
+    and uses the third one as the point radius, where each point corresponds to a dataset.
+    The fourth graph shows the increasing of the running time respect the increasing of the RFDs found.
     """
     dirpath = os.path.abspath("../resources/test")
     files = getfiles(dirpath)

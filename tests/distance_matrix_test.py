@@ -58,7 +58,7 @@ class MyTestCase(unittest.TestCase):
     @staticmethod
     def __load_all_files__(path="../resources") -> list:
         """
-        Given a valid path of a directory, it return a list with all the CSV files' names contained in the directory
+        Given a valid path of a directory, it returns a list with all the CSV files' names contained in the directory
         if that names do not start with the prefix 'distance'
         :param path: valid path to a directory
         :type path: str

@@ -22,7 +22,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_something(self):
         """
-        This method execute the algorithm defined in the class RFDDiscovery for each dataset in the directory resources and for
+        This method executes the algorithm defined in the class RFDDiscovery for each dataset in the directory resources and for
         each combination of rhs and lhs of them. For each execution of the algorithm, the method saves some information:
             - the dataset's name;
             - the dataset rows' number;
@@ -32,7 +32,7 @@ class MyTestCase(unittest.TestCase):
             - the number of RFDs found;
             - the combination of rhs and lhs used for the iteration;
             - the number of the iteration executed on that combination.
-        When the test will end, it will save all the information described above in a CSV file with the name
+        When the test ends, it saves all the information described above in a CSV file with the name
         <date of test>-result-c.csv. During the test, some log information will be printed.
         """
         test_count = 1
@@ -138,7 +138,7 @@ class MyTestCase(unittest.TestCase):
     @staticmethod
     def __load_all_files__(path="../resources") -> list:
         """
-        Given a valid path of a directory, it return a list with all the CSV files' names contained in the directory
+        Given a valid path of a directory, it returns a list with all the CSV files' names contained in the directory
         if that names do not start with the prefix 'distance'
         :param path: valid path to a directory
         :type path: str

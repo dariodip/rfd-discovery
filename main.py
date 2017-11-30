@@ -11,9 +11,9 @@ from dominance.dominance_tools import RFDDiscovery
 
 def main(args):
     """
-    This method start the rfd-discovery algorithm. It takes various command line parameters like a valid dataset's
+    This method starts the rfd-discovery algorithm. It takes various command line parameters like a valid dataset's
     path, the division on rhs and lhs needed and more. See the section Usage of the README for
-    more information about the available parameters. If the user does not give a valid sequence of
+    more informations about the available parameters. If the user does not give a valid sequence of
     parameters, the program will end and print on the standard output a message with the required
     format to run the program.
     :param args: list of parameters given as input
@@ -84,7 +84,7 @@ def extract_args(args):
     Given the list of command line parameters, it extracts the parameters given according to the format
     described in the Usage section of the README.
     If some parameter cannot be interpreted, then the function will raise an AssertionError.
-    If the path of the CSV is missing or is not valid, the programm will print an error message and it will end.
+    If the path of the CSV is missing or is not valid, the program will print an error message and it will end.
     With the help option, it will print on the standard output the help about the execution of this program.
     :param args: list of command line argument given at the startup
     :type args: list
@@ -164,7 +164,7 @@ def extract_hss(cols_count, lhs, rhs):
     it creates various combinations of rhs and lhs according to the format of this two parameters.
     If the format of this two parameters is not accordant with the possible combination on rhs and lhs in the
     command line arguments described by the README, the program will print an error message and it will end.
-    The program return a list of dict, where each dict contains the indexes of the attributes on the lhs with the key
+    The program returns a list of dict, where each dict contains the indexes of the attributes on the lhs with the key
     'lhs' and the index of the attribute on the rhs with the key 'rhs'.
     :param cols_count: the column's number
     :type cols_count: int

@@ -23,7 +23,7 @@ def timeit_context(name):
 
 def check_sep_n_header(csv_file):
     """
-    Given a valid path to a CSV file, it deduce the separator and the presence or not of the header
+    Given a valid path to a CSV file, it deduces the separator and the presence or not of the header.
     :param csv_file: a valid path to a CSV file
     :type csv_file: str
     :return: a tuple with the CSV delimiter and 0 if the CSV file has an header, None otherwise
@@ -40,7 +40,7 @@ def check_sep_n_header(csv_file):
 
 def get_hs_combination(col_len: int) -> list:
     """
-    Given a number of column, it generate all the combination of lhs and rhs
+    Given a number of column, it generates all the combination of lhs and rhs.
     :param col_len: column's number
     :type col_len: int
     :return: list of dict where each element containing a combination
@@ -55,7 +55,7 @@ def get_hs_combination(col_len: int) -> list:
 
 def get_cols_count(csv_file, c_sep=';'):
     """
-    Given a valid CSV file's path and the relative separator, it return the columns' number of the CSV file.
+    Given a valid CSV file's path and the relative separator, it returns the columns' number of the CSV file.
     :param csv_file: valid path to a CSV file
     :type csv_file: str
     :param c_sep: separator used to separated the values in the CSV. Default behavior is as if set to False if no values is passed.

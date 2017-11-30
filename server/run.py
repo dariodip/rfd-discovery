@@ -9,14 +9,14 @@ import time
 import json
 
 """
-This module contain the code used for receive the user's parameters and execute the algorithm.
+This module contains the code used for receive the user's parameters and execute the algorithm.
 """
 
 def main(csv_file, post_metadata):
     """
     Given a valid CSV file's path and a series of parameters given by the user via the web gui, execute the algorithm on
-    the given input. If some of the parameters are not valid, the method return an error string message.
-    Return the output of the standard_algorithm in a dict where each element is the output of the algorithm
+    the given input. If some of the parameters are not valid, the method returns an error string message.
+    It returns the output of the standard_algorithm in a dict where each element is the output of the algorithm
     for each combination given as input and with the combination itself as a key in JSON format.
     :param csv_file: valid path to a CSV file
     :type csv_file: str
@@ -103,7 +103,7 @@ def extract_hss(cols_count, lhs, rhs):
     it creates various combinations of rhs and lhs according to the format of this two parameters.
     If the format of this two parameters is not accordant with the possible combination on rhs and lhs in the
     command line arguments described by the README, the program will print an error message and it will end.
-    The program return a list of dict, where each dict contains the indexes of the attributes on the lhs with the key
+    The program returns a list of dict, where each dict contains the indexes of the attributes on the lhs with the key
     'lhs' and the index of the attribute on the rhs with the key 'rhs'.
     :param cols_count: the column's number
     :type cols_count: int
