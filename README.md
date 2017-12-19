@@ -7,8 +7,8 @@
 ## Description
 This project, written in Python and Cython, deals with Discovery of Relaxed Functional Dependencies(RFDs)
 [[1](http://hdl.handle.net/11386/4658456)] using a bottom-up approach:
-instead of giving a fixed threshold on input and discovery all the RDFs, this method infers distances from different RHS
- attributes by itself and then discover the RFDs for these ones.
+instead of giving a fixed threshold on input and then finding all the RDFs, this method infers distances from different RHS
+ attributes by itself and then discovers the RFDs for these ones.
  
  rfd-discovery takes a dataset, representing a table of a relational database, in CSV format as input and prints the set
  of the discovered RFDs. 
@@ -22,7 +22,7 @@ instead of giving a fixed threshold on input and discovery all the RDFs, this me
   - string; <br>
   - datetime64*. 
   
-  *for date format you can use each format known by [pandas](http://pandas.pydata.org/pandas-docs/stable/timeseries.html)
+  *for date format you can use one of the formats known by [pandas](http://pandas.pydata.org/pandas-docs/stable/timeseries.html)
    <br>
   
 
@@ -69,7 +69,7 @@ To activate the virtual environment, in the main directory on the project run:
 or
 `venv\Scripts\activate` on Windows.
 
-You can check if the virtual environmnent is activate, checking if the command prompt has the prefix `(venv)`.
+You can check if the virtual environmnent is activated, checking if the command prompt has the prefix `(venv)`.
 
 To install all the requirements, run the following:
 
@@ -89,7 +89,7 @@ CPU bound, wasting computation and memory resources. <br> You can compile Cython
 
 `python build.py build_ext --inplace`
 
-this generate C code from Cython code and try to compile it. <br>
+this will generate C code from Cython code and will try to compile it. <br>
 
 ** Note that you'll need gcc or other C compiler  **
 
@@ -107,18 +107,17 @@ Using rdf-discovery is easy enough. Just run the following command:
 
 
 Options:
- - *`-v`* : display version number;
+ - *`-v`* : display the version number;
  - *`-s <sep>`*: the separation char used in your CSV file. If you don't provide this, rfd-discovery tries to infer
  it for you;
- - *`-h`*: Indicate that CSV file has the header row. If you don't provide this, rdf-discovery tries to infer it for you.
- - *`-r <rhs_index>`*: is the column number of the RHS attribute. It must be a valid integer. You can avoid to 
- specify it only if you don't specify LHS attributes (we'll find RFDs using each attribute as RHS and the remaining as LHS);
- - *`-l <lhs_index_1, lhs_index_2, ...,lhs_index_k>`*: column index of LHS' attributes indexes separated by commas 
- (e.g. *1,2,3*). You can avoid to  specify them: <br> 
-  if you don't specify RHS' attribute index we'll find RFDs using each attribute as RHS and the remaining as LHS; <br>
-  if you specify a valid RHS index we'll assume your LHS as the remaining attributes;
- - *`-i <index_col>`*: the column which contains the primary key of the dataset. Specifying it, this will not 
- calculate as distance. **NOTE: index column should contains unique values**;
+ - *`-h`*: Indicates that the CSV file has the header row. If you don't provide this, rdf-discovery tries to infer it for you.
+ - *`-r <rhs_index>`*: is the column number of the RHS attribute. It must be a valid integer. You can avoid specifying it only if you don't specify LHS attributes (it will find RFDs using each attribute as RHS and the remaining as LHS);
+ - *`-l <lhs_index_1, lhs_index_2, ...,lhs_index_k>`*: column indexex of LHS attributes separated by commas 
+ (e.g. *1,2,3*). You can avoid specifying them: <br> 
+  if you don't specify the index for RHS attribute it will find RFDs using each attribute as RHS and the remaining as LHS; <br>
+  if you specify a valid RHS index it will assume your LHS as the remaining attributes;
+ - *`-i <index_col>`*: the column which contains the primary key of the dataset. Specifying it, the program will not 
+ calculate distance on it. **NOTE: index column should contain unique values**;
  - *`-d <datetime columns>`*: a list of columns, separated by commas, which values are in datetime format;
   Specifying this, rfd-discovery can depict distance between two date in time format (e.g. ms, sec, min);
  - *`--semantic`*: use semantic distance on Wordnet for string;
