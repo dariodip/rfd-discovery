@@ -1,4 +1,7 @@
 # **rfd-discovery**
+
+[![Build Status](https://travis-ci.org/dariodip/rfd-discovery.svg?branch=master)](https://travis-ci.org/dariodip/rfd-discovery)
+
 ###### By
  - [Altamura Antonio](https://www.linkedin.com/in/antonio-altamura-26ab85136/en)
  - [Tomeo Mattia](https://www.linkedin.com/in/mattia-tomeo-b71aa6130/en)
