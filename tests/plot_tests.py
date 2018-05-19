@@ -37,7 +37,7 @@ def plot():
     and uses the third one as the point radius, where each point corresponds to a dataset.
     The fourth graph shows the increasing of the running time respect the increasing of the RFDs found.
     """
-    dirpath = os.path.abspath("../resources/test")
+    dirpath = os.path.abspath("./resources/test")
     files = getfiles(dirpath)
     file_path = os.path.join(dirpath, files[0])
     try:
