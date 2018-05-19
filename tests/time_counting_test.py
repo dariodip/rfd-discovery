@@ -22,7 +22,8 @@ class MyTestCase(unittest.TestCase):
 
     def test_something(self):
         """
-        This method executes the algorithm defined in the class RFDDiscovery for each dataset in the directory resources and for
+        This method executes the algorithm defined in the class RFDDiscovery for each dataset in the directory 
+        and for
         each combination of rhs and lhs of them. For each execution of the algorithm, the method saves some information:
             - the dataset's name;
             - the dataset rows' number;
@@ -38,7 +39,7 @@ class MyTestCase(unittest.TestCase):
         test_count = 1
         logging.info("Starting test")
         result_df = pd.DataFrame(columns=cols)  # Data frame in which save results
-        path = "../resources"  # path in which datasets are stored
+        path = "./resources"  # path in which datasets are stored
         datasets = self.__load_all_files__(path)
         logging.info("All files loaded")
         for ds in datasets:
@@ -77,7 +78,7 @@ class MyTestCase(unittest.TestCase):
                     elapsed_time_dist = 0
             diff_mtx = None  # for free unused memory
         logging.info("Saving file")
-        abs_path = os.path.abspath("../resources/test/{}-results-{}.csv"
+        abs_path = os.path.abspath("./resources/test/{}-results-{}.csv"
                                    .format(time.strftime("%Y-%m-%d_%H-%M-%S"), "c" if compiled else "p"))
         result_df.to_csv(abs_path, sep=";", header=cols, decimal=',')
         logging.info("File saved")
@@ -136,7 +137,7 @@ class MyTestCase(unittest.TestCase):
         df.loc[id] = row_to_add
 
     @staticmethod
-    def __load_all_files__(path="../resources") -> list:
+    def __load_all_files__(path="./resources") -> list:
         """
         Given a valid path of a directory, it returns a list with all the CSV files' names contained in the directory
         if that names do not start with the prefix 'distance'
