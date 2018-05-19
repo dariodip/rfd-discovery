@@ -20,7 +20,7 @@ class MyTestCase(unittest.TestCase):
         Check if the class DiffMatrix compute the distance matrix correctly. The code is tested with a series of
         dataset contained in the variable path. For each step print a logging message.
         """
-        path = "../resources"
+        path = "./resources"
         datasets = self.__load_all_files__(path)
         for ds in datasets:
             logging.info("Next data frame: {}".format(ds))
