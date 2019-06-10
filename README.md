@@ -1,9 +1,6 @@
 # **rfd-discovery**
 
 [![Build Status](https://travis-ci.org/dariodip/rfd-discovery.svg?branch=master)](https://travis-ci.org/dariodip/rfd-discovery)
-[![Waffle.io - Issues in progress](https://badge.waffle.io/dariodip/rfd-discovery.png?label=in%20progress&title=In%20Progress)](http://waffle.io/dariodip/rfd-discovery)
-
-[![Throughput Graph](https://graphs.waffle.io/dariodip/rfd-discovery/throughput.svg)](https://waffle.io/dariodip/rfd-discovery/metrics/throughput)
 
 
 ###### By
