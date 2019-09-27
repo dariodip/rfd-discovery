@@ -52,16 +52,16 @@ rfd-discovery is developed using **[Python 3.5](http://www.python.it/)**, a C co
     *[nltk](http://www.nltk.org/)* <br>
     *[flask](http://flask.pocoo.org/)* <br>
     
-   You can install these one by one, or following the [Setup Section](#setup).
+   You can install these by following the [Setup Section](#setup).
 
 ✛these libraries are part of [SciPy stack](https://www.scipy.org/index.html) 
 ## Setup
-In order to install rfd-discovery and all his requirements you have to create a virtual environment using [venv](https://virtualenv.pypa.io/en/stable/) on Python 3.5.
+In order to install rfd-discovery and all his requirements, you have to create a virtual environment using [venv](https://virtualenv.pypa.io/en/stable/) on Python 3.5.
 To install *venv*, run the following:
 
-`[sudo] pip3 install virtualenv` on Linux/MacOS
+`[sudo] pip3 install virtualenv` on Linux/macOS
 or
-`pip install virtualenv` using prompt as administrator on Windows.
+`pip install virtualenv` using the prompt as the administrator on Windows.
 
 To create a virtual environment, in the main directory of the project run:
 
@@ -73,7 +73,7 @@ To activate the virtual environment, in the main directory on the project run:
 or
 `venv\Scripts\activate` on Windows.
 
-You can check if the virtual environmnent is activated, checking if the command prompt has the prefix `(venv)`.
+You can check if the virtual environment is activated, checking if the command prompt has the prefix `(venv)`.
 
 To install all the requirements, run the following:
 
@@ -98,7 +98,7 @@ this will generate C code from Cython code and will try to compile it. <br>
 ** Note that you'll need gcc or other C compiler  **
 
 If building phase ends without errors, you should have some *.c* and *.pyd* (or *.so*, depending by your OS) files. Don't
- worry about dealing with these, Python do it automatically **:)**.
+ worry about dealing with these, Python does it automatically **:)**.
 
 
 ## Usage
@@ -116,7 +116,7 @@ Options:
  it for you;
  - *`-h`*: Indicates that the CSV file has the header row. If you don't provide this, rdf-discovery tries to infer it for you.
  - *`-r <rhs_index>`*: is the column number of the RHS attribute. It must be a valid integer. You can avoid specifying it only if you don't specify LHS attributes (it will find RFDs using each attribute as RHS and the remaining as LHS);
- - *`-l <lhs_index_1, lhs_index_2, ...,lhs_index_k>`*: column indexex of LHS attributes separated by commas 
+ - *`-l <lhs_index_1, lhs_index_2, ...,lhs_index_k>`*: column indexes of LHS attributes separated by commas 
  (e.g. *1,2,3*). You can avoid specifying them: <br> 
   if you don't specify the index for RHS attribute it will find RFDs using each attribute as RHS and the remaining as LHS; <br>
   if you specify a valid RHS index it will assume your LHS as the remaining attributes;
@@ -126,7 +126,7 @@ Options:
   Specifying this, rfd-discovery can depict distance between two date in time format (e.g. ms, sec, min);
  - *`--semantic`*: use semantic distance on Wordnet for string;
  For more info [here.](http://www.cs.toronto.edu/pub/gh/Budanitsky+Hirst-2001.pdf)
- - *`--human`*: print the RFDs to the standard output in a human readable form;
+ - *`--human`*: print the RFDs to the standard output in a human-readable form;
  - *`--help`*: show help.
  
  
