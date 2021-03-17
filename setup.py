@@ -1,15 +1,13 @@
 from setuptools import setup
-from pip.req import parse_requirements
 
 """Install the required packages and the lexical database WordNet"""
 
-install_reqs = parse_requirements("requirements.txt", session='hack')
-reqs = [str(ir.req) for ir in install_reqs]
+install_reqs = [line.strip() for line in open("requirements.txt") if not line.startswith('#')]
 
 setup(
     name="rfd-discovery",
     version="0.0.1",
-    install_requires=reqs,
+ #   install_requires=install_reqs,
     author="Dario Di Pasquale, Mattia Tomeo, Antonio Altamura",
     license="MIT",
 )
